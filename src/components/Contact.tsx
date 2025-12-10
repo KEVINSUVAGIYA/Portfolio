@@ -1,17 +1,48 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Mail, Github, Linkedin, Send, Copy, Check, Instagram } from "lucide-react";
-import { useState } from "react";
+import { Mail, Github, Linkedin, Send, Copy, Check, Instagram, Loader2 } from "lucide-react";
+import { useState, FormEvent } from "react";
 import { MagneticWrapper } from "@/components/ui/MagneticWrapper";
 
 export const Contact = () => {
     const [copied, setCopied] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isSuccess, setIsSuccess] = useState(false);
 
     const handleCopy = () => {
         navigator.clipboard.writeText("kevin.suvagiya@example.com"); // Replace with actual email if known
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
+    };
+
+    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+
+        const formData = new FormData(e.currentTarget);
+        const data = Object.fromEntries(formData.entries());
+
+        try {
+            const response = await fetch("https://formspree.io/f/mzznjynk", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                },
+                body: JSON.stringify(data),
+            });
+
+            if (response.ok) {
+                setIsSuccess(true);
+            } else {
+                alert("Oops! There was a problem submitting your form");
+            }
+        } catch (error) {
+            alert("Oops! There was a problem submitting your form");
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -41,53 +72,87 @@ export const Contact = () => {
                     {/* Background Glow */}
                     <div className="absolute top-0 right-0 -m-4 w-24 h-24 bg-sky-500/20 blur-3xl rounded-full pointer-events-none" />
 
-                    <form className="space-y-6 relative z-10">
-                        <div>
-                            <label htmlFor="name" className="block text-sm font-medium text-slate-400 mb-2">
-                                Name
-                            </label>
-                            <input
-                                type="text"
-                                id="name"
-                                className="w-full px-4 py-3 rounded-lg bg-slate-950 border border-slate-800 text-slate-200 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-colors"
-                                placeholder="John Doe"
-                            />
-                        </div>
-
-                        <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-slate-400 mb-2">
-                                Email
-                            </label>
-                            <input
-                                type="email"
-                                id="email"
-                                className="w-full px-4 py-3 rounded-lg bg-slate-950 border border-slate-800 text-slate-200 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-colors"
-                                placeholder="john@example.com"
-                            />
-                        </div>
-
-                        <div>
-                            <label htmlFor="message" className="block text-sm font-medium text-slate-400 mb-2">
-                                Message
-                            </label>
-                            <textarea
-                                id="message"
-                                rows={4}
-                                className="w-full px-4 py-3 rounded-lg bg-slate-950 border border-slate-800 text-slate-200 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-colors resize-none"
-                                placeholder="Tell me about your project..."
-                            />
-                        </div>
-
-                        <MagneticWrapper strength={10}>
+                    {isSuccess ? (
+                        <div className="h-[400px] flex flex-col items-center justify-center text-center space-y-4">
+                            <div className="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center">
+                                <Check className="text-emerald-500" size={32} />
+                            </div>
+                            <h3 className="text-2xl font-bold text-white">Message Sent!</h3>
+                            <p className="text-slate-400 max-w-xs">
+                                Thanks for reaching out. I'll get back to you as soon as possible.
+                            </p>
                             <button
-                                type="button" // Change to submit if integrating backend
-                                className="w-full py-4 bg-sky-600 hover:bg-sky-500 text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2"
+                                onClick={() => setIsSuccess(false)}
+                                className="mt-4 text-sky-400 hover:text-sky-300 text-sm font-medium transition-colors"
                             >
-                                Send Message
-                                <Send size={18} />
+                                Send another message
                             </button>
-                        </MagneticWrapper>
-                    </form>
+                        </div>
+                    ) : (
+                        <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
+                            <div>
+                                <label htmlFor="name" className="block text-sm font-medium text-slate-400 mb-2">
+                                    Name
+                                </label>
+                                <input
+                                    type="text"
+                                    id="name"
+                                    name="name"
+                                    required
+                                    className="w-full px-4 py-3 rounded-lg bg-slate-950 border border-slate-800 text-slate-200 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-colors"
+                                    placeholder="John Doe"
+                                />
+                            </div>
+
+                            <div>
+                                <label htmlFor="email" className="block text-sm font-medium text-slate-400 mb-2">
+                                    Email
+                                </label>
+                                <input
+                                    type="email"
+                                    id="email"
+                                    name="email"
+                                    required
+                                    className="w-full px-4 py-3 rounded-lg bg-slate-950 border border-slate-800 text-slate-200 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-colors"
+                                    placeholder="john@example.com"
+                                />
+                            </div>
+
+                            <div>
+                                <label htmlFor="message" className="block text-sm font-medium text-slate-400 mb-2">
+                                    Message
+                                </label>
+                                <textarea
+                                    id="message"
+                                    name="message"
+                                    required
+                                    rows={4}
+                                    className="w-full px-4 py-3 rounded-lg bg-slate-950 border border-slate-800 text-slate-200 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-colors resize-none"
+                                    placeholder="Tell me about your project..."
+                                />
+                            </div>
+
+                            <MagneticWrapper strength={10}>
+                                <button
+                                    type="submit"
+                                    disabled={isSubmitting}
+                                    className="w-full py-4 bg-sky-600 hover:bg-sky-500 text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {isSubmitting ? (
+                                        <>
+                                            <Loader2 size={18} className="animate-spin" />
+                                            Sending...
+                                        </>
+                                    ) : (
+                                        <>
+                                            Send Message
+                                            <Send size={18} />
+                                        </>
+                                    )}
+                                </button>
+                            </MagneticWrapper>
+                        </form>
+                    )}
                 </motion.div>
 
                 {/* Contact Info */}
