@@ -10,15 +10,23 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   metadataBase: new URL("https://kevinSuvagiya.github.io/Portfolio"),
   title: "Kevin Suvagiya | Salesforce Build & Release Engineer",
-  description: "Salesforce Developer & LWC Specialist. I build scalable Salesforce solutions, complex integrations, and intuitive user experiences.",
+  description: "Salesforce Developer | Curious Explorer. Building the engines behind Salesforce clouds.",
   keywords: ["Salesforce Developer", "LWC", "Apex", "Salesforce Certified", "Web Developer", "React", "Next.js", "Portfolio"],
   authors: [{ name: "Kevin Suvagiya", url: "https://kevinSuvagiya.github.io/Portfolio" }],
   creator: "Kevin Suvagiya",
   openGraph: {
     title: "Kevin Suvagiya | Salesforce Developer",
-    description: "Building the engines behind Salesforce clouds. Explore my projects and certifications.",
+    description: "Salesforce Developer | Curious Explorer. Building the engines behind Salesforce clouds.",
     url: "https://kevinSuvagiya.github.io/Portfolio",
     siteName: "Kevin Suvagiya Portfolio",
+    images: [
+      {
+        url: "https://kevinSuvagiya.github.io/Portfolio/opengraph-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Kevin Suvagiya Portfolio Preview",
+      },
+    ],
     locale: "en_US",
     type: "website",
   },
@@ -26,7 +34,8 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Kevin Suvagiya | Salesforce Developer",
     description: "Salesforce Developer & LWC Specialist. View my work and experience.",
-    creator: "@KevinSuvagiya", // Replace if known, or generic
+    creator: "@KevinSuvagiya",
+    images: ["https://kevinSuvagiya.github.io/Portfolio/opengraph-image.png"],
   },
   icons: {
     icon: "/Portfolio/icon.png", // Explicitly pointing to our new icon
