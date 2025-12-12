@@ -33,7 +33,7 @@ export const Hero = () => {
                 transition={{ duration: 0.5, delay: 0.2 }}
                 className="max-w-2xl text-lg md:text-xl text-slate-300 leading-relaxed mt-8 mb-8"
             >
-                "I build the engines behind Salesforce clouds—transforming complex Apex logic into seamless, interactive user experiences."
+                "Transforming business vision into robust Salesforce architectures, crafting efficient engines that power seamless digital journeys."
             </motion.p>
 
             <motion.p

@@ -60,17 +60,17 @@ export const About = () => {
                                 <Cpu size={32} />
                             </div>
                             <div>
-                                <h3 className="text-2xl font-bold text-white">Creative Problem Solver</h3>
-                                <p className="text-sky-500 font-medium">The Creative Hobby</p>
+                                <h3 className="text-2xl font-bold text-white">Curiosity Collector</h3>
+                                <p className="text-sky-500 font-medium">The Hobby of Learning Odd, Delightful Things</p>
                             </div>
                         </div>
 
                         <p className="text-slate-300 leading-relaxed mb-6">
-                            "Solving problems and thinking about really weird things."
+                            "My brain is a museum of random fascinations."
                         </p>
 
                         <p className="text-slate-400 text-sm">
-                            I enjoy diving into complex problems and exploring unconventional ideas. It keeps my mind sharp and allows me to approach challenges from unique angles.
+                            I love discovering things that make me curious, and those tiny ideas often help me think creatively in my work.
                         </p>
                     </div>
                 </motion.div>
