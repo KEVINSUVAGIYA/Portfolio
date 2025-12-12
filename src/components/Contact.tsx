@@ -11,7 +11,7 @@ export const Contact = () => {
     const [isSuccess, setIsSuccess] = useState(false);
 
     const handleCopy = () => {
-        navigator.clipboard.writeText("kevin.suvagiya@example.com"); // Replace with actual email if known
+        navigator.clipboard.writeText("kevinsuvagiya11@gmail.com");
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
     };
@@ -100,7 +100,7 @@ export const Contact = () => {
                                     name="name"
                                     required
                                     className="w-full px-4 py-3 rounded-lg bg-slate-950 border border-slate-800 text-slate-200 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-colors"
-                                    placeholder="John Doe"
+                                    placeholder="What Should I Call You?"
                                 />
                             </div>
 
@@ -114,7 +114,7 @@ export const Contact = () => {
                                     name="email"
                                     required
                                     className="w-full px-4 py-3 rounded-lg bg-slate-950 border border-slate-800 text-slate-200 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-colors"
-                                    placeholder="john@example.com"
+                                    placeholder="Email to get back to you!"
                                 />
                             </div>
 
@@ -177,7 +177,7 @@ export const Contact = () => {
                                     className="group flex items-center gap-3 px-5 py-3 rounded-xl bg-slate-900 border border-slate-800 hover:border-sky-500/50 transition-all active:scale-95"
                                 >
                                     <Mail className="text-sky-400" size={20} />
-                                    <span className="text-slate-300 font-medium">kevin.suvagiya@example.com</span>
+                                    <span className="text-slate-300 font-medium">kevinsuvagiya11@gmail.com</span>
                                     {copied ? (
                                         <Check size={16} className="text-emerald-400" />
                                     ) : (
