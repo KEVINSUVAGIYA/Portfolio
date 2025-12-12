@@ -13,7 +13,6 @@ const techStack = {
     Core: ["Apex", "LWC", "SOQL", "Flows"],
     Integration: ["REST/SOAP APIs", "Webhooks", "Connected Apps"],
     Tools: ["VS Code", "SFDX", "Git/GitHub", "Postman"],
-    Web: ["Next.js", "React", "Tailwind CSS"],
 };
 
 export const Skills = () => {
