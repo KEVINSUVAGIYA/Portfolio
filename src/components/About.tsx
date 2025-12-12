@@ -60,17 +60,17 @@ export const About = () => {
                                 <Cpu size={32} />
                             </div>
                             <div>
-                                <h3 className="text-2xl font-bold text-white">IoT Tinkerer</h3>
+                                <h3 className="text-2xl font-bold text-white">Creative Problem Solver</h3>
                                 <p className="text-sky-500 font-medium">The Creative Hobby</p>
                             </div>
                         </div>
 
                         <p className="text-slate-300 leading-relaxed mb-6">
-                            "Connecting physical hardware to code parallels connecting APIs in Salesforce."
+                            "Solving problems and thinking about really weird things."
                         </p>
 
                         <p className="text-slate-400 text-sm">
-                            I love building smart home automations and bridging the gap between digital logic and physical actions. It keeps my problem-solving skills sharp and creative.
+                            I enjoy diving into complex problems and exploring unconventional ideas. It keeps my mind sharp and allows me to approach challenges from unique angles.
                         </p>
                     </div>
                 </motion.div>
