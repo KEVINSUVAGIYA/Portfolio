@@ -11,6 +11,7 @@ const hobbies = [
         desc: "Strategic",
         color: "text-purple-400",
         bg: "bg-purple-500/10",
+        hoverBorder: "hover:border-purple-500/50",
     },
     {
         icon: <Plane size={24} />,
@@ -18,6 +19,7 @@ const hobbies = [
         desc: "Explorer",
         color: "text-emerald-400",
         bg: "bg-emerald-500/10",
+        hoverBorder: "hover:border-emerald-500/50",
     },
     {
         icon: <Headphones size={24} />,
@@ -25,6 +27,7 @@ const hobbies = [
         desc: "Songs Listener",
         color: "text-rose-400",
         bg: "bg-rose-500/10",
+        hoverBorder: "hover:border-rose-500/50",
     },
 ];
 
@@ -88,7 +91,7 @@ export const About = () => {
                         {hobbies.map((hobby, index) => (
                             <MagneticWrapper key={index} strength={20}>
                                 <div
-                                    className={`flex items-center gap-4 px-6 py-4 rounded-2xl border border-slate-800 backdrop-blur-sm transition-colors hover:border-slate-600 ${hobby.bg}`}
+                                    className={`flex items-center gap-4 px-6 py-4 rounded-2xl border border-slate-800 backdrop-blur-sm transition-colors cursor-pointer ${hobby.bg} ${hobby.hoverBorder}`}
                                 >
                                     <div className={`${hobby.color}`}>{hobby.icon}</div>
                                     <div>

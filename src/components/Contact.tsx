@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Mail, Github, Linkedin, Send, Copy, Check, Instagram, Loader2 } from "lucide-react";
+import { Mail, Github, Linkedin, Send, Copy, Check, Instagram, Loader2, Calendar, Mountain } from "lucide-react";
 import { useState, FormEvent } from "react";
 import { MagneticWrapper } from "@/components/ui/MagneticWrapper";
 
@@ -100,7 +100,7 @@ export const Contact = () => {
                                     name="name"
                                     required
                                     className="w-full px-4 py-3 rounded-lg bg-slate-950 border border-slate-800 text-slate-200 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-colors"
-                                    placeholder="What Should I Call You?"
+                                    placeholder="What's your name?"
                                 />
                             </div>
 
@@ -114,7 +114,7 @@ export const Contact = () => {
                                     name="email"
                                     required
                                     className="w-full px-4 py-3 rounded-lg bg-slate-950 border border-slate-800 text-slate-200 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-colors"
-                                    placeholder="Email to get back to you!"
+                                    placeholder="Where can I send my reply?"
                                 />
                             </div>
 
@@ -128,7 +128,7 @@ export const Contact = () => {
                                     required
                                     rows={4}
                                     className="w-full px-4 py-3 rounded-lg bg-slate-950 border border-slate-800 text-slate-200 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-colors resize-none"
-                                    placeholder="Tell me about your project..."
+                                    placeholder="Tell me about your next big idea, or just say hi..."
                                 />
                             </div>
 
@@ -136,7 +136,7 @@ export const Contact = () => {
                                 <button
                                     type="submit"
                                     disabled={isSubmitting}
-                                    className="w-full py-4 bg-sky-600 hover:bg-sky-500 text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        className="w-full py-4 bg-sky-600 hover:bg-sky-500 text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {isSubmitting ? (
                                         <>
@@ -172,9 +172,23 @@ export const Contact = () => {
                     <div className="space-y-6">
                         <div className="flex items-center gap-4">
                             <MagneticWrapper strength={20}>
+                                <a
+                                    href="https://calendar.app.google/tSrCZHMnpHruxpPi7" // Replace with your actual Google Calendar Appointment Link
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="group flex items-center gap-3 px-5 py-3 rounded-xl bg-slate-900 border border-slate-800 hover:border-emerald-500/50 transition-all active:scale-95 cursor-pointer w-full justify-center"
+                                >
+                                    <Calendar className="text-emerald-400" size={20} />
+                                    <span className="text-slate-300 font-medium group-hover:text-white transition-colors">Book a 30min Meeting</span>
+                                </a>
+                            </MagneticWrapper>
+                        </div>
+
+                        <div className="flex items-center gap-4">
+                            <MagneticWrapper strength={20}>
                                 <button
                                     onClick={handleCopy}
-                                    className="group flex items-center gap-3 px-5 py-3 rounded-xl bg-slate-900 border border-slate-800 hover:border-sky-500/50 transition-all active:scale-95"
+                                    className="group flex items-center gap-3 px-5 py-3 rounded-xl bg-slate-900 border border-slate-800 hover:border-sky-500/50 transition-all active:scale-95 cursor-pointer w-full"
                                 >
                                     <Mail className="text-sky-400" size={20} />
                                     <span className="text-slate-300 font-medium">kevinsuvagiya11@gmail.com</span>
@@ -193,7 +207,7 @@ export const Contact = () => {
                                     href="https://github.com/KEVINSUVAGIYA"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="p-4 rounded-xl bg-slate-900 border border-slate-800 hover:border-sky-500/50 hover:bg-slate-800 text-slate-400 hover:text-white transition-all block"
+                                    className="p-4 rounded-xl bg-slate-900 border border-slate-800 hover:border-sky-500/50 hover:bg-slate-800 text-slate-400 hover:text-white transition-all block cursor-pointer"
                                 >
                                     <Github size={24} />
                                 </a>
@@ -204,7 +218,7 @@ export const Contact = () => {
                                     href="https://www.linkedin.com/in/kevin-suvagiya/"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="p-4 rounded-xl bg-slate-900 border border-slate-800 hover:border-sky-500/50 hover:bg-slate-800 text-slate-400 hover:text-white transition-all block"
+                                    className="p-4 rounded-xl bg-slate-900 border border-slate-800 hover:border-blue-600/50 hover:bg-slate-800 text-slate-400 hover:text-blue-600 transition-all block cursor-pointer"
                                 >
                                     <Linkedin size={24} />
                                 </a>
@@ -215,9 +229,33 @@ export const Contact = () => {
                                     href="https://www.instagram.com/kevin_suvagiya02/"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="p-4 rounded-xl bg-slate-900 border border-slate-800 hover:border-pink-500/50 hover:bg-slate-800 text-slate-400 hover:text-pink-400 transition-all block"
+                                    className="p-4 rounded-xl bg-slate-900 border border-slate-800 hover:border-pink-500/50 hover:bg-slate-800 text-slate-400 hover:text-pink-400 transition-all block cursor-pointer"
                                 >
                                     <Instagram size={24} />
+                                </a>
+                            </MagneticWrapper>
+
+                            <MagneticWrapper strength={20}>
+                                <a
+                                    href="https://www.salesforce.com/trailblazer/kevinsuvagiya"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="p-4 rounded-xl bg-slate-900 border border-slate-800 hover:border-blue-500/50 hover:bg-slate-800 text-slate-400 hover:text-blue-400 transition-all block cursor-pointer"
+                                >
+                                    {/* Custom Rounded Mountain Icon */}
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="24"
+                                        height="24"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                    >
+                                        <path d="M8 3l4 8 5-5 5 15H2L8 3z" strokeLinejoin="round" />
+                                    </svg>
                                 </a>
                             </MagneticWrapper>
                         </div>

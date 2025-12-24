@@ -1,6 +1,6 @@
 "use client";
 
-import { Github, Linkedin, Mail, Twitter, Instagram, ArrowUp } from "lucide-react";
+import { Github, Linkedin, Mail, Twitter, Instagram, ArrowUp, Mountain } from "lucide-react";
 
 export const Footer = () => {
     const currentYear = new Date().getFullYear();
@@ -40,16 +40,37 @@ export const Footer = () => {
                         href="https://www.instagram.com/kevin_suvagiya02/"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-slate-400 hover:text-pink-400 transition-colors"
+                        className="text-slate-400 hover:text-pink-400 transition-colors cursor-pointer"
                     >
                         <Instagram size={20} />
+                    </a>
+                    <a
+                        href="https://www.salesforce.com/trailblazer/kevinsuvagiya"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-slate-400 hover:text-blue-500 transition-colors cursor-pointer"
+                    >
+                        {/* Custom Rounded Mountain Icon */}
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                        >
+                            <path d="M8 3l4 8 5-5 5 15H2L8 3z" strokeLinejoin="round" />
+                        </svg>
                     </a>
                 </div>
 
                 {/* Back to Top */}
                 <button
                     onClick={scrollToTop}
-                    className="group flex items-center gap-2 text-slate-500 hover:text-white transition-colors text-sm font-medium"
+                    className="group flex items-center gap-2 text-slate-500 hover:text-white transition-colors text-sm font-medium cursor-pointer"
                 >
                     Back to Top
                     <ArrowUp size={16} className="group-hover:-translate-y-1 transition-transform" />

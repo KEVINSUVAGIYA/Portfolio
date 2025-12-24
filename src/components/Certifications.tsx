@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Shield, Star, Trophy } from "lucide-react";
+import { Shield, Star, Trophy, Lightbulb, Crown } from "lucide-react";
 import { MagneticWrapper } from "@/components/ui/MagneticWrapper";
 
 export const Certifications = () => {
@@ -37,11 +37,42 @@ export const Certifications = () => {
     const achievements = [
         {
             id: "agentforce",
-            title: "Agentforce",
-            subtitle: "Champion 2025",
-            icon: <Trophy className="text-yellow-400" size={32} />,
+            title: "Agentblazer",
+            subtitle: "Champion",
+            icon: (
+                <div className="relative">
+                    <Trophy className="text-slate-100" size={32} />
+                    <div className="absolute inset-0 blur-sm bg-slate-100/50 rounded-full" />
+                </div>
+            ),
+            color: "border-slate-500/50 bg-slate-500/10",
+            glow: "shadow-[0_0_30px_-10px_rgba(248,250,252,0.3)]",
+        },
+        {
+            id: "innovator",
+            title: "Agentblazer",
+            subtitle: "Innovator",
+            icon: (
+                <div className="relative">
+                    <Lightbulb className="text-yellow-400" size={32} />
+                    <div className="absolute inset-0 blur-sm bg-yellow-400/50 rounded-full" />
+                </div>
+            ),
             color: "border-yellow-500/50 bg-yellow-500/10",
             glow: "shadow-[0_0_30px_-10px_rgba(234,179,8,0.3)]",
+        },
+        {
+            id: "legend",
+            title: "Agentblazer",
+            subtitle: "Legend",
+            icon: (
+                <div className="relative">
+                    <Crown className="text-violet-300" size={32} />
+                    <div className="absolute inset-0 blur-sm bg-violet-300/50 rounded-full" />
+                </div>
+            ),
+            color: "border-violet-500/50 bg-violet-500/10",
+            glow: "shadow-[0_0_30px_-10px_rgba(167,139,250,0.3)]",
         },
         {
             id: "ranger",
@@ -90,7 +121,7 @@ export const Certifications = () => {
                         {certifications.map((cert) => (
                             <MagneticWrapper key={cert.id} strength={10}>
                                 <div
-                                    className={`flex items-center gap-4 px-6 py-3 rounded-2xl border backdrop-blur-sm transition-all hover:scale-105 ${cert.color} ${cert.glow}`}
+                                    className={`flex items-center gap-4 px-6 py-3 rounded-2xl border backdrop-blur-sm transition-all hover:scale-105 cursor-pointer ${cert.color} ${cert.glow}`}
                                 >
                                     <div className="shrink-0">
                                         {cert.icon}
@@ -115,7 +146,7 @@ export const Certifications = () => {
                         {achievements.map((item) => (
                             <MagneticWrapper key={item.id} strength={10}>
                                 <div
-                                    className={`flex items-center gap-4 px-6 py-3 rounded-2xl border backdrop-blur-sm transition-all hover:scale-105 ${item.color} ${item.glow}`}
+                                    className={`flex items-center gap-4 px-6 py-3 rounded-2xl border backdrop-blur-sm transition-all hover:scale-105 cursor-pointer ${item.color} ${item.glow}`}
                                 >
                                     <div className="shrink-0">
                                         {item.icon}
