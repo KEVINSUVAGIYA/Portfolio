@@ -77,15 +77,18 @@ export const Certifications = () => {
         {
             id: "ranger",
             title: "Trailhead",
-            subtitle: "Ranger",
+            subtitle: "Double Star Ranger",
             icon: (
                 <div className="relative">
-                    <Star className="text-sky-400 fill-sky-400" size={32} />
-                    <div className="absolute inset-0 blur-sm bg-sky-400/50 rounded-full" />
+                    <div className="flex gap-1">
+                        <Star className="text-yellow-400 fill-yellow-400" size={24} />
+                        <Star className="text-yellow-400 fill-yellow-400" size={24} />
+                    </div>
+                    <div className="absolute inset-0 blur-sm bg-yellow-400/30 rounded-full" />
                 </div>
             ),
-            color: "border-sky-500/50 bg-sky-500/10",
-            glow: "shadow-[0_0_30px_-10px_rgba(14,165,233,0.3)]",
+            color: "border-yellow-500/50 bg-yellow-500/10",
+            glow: "shadow-[0_0_30px_-10px_rgba(234,179,8,0.3)]",
         },
     ];
 

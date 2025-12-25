@@ -14,7 +14,7 @@ const experience = [
     },
     {
         id: 2,
-        role: "Salesforce Developer",
+        role: "Salesforce Developer (Trainee)",
         company: "MV Clouds",
         period: "Aug 2023 - Jan 2024",
         description: "As a Salesforce Trainee, I built strong foundational knowledge of the Salesforce ecosystem and gained hands-on experience with its core features and customization.",

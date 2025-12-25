@@ -26,7 +26,7 @@ export const Skills = () => {
                 className="mb-16"
             >
                 <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
-                    Skills & Trust Signals
+                    Trust Signals & Skills
                 </h2>
                 <div className="h-1 w-20 bg-sky-500 rounded-full" />
             </motion.div>
