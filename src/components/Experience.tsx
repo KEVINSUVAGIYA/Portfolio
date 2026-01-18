@@ -10,7 +10,7 @@ const experience = [
         company: "MV Clouds",
         period: "Feb 2024 - Present",
         description: "Currently working as a Salesforce Developer, delivering scalable and customized solutions to enhance business processes and user experience.",
-        skills: ["Lightning Web Components", "Apex Programming"]
+        skills: ["Lightning Web Components", "Apex Programming", "Integrations", "Flows", "Client Communication", "Version Control", "Problem Solving", "Team Collaboration", "Deployment", "Documentation"]
     },
     {
         id: 2,
@@ -18,7 +18,7 @@ const experience = [
         company: "MV Clouds",
         period: "Aug 2023 - Jan 2024",
         description: "As a Salesforce Trainee, I built strong foundational knowledge of the Salesforce ecosystem and gained hands-on experience with its core features and customization.",
-        skills: ["Lightning Web Components", "Flows"]
+        skills: ["Lightning Web Components", "Apex Programming", "Flows", "Integrations", "Version Control", "Problem Solving"]
     },
     {
         id: 3,
@@ -26,7 +26,7 @@ const experience = [
         company: "E-cell ignite",
         period: "Jul 2022 - Mar 2023",
         description: "Basically, E-cell is nothing but an entrepreneurship cell in which we help the startups to grow and also try to help them getting funds/ investments.",
-        skills: ["Marketing Strategy", "CSS"]
+        skills: ["Marketing Strategy", "Graphic Designing", "Content Creation", "Team Collaboration"]
     },
 ];
 
@@ -50,14 +50,14 @@ export const Experience = () => {
                 {experience.map((item, index) => (
                     <motion.div
                         key={item.id}
-                        initial={{ opacity: 0, x: -20 }}
-                        whileInView={{ opacity: 1, x: 0 }}
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.5, delay: index * 0.2 }}
                         className="relative pl-8 md:pl-12"
                     >
                         {/* Timeline Dot */}
-                        <div className="absolute -left-[5px] top-2 h-3 w-3 rounded-full bg-sky-500 ring-4 ring-slate-900" />
+                        <div className="absolute -left-[6.5px] top-2 h-3 w-3 rounded-full bg-sky-500 ring-4 ring-slate-900" />
 
                         <div className="flex flex-col md:flex-row gap-4 md:gap-6 items-start">
                             <div className="bg-slate-900/50 p-6 rounded-2xl border border-slate-800 hover:border-sky-500/30 transition-colors w-full">
