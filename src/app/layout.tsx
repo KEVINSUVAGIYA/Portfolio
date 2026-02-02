@@ -5,6 +5,8 @@ import { Spotlight } from "@/components/ui/Spotlight";
 import { ParticleBackground } from "@/components/ui/ParticleBackground";
 import { cn } from "@/lib/utils";
 import { BASE_PATH } from "@/lib/constants";
+import { SpeedInsights } from "@vercel/speed-insights/next";
+
 
 
 const inter = Inter({ subsets: ["latin"] });
@@ -58,6 +60,7 @@ export default function RootLayout({
         <Spotlight className="hidden md:block" />
         <div className="relative z-10 selection:bg-cyan-500/30">
           {children}
+          <SpeedInsights />
         </div>
       </body>
     </html>
