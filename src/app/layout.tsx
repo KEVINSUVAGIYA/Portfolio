@@ -4,11 +4,14 @@ import "./globals.css";
 import { Spotlight } from "@/components/ui/Spotlight";
 import { ParticleBackground } from "@/components/ui/ParticleBackground";
 import { cn } from "@/lib/utils";
+import { BASE_PATH } from "@/lib/constants";
+
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://kevinSuvagiya.github.io/Portfolio"),
+  metadataBase: new URL("https://kevinSuvagiya.github.io/Portfolio"), // Keep absolute URL for SEO
+
   title: "Kevin Suvagiya | Salesforce Build & Release Engineer",
   description: "Salesforce Developer | Curious Explorer. Building the engines behind Salesforce clouds.",
   keywords: ["Salesforce Developer", "LWC", "Apex", "Salesforce Certified", "Web Developer", "React", "Next.js", "Portfolio"],
@@ -38,7 +41,8 @@ export const metadata: Metadata = {
     images: ["https://kevinSuvagiya.github.io/Portfolio/opengraph-image.png"],
   },
   icons: {
-    icon: "/Portfolio/icon.png", // Explicitly pointing to our new icon
+    icon: `${BASE_PATH}/icon.png`, // Explicitly pointing to our new icon
+
   },
 };
 

@@ -2,7 +2,10 @@
 
 import { motion } from "framer-motion";
 import { MagneticWrapper } from "@/components/ui/MagneticWrapper";
-import { ArrowDown, Download } from "lucide-react";
+import { ArrowDown, Download, Rocket } from "lucide-react";
+import Link from "next/link";
+import { BASE_PATH } from "@/lib/constants";
+
 
 export const Hero = () => {
     return (
@@ -73,7 +76,7 @@ export const Hero = () => {
 
                 <MagneticWrapper strength={50}>
                     <a
-                        href="/Portfolio/resume.pdf"
+                        href={`${BASE_PATH}/resume.pdf`}
                         download="Kevin_Suvagiya_Resume.pdf"
                         className="flex items-center justify-center gap-2 px-8 py-4 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-full transition-colors h-[56px] min-w-[180px]"
                     >
