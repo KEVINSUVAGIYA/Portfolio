@@ -4,7 +4,7 @@ import "./globals.css";
 import { Spotlight } from "@/components/ui/Spotlight";
 import { ParticleBackground } from "@/components/ui/ParticleBackground";
 import { cn } from "@/lib/utils";
-import { BASE_PATH } from "@/lib/constants";
+import { BASE_PATH, SITE_URL } from "@/lib/constants";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
 
@@ -12,21 +12,22 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://kevinSuvagiya.github.io/Portfolio"), // Keep absolute URL for SEO
+  metadataBase: new URL(SITE_URL), // Dynamic base URL for different environments
+
 
   title: "Kevin Suvagiya | Salesforce Build & Release Engineer",
   description: "Salesforce Developer | Curious Explorer. Building the engines behind Salesforce clouds.",
   keywords: ["Salesforce Developer", "LWC", "Apex", "Salesforce Certified", "Web Developer", "React", "Next.js", "Portfolio"],
-  authors: [{ name: "Kevin Suvagiya", url: "https://kevinSuvagiya.github.io/Portfolio" }],
+  authors: [{ name: "Kevin Suvagiya", url: SITE_URL }],
   creator: "Kevin Suvagiya",
   openGraph: {
     title: "Kevin Suvagiya | Salesforce Developer",
     description: "Salesforce Developer | Curious Explorer. Building the engines behind Salesforce clouds.",
-    url: "https://kevinSuvagiya.github.io/Portfolio",
+    url: SITE_URL,
     siteName: "Kevin Suvagiya Portfolio",
     images: [
       {
-        url: "https://kevinSuvagiya.github.io/Portfolio/opengraph-image.png",
+        url: `${BASE_PATH}/opengraph-image.png`,
         width: 1200,
         height: 630,
         alt: "Kevin Suvagiya Portfolio Preview",
