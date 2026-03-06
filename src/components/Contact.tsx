@@ -136,7 +136,7 @@ export const Contact = () => {
                                 <button
                                     type="submit"
                                     disabled={isSubmitting}
-                                        className="w-full py-4 bg-sky-600 hover:bg-sky-500 text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="w-full py-4 bg-sky-600 hover:bg-sky-500 text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {isSubmitting ? (
                                         <>
@@ -232,6 +232,26 @@ export const Contact = () => {
                                     className="p-4 rounded-xl bg-slate-900 border border-slate-800 hover:border-pink-500/50 hover:bg-slate-800 text-slate-400 hover:text-pink-400 transition-all block cursor-pointer"
                                 >
                                     <Instagram size={24} />
+                                </a>
+                            </MagneticWrapper>
+
+                            <MagneticWrapper strength={20}>
+                                <a
+                                    href="https://kevinsuvagiya.medium.com/"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="p-4 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-500/50 hover:bg-slate-800 text-slate-400 hover:text-white transition-all block cursor-pointer"
+                                >
+                                    {/* Medium Icon */}
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="24"
+                                        height="24"
+                                        viewBox="0 0 24 24"
+                                        fill="currentColor"
+                                    >
+                                        <path d="M13.54 12a6.8 6.8 0 01-6.77 6.82A6.8 6.8 0 010 12a6.8 6.8 0 016.77-6.82A6.8 6.8 0 0113.54 12zm7.42 0c0 3.54-1.51 6.42-3.38 6.42-1.87 0-3.39-2.88-3.39-6.42s1.52-6.42 3.39-6.42 3.38 2.88 3.38 6.42M24 12c0 3.17-.53 5.75-1.19 5.75-.66 0-1.19-2.58-1.19-5.75s.53-5.75 1.19-5.75C23.47 6.25 24 8.83 24 12z" />
+                                    </svg>
                                 </a>
                             </MagneticWrapper>
 

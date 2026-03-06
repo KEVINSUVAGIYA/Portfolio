@@ -72,6 +72,7 @@ const jsonLd = {
     "https://github.com/KEVINSUVAGIYA",
     "https://www.linkedin.com/in/kevin-suvagiya/",
     "https://x.com/kevin__suvagiya",
+    "https://kevinsuvagiya.medium.com/",
   ],
   knowsAbout: [
     "Salesforce",

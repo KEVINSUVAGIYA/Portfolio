@@ -1,0 +1,197 @@
+# SipSync — Full Project Brief for Page Generation
+
+> **Purpose:** Hand this entire document to another AI. It contains everything needed to build two pages:
+> 1. **Privacy Policy** page
+> 2. **Product Details / User Guide** page
+
+---
+
+## 1. Project Identity
+
+| Field | Value |
+|---|---|
+| **Name** | SipSync - Water Reminder & Hydration Tracker |
+| **Version** | 1.0.0 |
+| **Platform** | Google Chrome Extension (Manifest V3) |
+| **Developer** | Kevin Suvagiya (Nexsaar Technologies) |
+| **Contact Email** | *(Kevin to fill in)* |
+| **Website** | kevinsuvagiya.me |
+| **Tagline** | A beautiful, unobtrusive daily water tracker that reminds you to stay hydrated and healthy while you browse. |
+| **Icon** | Pixar-style 3D water droplet mascot character |
+
+---
+
+## 2. What SipSync Does (Feature List)
+
+### 2.1 Smart Water Reminders
+- Users set a custom reminder interval (e.g., every 15 minutes, every 1 hour).
+- The extension fires a reminder at the set interval using Chrome's `alarms` API.
+- Users can **Start**, **Save** (update interval), or **Stop** reminders at any time.
+
+### 2.2 Dual Notification System
+Users choose how they receive reminders in Settings:
+- **OS Notification** — Native operating system notification with "Drink 200ml" and "Ignore" action buttons.
+- **Pop-up Reminder** — A dedicated browser pop-up window with a motivational quote, "Drink 200ml" and "Ignore" buttons.
+- Users can enable **one or both** simultaneously.
+- Each notification includes two actions: **"Drink 200ml"** (logs 200ml intake) and **"Ignore"** (dismisses).
+
+### 2.3 Intelligent Notification Management
+- **Single-instance guarantee:** Only one reminder notification exists at a time. Before creating a new notification, any existing one (OS or popup) is forcefully dismissed.
+- **Cross-dismissal:** Clicking on one notification type automatically closes the other (e.g., clicking "Drink" on the OS notification closes the popup window, and vice versa).
+- **No notification bursts:** If the laptop was asleep or Chrome was closed, SipSync does NOT spam the user with all missed reminders. Only the latest single notification is shown.
+
+### 2.4 Daily Water Intake Tracker
+- Visual progress circle with animated water wave fill effect.
+- Shows current intake (e.g., "1200ml") and percentage.
+- Resets automatically every day at midnight.
+- Users set a customizable daily goal (default: 2000ml).
+- A "Drink 200ml" quick-action button on the main screen.
+
+### 2.5 Goal Completion Celebration
+- When the user reaches their daily goal, SipSync celebrates!
+- **If the extension popup is open:** Confetti animation fires directly inside the popup.
+- **If triggered from a notification:** A separate celebration popup opens with confetti, a congratulatory message, and a special sound effect.
+- **OS celebration notification:** Shows "🎉 Goal Complete!" native notification.
+- Celebration notifications also follow the single-instance pattern (cleared before new reminders).
+
+### 2.6 Sound Effects
+- Customizable from Settings: toggle sound on/off.
+- Reminder sound plays when a pop-up reminder appears.
+- Special celebration sound plays when the daily goal is completed.
+
+### 2.7 Settings Page
+- **Reminder delivery:** Toggle OS notifications and/or pop-up reminders.
+- **Sound:** Toggle sound effects on/off.
+- Motivational quote displayed on the settings page.
+- Footer: "Built with ❤️ to help you stay hydrated and focus on what matters."
+
+---
+
+## 3. Chrome Permissions Used
+
+| Permission | Why It's Needed |
+|---|---|
+| `storage` | Saves user preferences (reminder interval, notification mode, water target, daily intake, sound toggle, theme) locally using `chrome.storage.sync`. **No data ever leaves the device.** |
+| `alarms` | Schedules periodic reminder events at the user-defined interval. Uses `chrome.alarms.create()` with `periodInMinutes`. |
+| `notifications` | Displays native OS notifications with action buttons ("Drink 200ml", "Ignore") when reminders fire. |
+| `tabs` | Used solely to manage SipSync's own pop-up reminder windows — to find and close existing pop-up tabs before opening new ones (single-instance pattern). **Never reads, accesses, or monitors user browsing activity or any other tabs.** |
+
+---
+
+## 4. Data & Privacy Details
+
+### 4.1 What Data Is Stored
+All data is stored **locally on the user's device** using `chrome.storage.sync`:
+
+| Data Key | Purpose | Example Value |
+|---|---|---|
+| `reminderInterval` | User's chosen reminder interval in minutes | `15` |
+| `lastReminderTime` | Timestamp of the last reminder fired | `1709654400000` |
+| `waterTarget` | User's daily hydration goal in ml | `2000` |
+| `currentIntake` | Water consumed today in ml | `1200` |
+| `lastActiveDate` | Date string for daily reset logic | `"Thu Mar 06 2025"` |
+| `notificationModes` | Object: `{ os: true, popup: true }` | `{ os: true, popup: false }` |
+| `soundEnabled` | Whether sound effects are on | `true` |
+| `theme` | Light/dark theme preference | `"light"` |
+| `activeReminderId` | Token to prevent double-counting drinks | `"1709654400000"` |
+
+### 4.2 What Data Is NOT Collected
+- ❌ No personal information (name, email, age, location)
+- ❌ No browsing history, URLs visited, or tab content
+- ❌ No analytics, telemetry, or usage tracking
+- ❌ No cookies or tracking pixels
+- ❌ No data transmitted to any external server, API, or third party
+- ❌ No accounts, logins, or authentication
+- ❌ No ads or ad-related tracking
+
+### 4.3 Data Sharing
+- **None.** SipSync shares absolutely zero data with anyone. There is no server, no database, no cloud storage, no API calls. Everything operates 100% offline and locally.
+
+### 4.4 Data Retention
+- Data persists in `chrome.storage.sync` as long as the extension is installed.
+- Daily intake resets automatically each day.
+- Uninstalling the extension completely removes all stored data.
+
+### 4.5 Third-Party Services
+- **None.** SipSync does not use any third-party services, SDKs, analytics tools, crash reporters, or external APIs.
+
+### 4.6 Children's Privacy
+- SipSync does not knowingly collect any data from children under 13 (or any age) — because it collects no personal data from anyone at all.
+
+---
+
+## 5. Technical Architecture (For Reference)
+
+| Component | Technology |
+|---|---|
+| **Frontend** | React 18 + Vite |
+| **Styling** | Vanilla CSS (Flexbox-based modular architecture) |
+| **Background Script** | Vanilla JS service worker (Manifest V3) |
+| **Build Tool** | Vite (Rolldown) |
+| **Storage** | `chrome.storage.sync` (local only) |
+| **Notifications** | `chrome.notifications` API |
+| **Scheduling** | `chrome.alarms` API |
+| **Font** | Google Fonts — Poppins |
+
+---
+
+## 6. Page Structure Suggestions
+
+### Page 1: Privacy Policy
+
+**URL suggestion:** `kevinsuvagiya.me/sipsync/privacy`
+
+**Suggested sections:**
+1. **Introduction** — Brief intro: what SipSync is, effective date of policy.
+2. **Information We Collect** — State clearly: "SipSync does not collect any personal information." List the local storage data and clarify it never leaves the device.
+3. **How We Use Information** — All data is used purely for app functionality (reminders, tracking intake).
+4. **Data Sharing & Disclosure** — "We do not share any data. Period."
+5. **Third-Party Services** — None used.
+6. **Data Storage & Security** — Local only via `chrome.storage.sync`. Removed upon uninstall.
+7. **Children's Privacy** — COPPA compliance: no data collected from anyone.
+8. **Changes to This Policy** — Will update this page if anything changes.
+9. **Contact** — Developer contact email for questions.
+
+### Page 2: Product Details / User Guide
+
+**URL suggestion:** `kevinsuvagiya.me/sipsync`
+
+**Suggested sections:**
+1. **Hero Section** — SipSync mascot, name, tagline, "Install from Chrome Web Store" CTA button.
+2. **Features Overview** — Cards or sections for each major feature (Smart Reminders, Dual Notifications, Intake Tracker, Goal Celebrations, Sound Effects).
+3. **How It Works / User Guide:**
+   - **Getting Started:** Install → click extension icon → set reminder interval → click "Start Reminder".
+   - **Tracking Intake:** Click "Drink 200ml" from the main screen, notification, or popup.
+   - **Setting Your Goal:** Click the pencil icon on the Target card → type your daily ml target → press Enter or click the check icon.
+   - **Notification Preferences:** Go to Settings → toggle OS Notification and/or Reminder pop-up.
+   - **Sound:** Go to Settings → toggle "Enable sound".
+   - **Goal Celebration:** When your intake reaches your target, confetti and a celebration sound fire automatically!
+4. **Screenshots** — Show the main popup, settings, reminder popup, and celebration screen.
+5. **FAQ:**
+   - "Does SipSync collect my data?" → No, everything is local.
+   - "Will I get spammed with notifications?" → No, only one notification exists at a time.
+   - "Does it work when my laptop is closed?" → Reminders are scheduled but only delivered when Chrome is running. No notification spam on wake.
+   - "How do I change my water target?" → Click the edit icon on the Target card.
+   - "Can I use both OS and popup notifications?" → Yes, enable both in Settings.
+6. **Footer** — Links to Privacy Policy, Chrome Web Store listing, developer website.
+
+---
+
+## 7. Brand Colors (For Page Styling)
+
+| Color | Hex | Usage |
+|---|---|---|
+| Primary Blue | `#51BFF2` | Buttons, accents |
+| Deep Blue | `#3291D9` | Gradients, wave fills |
+| Light Blue | `#5DC4FC` | Gradient top, highlights |
+| Ice Blue | `#ADE5FC` | Borders, subtle accents |
+| Ice BG | `#E5F6FF` | Input backgrounds |
+| Dark Text | `#141A1E` | Headings |
+| Body Text | `#454545` | Body copy |
+| Muted Text | `#656565` | Taglines, footers |
+| Subtle Grey | `#90A5B4` | Labels, secondary text |
+| White | `#FFFFFF` | Cards, backgrounds |
+| Background | `#F4F8FB` | Page background |
+| Heart Red | `#FF4D4D` | Heart icon accent |
+
+**Font:** Poppins (Google Fonts) — weights 400, 500, 600, 700

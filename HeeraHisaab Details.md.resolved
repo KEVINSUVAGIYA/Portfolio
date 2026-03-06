@@ -1,0 +1,224 @@
+# HeeraHisaab — Full Project Brief for Building 2 Pages
+
+> **Goal:** Build two standalone pages for the developer's portfolio site:
+> 1. **Privacy Policy** page
+> 2. **Product Details & User Guide** page
+>
+> Both pages should link back to the live app: **https://heerahisaab.web.app**
+
+---
+
+## 1. App Identity
+
+| Field | Value |
+|---|---|
+| **App Name** | HeeraHisaab (હીરાહિસાબ in Gujarati) |
+| **Tagline** | Intelligent Diamond Tracking |
+| **Description** | A premium, secure accounting and daily tracking dashboard designed for diamond workers. Keep precise logs of manufactured diamonds, track varying rates, and monitor monthly progress seamlessly. |
+| **Live URL** | https://heerahisaab.web.app |
+| **Developer** | Kevin Suvagiya |
+| **Developer Portfolio** | https://kevinsuvagiya.me |
+| **Contact Email** | *(use Kevin's portfolio contact or a generic support email)* |
+| **App Type** | Progressive Web App (PWA) — installable on mobile home screens |
+
+---
+
+## 2. Target Audience
+
+Diamond workers (primarily in Gujarat, India) who need to:
+- Log daily diamond polishing/cutting work with quantity and rate per diamond.
+- Track monthly earnings, diamond counts, and growth trends.
+- Have a simple, fast, offline-ready tool in **Gujarati or English**.
+
+---
+
+## 3. Tech Stack & Infrastructure
+
+| Layer | Technology |
+|---|---|
+| Frontend | React 19 + Vite 7 |
+| Styling | Custom CSS (Glassmorphism, CSS Variables, animations) |
+| Backend / DB | Firebase Firestore (NoSQL, cloud-hosted) |
+| Authentication | Firebase Auth — **Google Sign-In only** |
+| Hosting | Firebase Hosting (CDN) |
+| Icons | lucide-react |
+| i18n | react-i18next (English + Gujarati) |
+| PWA | vite-plugin-pwa + Workbox (offline caching, home screen install) |
+| Legacy Support | @vitejs/plugin-legacy (polyfills for older Android/iOS) |
+
+---
+
+## 4. Core Features (for Product Details / User Guide page)
+
+### 4.1 Google Sign-In (Login Screen)
+- Single-button Google authentication.
+- Language toggle available **before** login (Gujarati ↔ English).
+- No email/password option — Google only.
+- Each user's data is fully isolated under their Google account.
+
+### 4.2 Dashboard (Home Tab)
+- **Current Month Spotlight:** Two premium gradient cards showing:
+  - Total Earnings (₹) this month
+  - Total Diamonds processed this month
+- **Detailed Insights Card** showing:
+  - Highest earning day (date + amount)
+  - Lowest earning day (date + amount)
+  - Growth comparison vs previous month (↑ green / ↓ red)
+- **Previous Months:** Compact single-card view for each historical month with all the same metrics inline.
+- All dates displayed in **DD/MM/YYYY** format.
+
+### 4.3 New Entry (New Entry Tab)
+- Date picker with calendar icon (always shows DD/MM/YYYY).
+- Auto-populates rows with user's configured default rates from Settings.
+- Each row has: **Rate (₹)** and **Quantity (number of diamonds)**.
+- Users can add/remove rows dynamically.
+- Auto-calculates subtotals per row and grand total.
+- Custom toast notifications for validation warnings and success.
+- On save → redirects to History tab with a success animation.
+
+### 4.4 History (History Tab)
+- View all past entries filtered by month (horizontal scrollable month pills).
+- Sort by: Newest First, Oldest First, Highest Amount, Lowest Amount.
+- Each entry card shows:
+  - Date (DD/MM/YYYY)
+  - Timestamp of when it was recorded
+  - Total diamond count
+  - Itemized breakdown (quantity × rate = subtotal)
+  - Grand total in green
+- Delete entries via a confirmation modal (glassmorphism design).
+
+### 4.5 Settings Tab
+- **Default Amounts Manager:** Add/remove preset rates (e.g., ₹5, ₹10, ₹15) that auto-fill the New Entry form.
+- **Language Toggle:** Switch between English and Gujarati. The choice **persists** across app restarts (saved in localStorage).
+- **User Profile:** Shows Google profile photo, name, and email.
+- **Logout** button.
+
+### 4.6 PWA / Installability
+- Can be installed on phone home screens as a standalone app (no browser chrome).
+- Works offline after first load (Workbox service worker caches assets).
+- Fast load times via Firebase CDN.
+
+### 4.7 Bilingual Support
+- Full Gujarati (ગુજરાતી) and English UI.
+- Language can be toggled on the login screen or in Settings.
+- Language preference is remembered permanently.
+
+---
+
+## 5. Data Handling & Privacy Details (for Privacy Policy page)
+
+### 5.1 Authentication
+- **Method:** Google Sign-In via Firebase Authentication.
+- **Data collected at sign-in:** Google display name, email address, profile photo URL.
+- **No passwords are stored** — authentication is delegated entirely to Google.
+
+### 5.2 Data Storage
+- **Database:** Google Cloud Firestore (Firebase).
+- **Data location:** Google Cloud servers (governed by Google Cloud's infrastructure).
+- **Data structure:**
+  - `users/{userId}/entries/` — each entry stores: date, items (rate, quantity, subtotal per row), total amount, and a server timestamp.
+  - `users/{userId}/presets/` — stores the user's default rate presets (rate value + creation timestamp).
+- **Data isolation:** Each user can only read/write their own data. Firestore security rules enforce user-level isolation via `auth.uid`.
+
+### 5.3 Data Collected
+| Data Type | Purpose | Stored Where |
+|---|---|---|
+| Google Name, Email, Photo | Display in user profile section | Firebase Auth (Google servers) |
+| Diamond work entries (date, rates, quantities, totals) | Core app functionality — tracking earnings | Firestore (Google Cloud) |
+| Default rate presets | Pre-fill the entry form | Firestore (Google Cloud) |
+| Language preference ([en](file:///Users/kevin/Desktop/Development/Custom%20WebPages/HeeraHisaab/src/components/Dashboard.jsx#13-22) or [gu](file:///Users/kevin/Desktop/Development/Custom%20WebPages/HeeraHisaab/src/components/Login.jsx#26-30)) | Remember UI language choice | Browser localStorage (device only) |
+
+### 5.4 What is NOT Collected
+- ❌ No device identifiers or fingerprinting
+- ❌ No location data / GPS
+- ❌ No contacts or phone data
+- ❌ No advertising IDs or ad tracking
+- ❌ No third-party analytics (no Google Analytics, no Mixpanel, etc.)
+- ❌ No cookies for tracking purposes
+- ❌ No data is sold or shared with any third party
+
+### 5.5 Data Retention & Deletion
+- User data is retained as long as the user's account exists.
+- Users can **delete individual entries** from within the app (History tab → delete button).
+- To delete all data and their account, users can contact the developer, or the developer can provide a "Delete Account" feature in a future update.
+- If the Firebase project is deleted, all associated data is permanently destroyed.
+
+### 5.6 Third-Party Services
+| Service | Provider | Purpose | Their Privacy Policy |
+|---|---|---|---|
+| Firebase Authentication | Google | User sign-in | https://firebase.google.com/support/privacy |
+| Cloud Firestore | Google | Data storage | https://firebase.google.com/support/privacy |
+| Firebase Hosting | Google | Serving the web app | https://firebase.google.com/support/privacy |
+
+### 5.7 Security Measures
+- All data transmitted over **HTTPS** (TLS encryption in transit).
+- Firestore security rules ensure users can only access their own data.
+- No sensitive financial data (bank accounts, card numbers) is ever collected.
+- The app does not process payments of any kind.
+
+### 5.8 Children's Privacy
+- The app is not directed at children under 13.
+- No data is knowingly collected from children.
+
+### 5.9 Changes to Privacy Policy
+- The developer reserves the right to update the privacy policy.
+- Users will be notified of significant changes via the app or the policy page.
+
+### 5.10 Contact
+- For privacy questions or data deletion requests, users can contact: **Kevin Suvagiya** via the portfolio website or the provided contact email.
+
+---
+
+## 6. Visual Design Notes
+
+Both pages should match the **premium, modern aesthetic** of the HeeraHisaab app:
+
+- **Font:** [Outfit](https://fonts.google.com/specimen/Outfit) (Google Fonts) — weights 300–700
+- **Color Palette:**
+  - Primary: `#3b82f6` (blue)
+  - Primary Gradient: `linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)`
+  - Secondary/Success: `#10b981` (green)
+  - Danger: `#ef4444` (red)
+  - Dark background: `#0f172a`
+  - Surface: `#1e293b`
+  - Text primary (dark mode): `#f1f5f9`
+  - Text secondary: `#94a3b8`
+- **UI Style:** Glassmorphism (frosted glass cards, subtle blur, soft shadows)
+- **Theme color (meta):** `#0f172a`
+
+---
+
+## 7. Page Structure Suggestions
+
+### Page 1: Privacy Policy
+Standard sections:
+1. Introduction (what HeeraHisaab is + effective date)
+2. Information We Collect (§5.3 above)
+3. How We Use Your Information
+4. Data Storage & Security (§5.2, §5.7)
+5. Third-Party Services (§5.6)
+6. Data Retention & Deletion (§5.5)
+7. Children's Privacy (§5.8)
+8. Changes to This Policy (§5.9)
+9. Contact Us (§5.10)
+
+### Page 2: Product Details & User Guide
+Sections:
+1. Hero — App name, tagline, screenshot/mockup, CTA to open the app
+2. What is HeeraHisaab? — 2–3 sentence overview
+3. Key Features — Cards or grid for each feature (§4.1–4.7)
+4. How to Use — Step-by-step guide (Login → Add Defaults → Log Entry → View History → Dashboard)
+5. Supported Languages — English & Gujarati
+6. Install on Your Phone — PWA installation instructions (Add to Home Screen)
+7. FAQ (optional)
+8. Footer with links to Privacy Policy, live app, developer portfolio
+
+---
+
+## 8. Key Assets
+
+| Asset | Location |
+|---|---|
+| App Logo / Favicon | [/public/logo.png](file:///Users/kevin/Desktop/Development/Custom%20WebPages/HeeraHisaab/public/logo.png) in the project repo |
+| OG Banner Image | `https://heerahisaab.web.app/og-image.png` |
+| Live App | https://heerahisaab.web.app |

@@ -4,6 +4,8 @@ import { Skills } from "@/components/Skills";
 import { About } from "@/components/About";
 import { Contact } from "@/components/Contact";
 import { Certifications } from "@/components/Certifications";
+import { SocialHub } from "@/components/SocialHub";
+import { Products } from "@/components/Products";
 
 import { Stats } from "@/components/Stats";
 import { Experience } from "@/components/Experience";
@@ -15,10 +17,12 @@ export default function Home() {
       <Hero />
       <Certifications />
       <Stats />
+      <Products />
       <Projects />
       <Experience />
       <Skills />
       <About />
+      <SocialHub />
       <Contact />
       <Footer />
     </main>
