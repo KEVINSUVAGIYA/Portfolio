@@ -139,8 +139,7 @@ export default function SipSyncPrivacyPage() {
                 <section>
                     <h2 className="text-xl font-semibold text-white mb-3">5. Data Sharing & Disclosure</h2>
                     <p>
-                        <strong>We do not share any data. Period.</strong> SipSync has no server, no database, no cloud storage,
-                        and makes no API calls. Everything operates 100% offline and locally on your device.
+                        <strong>We do not share any data. Period.</strong> SipSync has no server, no database and no cloud storage. Everything operates 100% locally on your device.
                     </p>
                 </section>
 
@@ -196,18 +195,9 @@ export default function SipSyncPrivacyPage() {
                     </ul>
                 </section>
 
-                {/* Children's Privacy */}
-                <section>
-                    <h2 className="text-xl font-semibold text-white mb-3">9. Children&apos;s Privacy</h2>
-                    <p>
-                        SipSync does not knowingly collect any data from children under 13 — because it collects
-                        no personal data from anyone at all.
-                    </p>
-                </section>
-
                 {/* Changes */}
                 <section>
-                    <h2 className="text-xl font-semibold text-white mb-3">10. Changes to This Policy</h2>
+                    <h2 className="text-xl font-semibold text-white mb-3">9. Changes to This Policy</h2>
                     <p>
                         If we update this privacy policy, the changes will be reflected on this page with an updated
                         effective date. Significant changes will be communicated through the extension.
@@ -216,7 +206,7 @@ export default function SipSyncPrivacyPage() {
 
                 {/* Contact */}
                 <section>
-                    <h2 className="text-xl font-semibold text-white mb-3">11. Contact</h2>
+                    <h2 className="text-xl font-semibold text-white mb-3">10. Contact</h2>
                     <p>
                         For questions about this privacy policy, contact Kevin Suvagiya
                         at{" "}
