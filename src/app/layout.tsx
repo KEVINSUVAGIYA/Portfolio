@@ -85,6 +85,51 @@ const jsonLd = {
   ],
 };
 
+const jsonLdWebsite = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "Kevin Suvagiya — Portfolio",
+  url: SITE_URL,
+  description:
+    "Portfolio of Kevin Suvagiya — Salesforce Developer, builder of SipSync and HeeraHisaab.",
+  author: {
+    "@type": "Person",
+    name: "Kevin Suvagiya",
+  },
+  potentialAction: [
+    {
+      "@type": "ViewAction",
+      name: "Products",
+      target: `${SITE_URL}/#products`,
+    },
+    {
+      "@type": "ViewAction",
+      name: "Projects",
+      target: `${SITE_URL}/#projects`,
+    },
+    {
+      "@type": "ViewAction",
+      name: "Experience",
+      target: `${SITE_URL}/#experience`,
+    },
+    {
+      "@type": "ViewAction",
+      name: "Contact",
+      target: `${SITE_URL}/#contact`,
+    },
+    {
+      "@type": "ViewAction",
+      name: "SipSync",
+      target: `${SITE_URL}/products/sipsync`,
+    },
+    {
+      "@type": "ViewAction",
+      name: "HeeraHisaab",
+      target: `${SITE_URL}/products/heerahisaab`,
+    },
+  ],
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -96,6 +141,10 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdWebsite) }}
         />
       </head>
       <body className={cn(inter.className, "bg-slate-950 min-h-screen relative overflow-x-hidden")}>
