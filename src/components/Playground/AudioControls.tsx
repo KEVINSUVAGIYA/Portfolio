@@ -2,7 +2,7 @@
 
 import { Volume2, VolumeX, Music, Settings2 } from "lucide-react";
 import { useState, useEffect } from "react";
-import { getVolumes, setVolumes, getIsMuted, toggleMute, toggleBgMusic } from "@/lib/audio";
+import { getVolumes, setVolumes, getIsMuted, toggleMute, toggleBgMusic, stopGlobalAudio } from "@/lib/audio";
 
 export const PlaygroundAudioControls = ({ theme }: { theme: "zen" | "flight" | "world" | "lanterns" }) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -13,6 +13,10 @@ export const PlaygroundAudioControls = ({ theme }: { theme: "zen" | "flight" | "
     useEffect(() => {
         setMuted(getIsMuted());
         setV(getVolumes());
+
+        return () => {
+            stopGlobalAudio();
+        };
     }, []);
 
     const handleMainChange = (v: number) => {

@@ -12,9 +12,9 @@ let bgSource: MediaElementAudioSourceNode | null = null;
 let isBgPlaying = false;
 
 // Volumes (0 to 1)
-let mainVol = 0.8;
-let bgVol = 0.3;
-let isMuted = false;
+let mainVol = 0.9;
+let bgVol = 0.1;
+let isMuted = true;
 
 export const getAudioCtx = () => {
     if (typeof window === "undefined") return null;
@@ -71,6 +71,16 @@ export const setGlobalAudioPaused = (isPaused: boolean) => {
         } else {
             ctx.resume();
         }
+    }
+};
+
+export const stopGlobalAudio = () => {
+    if (bgAudio) {
+        bgAudio.pause();
+        isBgPlaying = false;
+    }
+    if (ctx && ctx.state === "running") {
+        ctx.suspend();
     }
 };
 
