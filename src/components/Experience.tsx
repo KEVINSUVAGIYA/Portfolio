@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Calendar, Building2, Briefcase } from "lucide-react";
+import { SectionHeader } from "./ui/SectionHeader";
 
 const experience = [
     {
@@ -33,18 +34,7 @@ const experience = [
 export const Experience = () => {
     return (
         <section id="experience" className="py-24 relative px-6 md:px-12 max-w-7xl mx-auto">
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5 }}
-                className="mb-16"
-            >
-                <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
-                    Experience
-                </h2>
-                <div className="h-1 w-20 bg-sky-500 rounded-full" />
-            </motion.div>
+            <SectionHeader title="Experience" watermark="CAREER" alignment="left" />
 
             <div className="relative border-l border-slate-800 ml-3 md:ml-12 space-y-12">
                 {experience.map((item, index) => (

@@ -3,22 +3,12 @@
 import { motion } from "framer-motion";
 import { projects } from "@/data/projects";
 import { ProjectCard } from "@/components/ProjectCard";
+import { SectionHeader } from "./ui/SectionHeader";
 
 export const Projects = () => {
     return (
         <section id="projects" className="py-24 relative z-10 px-6 md:px-12 max-w-7xl mx-auto">
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5 }}
-                className="mb-16"
-            >
-                <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
-                    Selected Works
-                </h2>
-                <div className="h-1 w-20 bg-sky-500 rounded-full" />
-            </motion.div>
+            <SectionHeader title="Selected Works" watermark="PORTFOLIO" alignment="left" />
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {projects.map((project, index) => (

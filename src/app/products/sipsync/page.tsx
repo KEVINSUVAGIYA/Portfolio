@@ -151,7 +151,7 @@ export default function SipSyncPage() {
                     A beautiful, unobtrusive daily water tracker that reminds you to stay hydrated and healthy while you browse.
                 </p>
 
-                <div className="flex flex-wrap items-center justify-center gap-4">
+                <div className="flex flex-wrap items-center justify-center gap-4 mb-8">
                     <span className="px-4 py-2 rounded-full bg-slate-800 border border-slate-700 text-slate-300 text-sm font-medium">
                         Chrome Extension · Manifest V3
                     </span>
@@ -162,6 +162,16 @@ export default function SipSyncPage() {
                         100% Offline & Private
                     </span>
                 </div>
+
+                <a
+                    href="https://chromewebstore.google.com/detail/ojcpfggpjpaeehhppnelbmcidmglebjl?utm_source=item-share-cb"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-8 py-3 bg-[#51BFF2] hover:bg-[#3291D9] text-white font-semibold rounded-xl transition-colors shadow-lg shadow-[#51BFF2]/20"
+                >
+                    Install Extension
+                    <ExternalLink size={16} />
+                </a>
             </section>
 
             {/* Features */}
@@ -261,6 +271,15 @@ export default function SipSyncPage() {
                         <ArrowLeft size={16} />
                         Back to Portfolio
                     </Link>
+                    <a
+                        href="https://chromewebstore.google.com/detail/ojcpfggpjpaeehhppnelbmcidmglebjl?utm_source=item-share-cb"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-[#51BFF2] hover:text-[#3291D9] transition-colors text-sm font-medium"
+                    >
+                        <ExternalLink size={16} />
+                        Get SipSync
+                    </a>
                     <Link
                         href="/products/sipsync/privacy"
                         className="flex items-center gap-2 text-slate-400 hover:text-[#51BFF2] transition-colors text-sm font-medium"

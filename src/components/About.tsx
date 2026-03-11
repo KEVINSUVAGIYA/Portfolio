@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { Gamepad2, Plane, Headphones, Cpu } from "lucide-react";
 import { MagneticWrapper } from "@/components/ui/MagneticWrapper";
+import { SectionHeader } from "./ui/SectionHeader";
 
 const hobbies = [
     {
@@ -34,18 +35,7 @@ const hobbies = [
 export const About = () => {
     return (
         <section id="about" className="py-24 relative px-6 md:px-12 max-w-7xl mx-auto mb-20">
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5 }}
-                className="mb-16"
-            >
-                <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
-                    Personal Touch
-                </h2>
-                <div className="h-1 w-20 bg-sky-500 rounded-full" />
-            </motion.div>
+            <SectionHeader title="Personal Touch" watermark="ABOUT ME" alignment="left" />
 
             <div className="flex flex-col lg:flex-row lg:justify-between items-start gap-12">
                 {/* The Creative Hobby - IoT Tinkerer */}

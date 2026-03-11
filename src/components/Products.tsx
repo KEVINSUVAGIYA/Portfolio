@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Chrome, Globe, ArrowUpRight } from "lucide-react";
 import { MagneticWrapper } from "@/components/ui/MagneticWrapper";
 import { BASE_PATH } from "@/lib/constants";
+import { SectionHeader } from "./ui/SectionHeader";
 
 const products = [
     {
@@ -56,22 +57,10 @@ const cardVariants = {
 export const Products = () => {
     return (
         <section id="products" className="py-24 relative px-6 md:px-12 max-w-7xl mx-auto">
-            {/* Section Header */}
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5 }}
-                className="mb-16"
-            >
-                <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
-                    Products
-                </h2>
-                <p className="text-slate-400 text-lg max-w-2xl leading-relaxed">
-                    I like building solutions for problems I face myself — here&apos;s what came out of that curiosity.
-                </p>
-                <div className="h-1 w-20 bg-sky-500 rounded-full mt-6" />
-            </motion.div>
+            <SectionHeader title="Products" watermark="REPERTOIRE" alignment="left" />
+            <p className="text-slate-400 text-lg max-w-2xl leading-relaxed mb-12 -mt-12 relative z-10 pl-2">
+                I like building solutions for problems I face myself — here&apos;s what came out of that curiosity.
+            </p>
 
             {/* Product Cards */}
             <motion.div

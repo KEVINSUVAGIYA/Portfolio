@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { CheckCircle2, Award } from "lucide-react";
+import { SectionHeader } from "./ui/SectionHeader";
 
 const certifications = [
     "Salesforce Certified AI Specialist",
@@ -18,18 +19,11 @@ const techStack = {
 export const Skills = () => {
     return (
         <section id="skills" className="py-24 relative px-6 md:px-12 max-w-7xl mx-auto">
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5 }}
-                className="mb-16"
-            >
-                <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
-                    Trust Signals & Skills
-                </h2>
-                <div className="h-1 w-20 bg-sky-500 rounded-full" />
-            </motion.div>
+            <SectionHeader
+                title="Trust Signals & Skills"
+                watermark="CAPABILITIES"
+                alignment="left"
+            />
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24">
                 {/* Certifications */}

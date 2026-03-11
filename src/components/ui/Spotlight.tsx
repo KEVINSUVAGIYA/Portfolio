@@ -3,6 +3,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { motion, useSpring, useMotionValue, useMotionTemplate } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { usePathname } from "next/navigation";
 
 export const Spotlight = ({
     className,
@@ -28,21 +29,25 @@ export const Spotlight = ({
         return () => window.removeEventListener("mousemove", handleMouseMove);
     }, [mouseX, mouseY]);
 
+    // useMotionTemplate MUST be called at the top level, never inside JSX
+    const background = useMotionTemplate`
+        radial-gradient(
+            650px circle at ${smoothX}px ${smoothY}px,
+            rgba(14, 165, 233, 0.15),
+            transparent 80%
+        )
+    `;
+
+    const pathname = usePathname();
+    if (pathname?.startsWith("/world") || pathname?.startsWith("/playground")) return null;
+
     return (
         <motion.div
             className={cn(
                 "pointer-events-none fixed inset-0 z-30 transition-opacity duration-300",
                 className
             )}
-            style={{
-                background: useMotionTemplate`
-          radial-gradient(
-            650px circle at ${smoothX}px ${smoothY}px,
-            rgba(14, 165, 233, 0.15),
-            transparent 80%
-          )
-        `,
-            }}
+            style={{ background }}
         />
     );
 };

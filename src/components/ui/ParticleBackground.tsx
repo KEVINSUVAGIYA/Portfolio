@@ -1,11 +1,15 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 
 export const ParticleBackground = () => {
+    const pathname = usePathname();
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
     useEffect(() => {
+        if (pathname?.startsWith("/world") || pathname?.startsWith("/playground")) return;
+
         const canvas = canvasRef.current;
         if (!canvas) return;
         const ctx = canvas.getContext("2d");
@@ -258,6 +262,8 @@ export const ParticleBackground = () => {
             window.removeEventListener("click", handleClick);
         };
     }, []);
+
+    if (pathname?.startsWith("/world") || pathname?.startsWith("/playground")) return null;
 
     return (
         <canvas

@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { Shield, Star, Trophy, Lightbulb, Crown } from "lucide-react";
 import { MagneticWrapper } from "@/components/ui/MagneticWrapper";
+import { SectionHeader } from "./ui/SectionHeader";
 
 export const Certifications = () => {
     // Row 1: Salesforce Certifications
@@ -98,19 +99,7 @@ export const Certifications = () => {
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[200px] bg-sky-500/5 blur-[100px] pointer-events-none" />
 
             <div className="max-w-7xl mx-auto px-6 md:px-12 flex flex-col items-center gap-12">
-                {/* Header */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5 }}
-                    className="text-center"
-                >
-                    <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
-                        Certifications & Achievements
-                    </h2>
-                    <div className="h-1 w-20 bg-sky-500 rounded-full mx-auto" />
-                </motion.div>
+                <SectionHeader title="Certifications & Achievements" watermark="CREDENTIALS" alignment="center" />
 
                 <div className="flex flex-col items-center gap-8 w-full">
                     {/* Row 1: Certifications */}
