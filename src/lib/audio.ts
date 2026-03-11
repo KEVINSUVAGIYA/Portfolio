@@ -7,7 +7,8 @@ let bgGainNode: GainNode | null = null;
 let masterGainNode: GainNode | null = null;
 
 // BG Music state
-let bgOscillators: OscillatorNode[] = [];
+let bgAudio: HTMLAudioElement | null = null;
+let bgSource: MediaElementAudioSourceNode | null = null;
 let isBgPlaying = false;
 
 // Volumes (0 to 1)
@@ -73,94 +74,30 @@ export const setGlobalAudioPaused = (isPaused: boolean) => {
     }
 };
 
-// Procedural Drone Background Music
+// MP3 Background Music Engine
 export const toggleBgMusic = (theme: "zen" | "flight" | "world" | "lanterns") => {
     const c = getAudioCtx();
     if (!c || !bgGainNode) return;
 
-    if (isBgPlaying) {
-        bgOscillators.forEach(osc => {
-            try { osc.stop(); osc.disconnect(); } catch (e) { }
-        });
-        bgOscillators = [];
+    if (isBgPlaying && bgAudio) {
+        bgAudio.pause();
         isBgPlaying = false;
         return false;
     }
 
     if (c.state === "suspended") c.resume();
 
-    // Cinematic Ambient Generative Engine
-    const rootNotes = {
-        zen: 65.41,     // C2 (Very deep, calming)
-        lanterns: 87.31,// F2 (Hopeful, warm)
-        world: 73.42,   // D2 (Mysterious)
-        flight: 98.00   // G2 (Airy, uplifting)
-    };
+    if (!bgAudio) {
+        bgAudio = new window.Audio("/audio/Celestial_Bloom.mp3");
+        bgAudio.loop = true;
+        bgAudio.crossOrigin = "anonymous";
 
-    const root = rootNotes[theme] || 65.41;
+        // Route through the WebAudio graph for volume/mute controls
+        bgSource = c.createMediaElementSource(bgAudio);
+        bgSource.connect(bgGainNode);
+    }
 
-    // Create a massive reverb/delay network to wash out the synths into a cinematic pad
-    const delayL = c.createDelay(2.0); delayL.delayTime.value = 0.43;
-    const delayR = c.createDelay(2.0); delayR.delayTime.value = 0.65;
-    const fbL = c.createGain(); fbL.gain.value = 0.6;
-    const fbR = c.createGain(); fbR.gain.value = 0.6;
-    const filterDelay = c.createBiquadFilter();
-    filterDelay.type = "lowpass"; filterDelay.frequency.value = 1200;
-
-    delayL.connect(fbL); fbL.connect(filterDelay); filterDelay.connect(delayR);
-    delayR.connect(fbR); fbR.connect(delayL);
-
-    // Stereo spread
-    const panL = c.createStereoPanner(); panL.pan.value = -0.8;
-    const panR = c.createStereoPanner(); panR.pan.value = 0.8;
-    delayL.connect(panL); delayR.connect(panR);
-    panL.connect(bgGainNode); panR.connect(bgGainNode);
-
-    // Main Filter
-    const filter = c.createBiquadFilter();
-    filter.type = "lowpass";
-    filter.frequency.value = 400;
-    filter.Q.value = 1.0;
-    filter.connect(bgGainNode);
-    filter.connect(delayL); // Feed dry signal into reverb network
-
-    // Sweeping LFO for the breathing cinematic effect
-    const lfo = c.createOscillator();
-    lfo.type = "sine";
-    lfo.frequency.value = 0.03; // Extremely slow 33-second breath
-    const lfoGain = c.createGain();
-    lfoGain.gain.value = 350; // Sweep width
-    lfo.connect(lfoGain);
-    lfoGain.connect(filter.frequency);
-    lfo.start();
-    bgOscillators.push(lfo);
-
-    // Build the "Hans Zimmer" Pad chord structure
-    // Root, Sub-octave, Perfect Fifth, Major/Minor Third based on theme
-    const ratio3rd = theme === "flight" || theme === "lanterns" ? 1.25 : 1.189; // Major or Minor
-    const ratios = [0.5, 1, 1.002, 0.998, 1.5, ratio3rd, 2];
-
-    ratios.forEach((ratio, i) => {
-        const osc = c.createOscillator();
-        // Mix saw and triangle for rich harmonics
-        osc.type = i % 3 === 0 ? "sawtooth" : (i % 2 === 0 ? "sine" : "triangle");
-        osc.frequency.value = root * ratio;
-
-        const oscGain = c.createGain();
-        oscGain.gain.value = 0;
-
-        // Massive 5-second fade in per oscillator, varying slightly so chord evolves
-        const fadeTime = 4 + (i * 1.5);
-        // Reduce volume for harsher waveforms
-        const maxVol = osc.type === "sawtooth" ? 0.03 : 0.06;
-        oscGain.gain.linearRampToValueAtTime(maxVol, c.currentTime + fadeTime);
-
-        osc.connect(oscGain);
-        oscGain.connect(filter);
-        osc.start();
-        bgOscillators.push(osc);
-    });
-
+    bgAudio.play().catch(e => console.error("Audio playback error:", e));
     isBgPlaying = true;
     return true;
 };
