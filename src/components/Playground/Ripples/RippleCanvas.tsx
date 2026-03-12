@@ -4,7 +4,7 @@ import { useRef, useEffect, useState, useCallback } from "react";
 import { Camera, Droplets } from "lucide-react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { getAudioCtx, getMainAudioNode, setGlobalAudioPaused } from "@/lib/audio";
+import { getAudioCtx, getMainAudioNode, setGlobalAudioPaused, setWaterWaveIntensity, playWaterClickSfx } from "@/lib/audio";
 import { PlaygroundAudioControls } from "@/components/Playground/AudioControls";
 
 // ---- THEMES ----
@@ -33,45 +33,7 @@ const generateTheme = (hex: string) => {
 // We now use the global audio context from @/lib/audio
 
 const playDrop = () => {
-    try {
-        const ctx = getAudioCtx();
-        const mainNode = getMainAudioNode();
-        if (!ctx || !mainNode) return;
-        if (ctx.state === "suspended") ctx.resume();
-        const freq = 400 + Math.random() * 200; // Lower fundamental for 'plop'
-
-        // Master Gain
-        const master = ctx.createGain();
-        master.gain.setValueAtTime(0.001, ctx.currentTime);
-        master.gain.exponentialRampToValueAtTime(0.8, ctx.currentTime + 0.015);
-        master.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
-        master.connect(mainNode);
-
-        // Core plop oscillator (rapid downward frequency sweep)
-        const osc = ctx.createOscillator();
-        osc.type = "sine";
-        osc.frequency.setValueAtTime(freq * 1.5, ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(freq, ctx.currentTime + 0.05);
-        osc.connect(master);
-        osc.start(ctx.currentTime);
-        osc.stop(ctx.currentTime + 0.3);
-
-        // High frequency transient "click"
-        const clickOsc = ctx.createOscillator();
-        clickOsc.type = "sine";
-        clickOsc.frequency.setValueAtTime(freq * 3, ctx.currentTime);
-        clickOsc.frequency.exponentialRampToValueAtTime(freq * 1.2, ctx.currentTime + 0.02);
-
-        const clickGain = ctx.createGain();
-        clickGain.gain.setValueAtTime(0, ctx.currentTime);
-        clickGain.gain.linearRampToValueAtTime(0.3, ctx.currentTime + 0.005);
-        clickGain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.03);
-        clickOsc.connect(clickGain);
-        clickGain.connect(master);
-        clickOsc.start(ctx.currentTime);
-        clickOsc.stop(ctx.currentTime + 0.05);
-
-    } catch (_) { }
+    playWaterClickSfx();
 };
 
 const playLeafDrop = () => {
@@ -167,6 +129,7 @@ export const RippleCanvas = () => {
     const [streakDays, setStreakDays] = useState(0);
     const [paused, setPaused] = useState(false);
     const [hasStarted, setHasStarted] = useState(false);
+    const hasStartedRef = useRef(false);
     const pausedRef = useRef(false); // Ref for requestAnimationFrame sync
 
     const togglePause = () => {
@@ -249,12 +212,19 @@ export const RippleCanvas = () => {
             const bB = parseInt(theme.bottom.slice(5, 7), 16);
 
             // Sim step
-            if (!pausedRef.current) {
+            let totalIntensity = 0;
+            if (!pausedRef.current && hasStartedRef.current) {
                 for (let y = 1; y < h - 1; y++) for (let x = 1; x < w - 1; x++) {
                     const i = y * w + x;
                     cur[i] = ((prev[(y - 1) * w + x] + prev[(y + 1) * w + x] + prev[y * w + x - 1] + prev[y * w + x + 1]) / 2 - cur[i]) * 0.984;
+                    totalIntensity += Math.abs(cur[i]);
                 }
                 const tmp = curBuf.current!; curBuf.current = prevBuf.current!; prevBuf.current = tmp;
+
+                // Map the physical wave simulation magnitude to an audio volume amount
+                setWaterWaveIntensity(Math.min(1, totalIntensity / 40000));
+            } else if (!hasStartedRef.current || pausedRef.current) {
+                setWaterWaveIntensity(0);
             }
 
             const img = ctx.createImageData(canvas.width, canvas.height);
@@ -317,6 +287,13 @@ export const RippleCanvas = () => {
                         l.hasHitWater = true;
                         drop(l.x, l.y, 4, 80);
                         playLeafDrop();
+
+                        // Leaf hit counts as starting the experience
+                        if (!hasStartedRef.current) {
+                            hasStartedRef.current = true;
+                            setHasStarted(true);
+                        }
+
                         l.vy = -l.vy * 0.05; // settle
                         l.vx *= 0.5;
                     }
@@ -341,7 +318,10 @@ export const RippleCanvas = () => {
         // Significantly reduced strength for a softer, more fluid click sound & ripple
         drop(e.clientX, e.clientY, r, e.type === "pointermove" ? 80 : 120);
         if (e.type === "pointerdown") {
-            if (!hasStarted) setHasStarted(true);
+            if (!hasStarted) {
+                setHasStarted(true);
+                hasStartedRef.current = true;
+            }
             playDrop();
             const n = tapCountRef.current + 1;
             tapCountRef.current = n;
@@ -386,7 +366,7 @@ export const RippleCanvas = () => {
 
             <div className="absolute top-5 left-5 z-50 flex items-center gap-3">
                 <Link href="/#playgrounds" className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-white/80 hover:text-white transition-colors border border-white/10 bg-black/20 backdrop-blur-md">
-                    <ArrowLeft size={15} /> Back
+                    <ArrowLeft size={15} /> Portfolio
                 </Link>
                 <button onClick={togglePause} className="px-4 py-2 rounded-full text-sm font-medium text-white/80 hover:text-white border border-white/10 bg-black/20 backdrop-blur-md transition-colors">
                     {paused ? "Resume" : "Pause"}

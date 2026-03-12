@@ -247,7 +247,7 @@ export const FlightGame = () => {
             {/* Top Bar: Back & Pause */}
             <div className="absolute top-5 left-5 z-50 flex items-center gap-3">
                 <Link href="/#playgrounds" className="flex items-center gap-2 px-4 py-2 rounded-full text-sm text-white/60 hover:text-white/90 border border-white/8 bg-black/20 backdrop-blur-md transition-colors">
-                    <ArrowLeft size={15} /> Back
+                    <ArrowLeft size={15} /> Portfolio
                 </Link>
                 <button onClick={togglePause} className="px-4 py-2 rounded-full text-sm font-medium text-white/60 hover:text-white border border-white/8 bg-black/20 backdrop-blur-md transition-colors">
                     {paused ? "Resume Flight" : "Pause"}

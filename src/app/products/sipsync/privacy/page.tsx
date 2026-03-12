@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, Shield } from "lucide-react";
+import { ArrowLeft, Shield, BookOpen, MessageCircleQuestion, ExternalLink, Droplets, LayoutGrid } from "lucide-react";
 import { BASE_PATH, SITE_URL } from "@/lib/constants";
 
 export const metadata: Metadata = {
@@ -24,7 +24,7 @@ export default function SipSyncPrivacyPage() {
                 className="inline-flex items-center gap-2 text-slate-400 hover:text-[#51BFF2] transition-colors text-sm font-medium mb-12"
             >
                 <ArrowLeft size={16} />
-                Back to SipSync
+                SipSync
             </Link>
 
             {/* Product Identity */}
@@ -208,15 +208,7 @@ export default function SipSyncPrivacyPage() {
                 <section>
                     <h2 className="text-xl font-semibold text-white mb-3">10. Contact</h2>
                     <p>
-                        For questions about this privacy policy, contact Kevin Suvagiya
-                        at{" "}
-                        <a
-                            href="mailto:kevinsuvagiya11@gmail.com"
-                            className="text-[#51BFF2] hover:underline"
-                        >
-                            kevinsuvagiya11@gmail.com
-                        </a>{" "}
-                        or via the{" "}
+                        For questions about this privacy policy, you can reach out directly via the{" "}
                         <Link href="/#contact" className="text-[#51BFF2] hover:underline">
                             portfolio contact form
                         </Link>
@@ -225,20 +217,87 @@ export default function SipSyncPrivacyPage() {
                 </section>
             </div>
 
-            {/* Footer */}
-            <div className="border-t border-slate-800 mt-16 pt-8 flex flex-wrap gap-6">
-                <Link
-                    href="/products/sipsync"
-                    className="text-slate-400 hover:text-[#51BFF2] transition-colors text-sm font-medium"
-                >
-                    ← Back to SipSync
-                </Link>
-                <Link
-                    href="/#products"
-                    className="text-slate-400 hover:text-white transition-colors text-sm font-medium"
-                >
-                    ← Back to Portfolio
-                </Link>
+            {/* Help Hub */}
+            <div className="mt-24 pt-24 border-t border-slate-800">
+                <div className="bg-slate-900/40 border border-slate-800 rounded-3xl overflow-hidden">
+                    <div className="flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-slate-800">
+                        {/* Resource Links */}
+                        <div className="flex-1 p-8 md:p-12 text-left">
+                            <h2 className="text-2xl font-bold text-white mb-6">Explore Resources</h2>
+                            <div className="grid gap-4">
+                                <Link
+                                    href="/products/sipsync/guide"
+                                    className="group flex items-center p-4 rounded-xl bg-slate-950/50 border border-slate-800 hover:border-[#51BFF2]/30 transition-all"
+                                >
+                                    <div className="w-10 h-10 rounded-lg bg-[#51BFF2]/10 flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
+                                        <BookOpen size={20} className="text-[#51BFF2]" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <h3 className="text-white font-semibold">User Guide</h3>
+                                        <p className="text-slate-500 text-sm">Step-by-step documentation</p>
+                                    </div>
+                                    <ExternalLink size={16} className="text-slate-600 group-hover:text-[#51BFF2] transition-colors" />
+                                </Link>
+                                <Link
+                                    href="/products/sipsync/faq"
+                                    className="group flex items-center p-4 rounded-xl bg-slate-950/50 border border-slate-800 hover:border-[#51BFF2]/30 transition-all"
+                                >
+                                    <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
+                                        <MessageCircleQuestion size={20} className="text-emerald-500" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <h3 className="text-white font-semibold">FAQs</h3>
+                                        <p className="text-slate-500 text-sm">Common questions & answers</p>
+                                    </div>
+                                    <ExternalLink size={16} className="text-slate-600 group-hover:text-[#51BFF2] transition-colors" />
+                                </Link>
+                                <Link
+                                    href="/products/sipsync"
+                                    className="group flex items-center p-4 rounded-xl bg-slate-950/50 border border-slate-800 hover:border-[#51BFF2]/30 transition-all"
+                                >
+                                    <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
+                                        <Droplets size={20} className="text-blue-400" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <h3 className="text-white font-semibold">SipSync Product</h3>
+                                        <p className="text-slate-500 text-sm">Features & overview</p>
+                                    </div>
+                                    <ExternalLink size={16} className="text-slate-600 group-hover:text-[#51BFF2] transition-colors" />
+                                </Link>
+                                <Link
+                                    href="/#products"
+                                    className="group flex items-center p-4 rounded-xl bg-slate-950/50 border border-slate-800 hover:border-[#51BFF2]/30 transition-all"
+                                >
+                                    <div className="w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
+                                        <LayoutGrid size={20} className="text-white" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <h3 className="text-white font-semibold">Portfolio</h3>
+                                        <p className="text-slate-500 text-sm">Explore other projects</p>
+                                    </div>
+                                    <ExternalLink size={16} className="text-slate-600 group-hover:text-[#51BFF2] transition-colors" />
+                                </Link>
+                            </div>
+                        </div>
+
+                        {/* Contact Form Link */}
+                        <div className="flex-1 p-8 md:p-12 bg-[#51BFF2]/5 flex flex-col justify-center items-center text-center">
+                            <div className="w-16 h-16 rounded-full bg-[#51BFF2]/10 flex items-center justify-center mb-6">
+                                <MessageCircleQuestion size={32} className="text-[#51BFF2]" />
+                            </div>
+                            <h2 className="text-2xl font-bold text-white mb-3">Still have questions?</h2>
+                            <p className="text-slate-400 mb-8 max-w-xs">
+                                If you want to learn more about how to use the extension or have other questions, reach out directly.
+                            </p>
+                            <Link
+                                href="/#contact"
+                                className="w-full py-4 bg-[#51BFF2] hover:bg-[#3291D9] text-white font-bold rounded-xl transition-all shadow-lg shadow-[#51BFF2]/20 active:scale-[0.98]"
+                            >
+                                Contact Me
+                            </Link>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     );

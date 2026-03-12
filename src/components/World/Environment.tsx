@@ -6,6 +6,7 @@ import { CanvasTexture, RepeatWrapping } from "three";
 import { useFrame } from "@react-three/fiber";
 import { useWorldStore } from "./store/worldStore";
 import * as THREE from "three";
+import { setWaterWaveIntensity } from "@/lib/audio";
 
 export const Environment = () => {
     // Collectible Orbs logic
@@ -104,6 +105,15 @@ export const Environment = () => {
 
         const isMoving = Math.abs(playerPos.x - ((window as any).__lastPx || playerPos.x)) > 0.05
             || Math.abs(playerPos.z - ((window as any).__lastPz || playerPos.z)) > 0.05;
+
+        const speed = Math.sqrt(Math.pow(playerPos.x - ((window as any).__lastPx || playerPos.x), 2) + Math.pow(playerPos.z - ((window as any).__lastPz || playerPos.z), 2));
+
+        // Modulate physical moving-in-water sound effect via speed
+        if (touchingWater && playerPos.y < 0.3) {
+            setWaterWaveIntensity(Math.min(1, speed * 2.5));
+        } else {
+            setWaterWaveIntensity(0);
+        }
 
         (window as any).__lastPx = playerPos.x;
         (window as any).__lastPz = playerPos.z;

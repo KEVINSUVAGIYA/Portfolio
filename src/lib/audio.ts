@@ -7,9 +7,16 @@ let bgGainNode: GainNode | null = null;
 let masterGainNode: GainNode | null = null;
 
 // BG Music state
+// BG Music state
 let bgAudio: HTMLAudioElement | null = null;
 let bgSource: MediaElementAudioSourceNode | null = null;
 let isBgPlaying = false;
+
+// Ambient Wave state
+let waveBgAudio: HTMLAudioElement | null = null;
+let waveBgSource: MediaElementAudioSourceNode | null = null;
+let waveGainNode: GainNode | null = null;
+let waterClickAudio: HTMLAudioElement | null = null;
 
 // Volumes (0 to 1)
 let mainVol = 0.9;
@@ -79,6 +86,9 @@ export const stopGlobalAudio = () => {
         bgAudio.pause();
         isBgPlaying = false;
     }
+    if (waveBgAudio) {
+        waveBgAudio.pause();
+    }
     if (ctx && ctx.state === "running") {
         ctx.suspend();
     }
@@ -110,4 +120,44 @@ export const toggleBgMusic = (theme: "zen" | "flight" | "world" | "lanterns") =>
     bgAudio.play().catch(e => console.error("Audio playback error:", e));
     isBgPlaying = true;
     return true;
+};
+
+// Continuous ambient wave effect
+export const setWaterWaveIntensity = (intensity: number) => {
+    if (typeof window === "undefined" || getIsMuted()) return;
+    const c = getAudioCtx();
+    if (!c || !mainGainNode) return;
+
+    if (!waveBgAudio) {
+        waveBgAudio = new window.Audio("/audio/water_wave_bg.mp3");
+        waveBgAudio.loop = true;
+        waveBgAudio.crossOrigin = "anonymous";
+
+        waveGainNode = c.createGain();
+        waveGainNode.gain.value = 0;
+        waveGainNode.connect(mainGainNode);
+
+        waveBgSource = c.createMediaElementSource(waveBgAudio);
+        waveBgSource.connect(waveGainNode);
+    }
+
+    if (intensity > 0.01 && waveBgAudio.paused) {
+        waveBgAudio.play().catch(e => console.error(e));
+    }
+
+    if (waveGainNode) {
+        // Smoothly ramp volume based on intensity
+        waveGainNode.gain.setTargetAtTime(Math.min(1, intensity), c.currentTime, 0.5);
+    }
+};
+
+// Plop/click sound effect
+export const playWaterClickSfx = () => {
+    if (typeof window === "undefined" || getIsMuted()) return;
+    if (!waterClickAudio) {
+        waterClickAudio = new window.Audio("/audio/water_click.mp3");
+    }
+    const clone = waterClickAudio.cloneNode(true) as HTMLAudioElement;
+    clone.volume = mainVol;
+    clone.play().catch(e => console.error(e));
 };

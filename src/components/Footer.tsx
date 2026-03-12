@@ -48,12 +48,12 @@ export const Footer = () => {
                 {/* Social Links */}
                 <div className="flex items-center gap-6">
                     <a
-                        href="https://github.com/KEVINSUVAGIYA"
+                        href="https://www.salesforce.com/trailblazer/kevinsuvagiya"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-slate-400 hover:text-white transition-colors"
+                        className="text-slate-400 hover:text-blue-500 transition-colors cursor-pointer"
                     >
-                        <Github size={20} />
+                        <TrailheadIcon size={20} />
                     </a>
                     <a
                         href="https://www.linkedin.com/in/kevin-suvagiya/"
@@ -62,22 +62,6 @@ export const Footer = () => {
                         className="text-slate-400 hover:text-sky-400 transition-colors"
                     >
                         <Linkedin size={20} />
-                    </a>
-                    <a
-                        href="https://www.instagram.com/kevin_suvagiya02/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-slate-400 hover:text-pink-400 transition-colors cursor-pointer"
-                    >
-                        <Instagram size={20} />
-                    </a>
-                    <a
-                        href="https://x.com/kevin__suvagiya"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-slate-400 hover:text-white transition-colors cursor-pointer"
-                    >
-                        <XIcon size={20} />
                     </a>
                     <a
                         href="https://kevinsuvagiya.medium.com/"
@@ -96,12 +80,28 @@ export const Footer = () => {
                         </svg>
                     </a>
                     <a
-                        href="https://www.salesforce.com/trailblazer/kevinsuvagiya"
+                        href="https://www.instagram.com/kevin_suvagiya02/"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-slate-400 hover:text-blue-500 transition-colors cursor-pointer"
+                        className="text-slate-400 hover:text-pink-400 transition-colors cursor-pointer"
                     >
-                        <TrailheadIcon size={20} />
+                        <Instagram size={20} />
+                    </a>
+                    <a
+                        href="https://github.com/KEVINSUVAGIYA"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-slate-400 hover:text-white transition-colors"
+                    >
+                        <Github size={20} />
+                    </a>
+                    <a
+                        href="https://x.com/kevin__suvagiya"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-slate-400 hover:text-white transition-colors cursor-pointer"
+                    >
+                        <XIcon size={20} />
                     </a>
                 </div>
 

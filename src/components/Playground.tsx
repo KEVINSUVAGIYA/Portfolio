@@ -8,14 +8,6 @@ import { SectionHeader } from "./ui/SectionHeader";
 export const Playground = () => {
     const games = [
         {
-            title: "Spirit World",
-            description: "Explore an endless, soulful landscape on a spirit horse.",
-            icon: <Globe className="w-6 h-6 text-emerald-400" />,
-            href: "/world",
-            color: "from-emerald-500/20 to-teal-500/5",
-            border: "group-hover:border-emerald-500/50"
-        },
-        {
             title: "Lanterns of Thought",
             description: "Release your worries into the infinite night sky.",
             icon: <Cloud className="w-6 h-6 text-orange-400" />,
@@ -38,6 +30,14 @@ export const Playground = () => {
             href: "/playground/flight",
             color: "from-purple-500/20 to-pink-500/5",
             border: "group-hover:border-purple-500/50"
+        },
+        {
+            title: "Spirit World",
+            description: "Explore an endless, soulful landscape on a spirit horse.",
+            icon: <Globe className="w-6 h-6 text-emerald-400" />,
+            href: "/world",
+            color: "from-emerald-500/20 to-teal-500/5",
+            border: "group-hover:border-emerald-500/50"
         }
     ];
 

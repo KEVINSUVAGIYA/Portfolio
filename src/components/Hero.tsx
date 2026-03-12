@@ -25,7 +25,7 @@ export const Hero = () => {
                     Kevin Suvagiya
                 </h1>
                 <h2 className="text-2xl md:text-3xl font-semibold text-slate-400">
-                    Salesforce Developer | 3x Salesforce Certified | Trailhead Double Star Ranger
+                    Salesforce Developer | 3x Salesforce Certified | Trailhead Triple Star Ranger
                 </h2>
             </motion.div>
 

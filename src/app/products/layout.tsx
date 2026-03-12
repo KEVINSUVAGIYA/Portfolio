@@ -24,7 +24,7 @@ export default function ProductsLayout({
                         className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm font-medium"
                     >
                         <ArrowLeft size={16} />
-                        Back to Portfolio
+                        Portfolio
                     </Link>
                 </div>
             </nav>

@@ -77,7 +77,7 @@ export const LanternInput = () => {
             {/* Top Bar: Back & Pause */}
             <div className="absolute top-6 left-6 z-50 flex items-center gap-3">
                 <Link href="/#playgrounds" className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-white/60 hover:text-white border border-white/10 bg-black/20 backdrop-blur-md transition-colors">
-                    <ArrowLeft size={15} /> Back
+                    <ArrowLeft size={15} /> Portfolio
                 </Link>
                 <button onClick={togglePause} className="px-4 py-2 rounded-full text-sm font-medium text-white/60 hover:text-white border border-white/10 bg-black/20 backdrop-blur-md transition-colors">
                     {paused ? "Resume" : "Pause"}

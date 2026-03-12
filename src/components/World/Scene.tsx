@@ -39,7 +39,7 @@ export const Scene = () => {
                     {/* Top Left: Controls & Back */}
                     <div className="absolute top-4 left-4 z-50 flex flex-col gap-3">
                         <Link href="/#playgrounds" className="flex items-center gap-2 px-4 py-2 w-max bg-black/40 backdrop-blur-md rounded-full text-sm font-medium text-white hover:bg-black/60 border border-white/10 transition-colors">
-                            <ArrowLeft size={16} /> Back
+                            <ArrowLeft size={16} /> Portfolio
                         </Link>
 
                         <div className="p-4 bg-black/40 backdrop-blur-md rounded-2xl border border-white/10 text-white w-64">

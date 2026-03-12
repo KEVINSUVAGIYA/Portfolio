@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: "Kevin Suvagiya | Salesforce Developer",
   description: "Salesforce Developer | Curious Explorer. Building the engines behind Salesforce clouds. Specializing in bi-directional integrations, high-performance LWC, and custom AppExchange solutions.",
-  keywords: ["Salesforce Developer", "LWC", "Apex", "Salesforce Certified", "Web Developer", "React", "Next.js", "Portfolio", "Kevin Suvagiya", "Salesforce Build Release Engineer", "AppExchange", "Lightning Web Components"],
+  keywords: ["Salesforce Developer", "LWC", "Apex", "Salesforce Certified", "Web Developer", "React", "Next.js", "Portfolio", "Kevin Suvagiya", "Salesforce Build Release Engineer", "AppExchange", "Lightning Web Components", "SipSync", "HeeraHisaab"],
   authors: [{ name: "Kevin Suvagiya", url: SITE_URL }],
   creator: "Kevin Suvagiya",
   applicationName: "Kevin Suvagiya Portfolio",
@@ -73,6 +73,8 @@ const jsonLd = {
     "https://www.linkedin.com/in/kevin-suvagiya/",
     "https://x.com/kevin__suvagiya",
     "https://kevinsuvagiya.medium.com/",
+    "https://www.salesforce.com/trailblazer/kevinsuvagiya",
+    "https://www.instagram.com/kevin_suvagiya02/",
   ],
   knowsAbout: [
     "Salesforce",

@@ -105,7 +105,7 @@ All data is stored **locally on the user's device** using `chrome.storage.sync`:
 - ❌ No ads or ad-related tracking
 
 ### 4.3 Data Sharing
-- **None.** SipSync shares absolutely zero data with anyone. There is no server, no database, no cloud storage, no API calls. Everything operates 100% offline and locally.
+- **None.** SipSync shares absolutely zero data with anyone. There is no server, no database, no cloud storage, no API calls. Everything operates 100% securely and locally.
 
 ### 4.4 Data Retention
 - Data persists in `chrome.storage.sync` as long as the extension is installed.

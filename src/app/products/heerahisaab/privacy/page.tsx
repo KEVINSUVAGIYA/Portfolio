@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, Shield, ExternalLink } from "lucide-react";
+import { ArrowLeft, Shield, ExternalLink, MessageCircleQuestion, BookOpen, Diamond, LayoutGrid } from "lucide-react";
 import { BASE_PATH, SITE_URL } from "@/lib/constants";
 
 export const metadata: Metadata = {
@@ -24,7 +24,7 @@ export default function HeeraHisaabPrivacyPage() {
                 className="inline-flex items-center gap-2 text-slate-400 hover:text-[#3b82f6] transition-colors text-sm font-medium mb-12"
             >
                 <ArrowLeft size={16} />
-                Back to HeeraHisaab
+                HeeraHisaab
             </Link>
 
             {/* Product Identity */}
@@ -232,15 +232,7 @@ export default function HeeraHisaabPrivacyPage() {
                 <section>
                     <h2 className="text-xl font-semibold text-white mb-3">10. Contact</h2>
                     <p>
-                        For privacy questions or data deletion requests, contact Kevin Suvagiya
-                        at{" "}
-                        <a
-                            href="mailto:kevinsuvagiya11@gmail.com"
-                            className="text-[#3b82f6] hover:underline"
-                        >
-                            kevinsuvagiya11@gmail.com
-                        </a>{" "}
-                        or via the{" "}
+                        For privacy questions or data deletion requests, you can reach out directly via the{" "}
                         <Link href="/#contact" className="text-[#3b82f6] hover:underline">
                             portfolio contact form
                         </Link>
@@ -249,28 +241,87 @@ export default function HeeraHisaabPrivacyPage() {
                 </section>
             </div>
 
-            {/* Footer */}
-            <div className="border-t border-slate-800 mt-16 pt-8 flex flex-wrap gap-6">
-                <Link
-                    href="/products/heerahisaab"
-                    className="text-slate-400 hover:text-[#3b82f6] transition-colors text-sm font-medium"
-                >
-                    ← Back to HeeraHisaab
-                </Link>
-                <a
-                    href="https://heerahisaab.web.app"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-slate-400 hover:text-[#3b82f6] transition-colors text-sm font-medium inline-flex items-center gap-1"
-                >
-                    Open App <ExternalLink size={12} />
-                </a>
-                <Link
-                    href="/#products"
-                    className="text-slate-400 hover:text-white transition-colors text-sm font-medium"
-                >
-                    ← Back to Portfolio
-                </Link>
+            {/* Help Hub */}
+            <div className="mt-24 pt-24 border-t border-slate-800">
+                <div className="bg-slate-900/40 border border-slate-800 rounded-3xl overflow-hidden">
+                    <div className="flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-slate-800">
+                        {/* Resource Links */}
+                        <div className="flex-1 p-8 md:p-12 text-left">
+                            <h2 className="text-2xl font-bold text-white mb-6">Explore Resources</h2>
+                            <div className="grid gap-4">
+                                <Link
+                                    href="/products/heerahisaab/guide"
+                                    className="group flex items-center p-4 rounded-xl bg-slate-950/50 border border-slate-800 hover:border-[#3b82f6]/30 transition-all"
+                                >
+                                    <div className="w-10 h-10 rounded-lg bg-[#3b82f6]/10 flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
+                                        <BookOpen size={20} className="text-[#3b82f6]" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <h3 className="text-white font-semibold">User Guide</h3>
+                                        <p className="text-slate-500 text-sm">Step-by-step documentation</p>
+                                    </div>
+                                    <ExternalLink size={16} className="text-slate-600 group-hover:text-[#3b82f6] transition-colors" />
+                                </Link>
+                                <Link
+                                    href="/products/heerahisaab/faq"
+                                    className="group flex items-center p-4 rounded-xl bg-slate-950/50 border border-slate-800 hover:border-[#3b82f6]/30 transition-all"
+                                >
+                                    <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
+                                        <MessageCircleQuestion size={20} className="text-emerald-500" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <h3 className="text-white font-semibold">FAQs</h3>
+                                        <p className="text-slate-500 text-sm">Common questions & answers</p>
+                                    </div>
+                                    <ExternalLink size={16} className="text-slate-600 group-hover:text-[#3b82f6] transition-colors" />
+                                </Link>
+                                <Link
+                                    href="/products/heerahisaab"
+                                    className="group flex items-center p-4 rounded-xl bg-slate-950/50 border border-slate-800 hover:border-[#3b82f6]/30 transition-all"
+                                >
+                                    <div className="w-10 h-10 rounded-lg bg-sky-500/10 flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
+                                        <Diamond size={20} className="text-sky-400" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <h3 className="text-white font-semibold">HeeraHisaab Product</h3>
+                                        <p className="text-slate-500 text-sm">Features & overview</p>
+                                    </div>
+                                    <ExternalLink size={16} className="text-slate-600 group-hover:text-[#3b82f6] transition-colors" />
+                                </Link>
+                                <Link
+                                    href="/#products"
+                                    className="group flex items-center p-4 rounded-xl bg-slate-950/50 border border-slate-800 hover:border-[#3b82f6]/30 transition-all"
+                                >
+                                    <div className="w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
+                                        <LayoutGrid size={20} className="text-white" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <h3 className="text-white font-semibold">Portfolio</h3>
+                                        <p className="text-slate-500 text-sm">Explore other projects</p>
+                                    </div>
+                                    <ExternalLink size={16} className="text-slate-600 group-hover:text-[#3b82f6] transition-colors" />
+                                </Link>
+                            </div>
+                        </div>
+
+                        {/* Contact Form Link */}
+                        <div className="flex-1 p-8 md:p-12 bg-[#3b82f6]/5 flex flex-col justify-center items-center text-center">
+                            <div className="w-16 h-16 rounded-full bg-[#3b82f6]/10 flex items-center justify-center mb-6">
+                                <MessageCircleQuestion size={32} className="text-[#3b82f6]" />
+                            </div>
+                            <h2 className="text-2xl font-bold text-white mb-3">Still have questions?</h2>
+                            <p className="text-slate-400 mb-8 max-w-xs">
+                                If you want to learn more about how to use the app or have other questions, reach out directly.
+                            </p>
+                            <Link
+                                href="/#contact"
+                                className="w-full py-4 bg-[#3b82f6] hover:bg-[#2563eb] text-white font-bold rounded-xl transition-all shadow-lg shadow-[#3b82f6]/20 active:scale-[0.98]"
+                            >
+                                Contact Me
+                            </Link>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     );
