@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Text, Float } from "@react-three/drei";
 import * as THREE from "three";
@@ -12,6 +12,7 @@ interface LanternState {
     setCurrentInput: (text: string) => void;
     addLantern: (text: string) => void;
     removeLantern: (id: number) => void;
+    clearLanterns: () => void;
     lanterns: { id: number; text: string; xTarget: number; zTarget: number; speed: number }[];
     paused: boolean;
     togglePause: () => void;
@@ -26,13 +27,14 @@ export const useLanternStore = create<LanternState>((set) => ({
         setGlobalAudioPaused(!state.paused);
         return { paused: !state.paused };
     }),
+    clearLanterns: () => set({ lanterns: [] }),
     addLantern: (text) => set((state) => ({
         lanterns: [...state.lanterns, {
             id: Date.now(),
             text,
             xTarget: (Math.random() - 0.5) * 44,
             zTarget: -(Math.random() * 30 + 8),
-            speed: 0.4 + Math.random() * 0.25,   // SLOW: was 1.2–2.0
+            speed: 0.4 + Math.random() * 0.25,   
         }]
     })),
     removeLantern: (id) => set((state) => ({
@@ -165,6 +167,14 @@ const ReleasedLantern = ({ id, text, xTarget, zTarget, speed }: any) => {
 export const LanternSystem = () => {
     const lanterns = useLanternStore((s) => s.lanterns);
     const currentInput = useLanternStore((s) => s.currentInput);
+    const clearLanterns = useLanternStore((s) => s.clearLanterns);
+
+    useEffect(() => {
+        return () => {
+            clearLanterns();
+        };
+    }, [clearLanterns]);
+
     return (
         <group>
             <GhostLanterns />

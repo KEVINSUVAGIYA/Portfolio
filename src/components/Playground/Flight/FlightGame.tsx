@@ -41,10 +41,10 @@ const NOTES = [
     { note: 659.25, color: "#fb923c", name: "E'" },
 ];
 
-// Fewer rings — only 8 active at a time
-const ACTIVE_RINGS = 8;
-// Spread them across a long corridor
-const LANE_SPACING = 35; // z units between rings
+// More rings for higher density
+const ACTIVE_RINGS = 14;
+// Closer spacing
+const LANE_SPACING = 16; // z units between rings
 
 interface RingData {
     id: number;
@@ -133,13 +133,40 @@ const Controller = ({ camZRef }: { camZRef: React.MutableRefObject<number> }) =>
 
     useFrame((_, delta) => {
         if (!useStore.getState().paused) {
-            const s = 9 * delta;
             const k = keys.current;
+            const state = useStore.getState();
+
+            let isBoosting = false;
+            let currentBoost = state.boost;
+            let currentOverheat = state.overheated;
+
+            const shiftPressed = k["ShiftLeft"] || k["ShiftRight"];
+
+            if (shiftPressed && currentBoost > 0 && !currentOverheat) {
+                isBoosting = true;
+                currentBoost = Math.max(0, currentBoost - 35 * delta); // Drains in ~3s
+                if (currentBoost <= 0) {
+                    currentOverheat = true;
+                }
+            } else {
+                isBoosting = false;
+                currentBoost = Math.min(100, currentBoost + 20 * delta); // Recharges in 5s
+                if (currentBoost >= 35 && currentOverheat) {
+                    currentOverheat = false; // Recover at 35%
+                }
+            }
+
+            useStore.setState({ boost: currentBoost, overheated: currentOverheat });
+
+            const speedMult = isBoosting ? 2.5 : 1.0; 
+            const s = 9 * delta;
+
             if (k["ArrowLeft"] || k["KeyA"]) camera.position.x -= s;
             if (k["ArrowRight"] || k["KeyD"]) camera.position.x += s;
             if (k["ArrowUp"] || k["KeyW"]) camera.position.y += s;
             if (k["ArrowDown"] || k["KeyS"]) camera.position.y -= s;
-            camera.position.z -= 6 * delta;   // Constant forward (moderate pace)
+            
+            camera.position.z -= (6 * speedMult) * delta;   
             camera.position.x = THREE.MathUtils.clamp(camera.position.x, -20, 20);
             camera.position.y = THREE.MathUtils.clamp(camera.position.y, -12, 12);
             camZRef.current = camera.position.z;
@@ -150,13 +177,43 @@ const Controller = ({ camZRef }: { camZRef: React.MutableRefObject<number> }) =>
 
 // ----- STORE -----
 import { create } from "zustand";
-const useStore = create<{ paused: boolean; togglePause: () => void }>((set) => ({
+const useStore = create<{
+    paused: boolean;
+    togglePause: () => void;
+    boost: number;
+    overheated: boolean;
+}>((set) => ({
     paused: false,
     togglePause: () => set((s) => {
         setGlobalAudioPaused(!s.paused);
         return { paused: !s.paused };
     }),
+    boost: 100,
+    overheated: false,
 }));
+
+const BoostBar = () => {
+    const boost = useStore((s) => s.boost);
+    const overheated = useStore((s) => s.overheated);
+
+    return (
+        <div className="flex flex-col items-center gap-1 px-4 py-2 rounded-full bg-black/40 border border-white/10 backdrop-blur-md">
+            <div className="flex items-center gap-2.5">
+                {overheated ? (
+                    <span className="text-red-400 text-[10px] font-bold tracking-widest animate-pulse">OVERHEATED</span>
+                ) : (
+                    <span className="text-cyan-400/80 text-[10px] tracking-wider font-bold">BOOST</span>
+                )}
+                <div className="w-20 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                    <div 
+                        className={`h-full transition-all duration-75 ease-out ${overheated ? "bg-red-500" : "bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.5)]"}`}
+                        style={{ width: `${boost}%` }}
+                    />
+                </div>
+            </div>
+        </div>
+    );
+};
 
 // ----- SCENE -----
 const Scene = ({
@@ -166,22 +223,35 @@ const Scene = ({
     camZRef: React.MutableRefObject<number>;
     onCollect: (id: number) => void;
     onPassed: (id: number) => void;
-}) => (
-    <>
-        <color attach="background" args={["#020009"]} />
-        <fog attach="fog" args={["#020009", 50, 160]} />
-        <Stars radius={200} depth={80} count={4000} factor={5} fade speed={0.15} />
-        <ambientLight intensity={0.04} />
-        <Controller camZRef={camZRef} />
-        {rings.map((r) => (
-            <RingMesh key={r.id} r={r} camZRef={camZRef} onCollect={onCollect} onPassed={onPassed} />
-        ))}
-        <EffectComposer>
-            <Bloom luminanceThreshold={0.3} mipmapBlur intensity={2.2} radius={0.55} />
-            <Vignette eskil={false} offset={0.15} darkness={1.1} />
-        </EffectComposer>
-    </>
-);
+}) => {
+    const starsRef = useRef<THREE.Group>(null);
+    const { camera } = useThree();
+
+    useFrame(() => {
+        if (starsRef.current) {
+            starsRef.current.position.copy(camera.position);
+        }
+    });
+
+    return (
+        <>
+            <color attach="background" args={["#020009"]} />
+            <fog attach="fog" args={["#020009", 50, 160]} />
+            <group ref={starsRef}>
+                <Stars radius={200} depth={80} count={4000} factor={5} fade speed={0.15} />
+            </group>
+            <ambientLight intensity={0.04} />
+            <Controller camZRef={camZRef} />
+            {rings.map((r) => (
+                <RingMesh key={r.id} r={r} camZRef={camZRef} onCollect={onCollect} onPassed={onPassed} />
+            ))}
+            <EffectComposer>
+                <Bloom luminanceThreshold={0.3} mipmapBlur intensity={2.2} radius={0.55} />
+                <Vignette eskil={false} offset={0.15} darkness={1.1} />
+            </EffectComposer>
+        </>
+    );
+};
 
 // ----- GAME -----
 export const FlightGame = () => {
@@ -199,11 +269,16 @@ export const FlightGame = () => {
     const paused = useStore((s) => s.paused);
     const togglePause = useStore((s) => s.togglePause);
 
-    // Respawn a ring far ahead of camera
+    // Respawn a ring keeping even continuous spacing (endless corridor)
     const spawnAhead = useCallback(() => {
         const id = nextIdRef.current++;
-        const slotZ = camZRef.current - 80 - Math.random() * LANE_SPACING;
-        setRings((prev) => [...prev, makeRing(id, slotZ)]);
+        setRings((prev) => {
+            const minZ = prev.length > 0 
+                ? prev.reduce((min, r) => Math.min(min, r.z), prev[0].z) 
+                : camZRef.current - 80;
+            const slotZ = minZ - LANE_SPACING - (Math.random() * 4 - 2); 
+            return [...prev, makeRing(id, slotZ)];
+        });
     }, []);
 
     const handleCollect = useCallback((id: number) => {
@@ -289,8 +364,14 @@ export const FlightGame = () => {
             </AnimatePresence>
 
             {/* Minimal hint */}
-            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-50 text-white/20 text-xs tracking-widest">
-                ↑ ↓ ← → to steer · fly through the rings
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2.5 text-white/40 text-[10px] tracking-widest font-medium w-full max-w-md">
+                <BoostBar />
+                <div className="text-center">
+                    ↑ ↓ ← → to steer · hold <span className="text-cyan-400 font-bold">Shift</span> to boost
+                </div>
+                <div className="text-center text-amber-300/50 tracking-normal px-4">
+                    💡 <strong className="font-bold text-amber-300/80">Harmony Tip:</strong> Collect notes forming deep intervals (e.g., E then C', A then E') to stack combo scores.
+                </div>
             </div>
         </div>
     );
