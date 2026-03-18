@@ -76,7 +76,7 @@ export const Hero = () => {
 
                 <MagneticWrapper strength={50}>
                     <a
-                        href={`${BASE_PATH}/resume.pdf`}
+                        href={`${BASE_PATH}/Kevin_Suvagiya_Resume.pdf`}
                         download="Kevin_Suvagiya_Resume.pdf"
                         className="flex items-center justify-center gap-2 px-8 py-4 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-full transition-colors h-[56px] min-w-[180px]"
                     >
