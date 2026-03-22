@@ -93,11 +93,15 @@ export default function SipSyncPrivacyPage() {
                                 </tr>
                                 <tr className="border-b border-slate-800">
                                     <td className="py-3 px-4">Daily water target</td>
-                                    <td className="py-3 px-4">Your hydration goal in ml</td>
+                                    <td className="py-3 px-4">Your hydration goal in ml (max 6000ml)</td>
                                 </tr>
                                 <tr className="border-b border-slate-800">
                                     <td className="py-3 px-4">Current intake</td>
-                                    <td className="py-3 px-4">Water consumed today</td>
+                                    <td className="py-3 px-4">Water consumed today (max 6000ml)</td>
+                                </tr>
+                                <tr className="border-b border-slate-800">
+                                    <td className="py-3 px-4">Glass size</td>
+                                    <td className="py-3 px-4">Your configured glass size in ml (max 1000ml)</td>
                                 </tr>
                                 <tr className="border-b border-slate-800">
                                     <td className="py-3 px-4">Notification preferences</td>
@@ -106,6 +110,18 @@ export default function SipSyncPrivacyPage() {
                                 <tr className="border-b border-slate-800">
                                     <td className="py-3 px-4">Sound & theme settings</td>
                                     <td className="py-3 px-4">UI preferences</td>
+                                </tr>
+                                <tr className="border-b border-slate-800">
+                                    <td className="py-3 px-4">Intake history</td>
+                                    <td className="py-3 px-4">Past daily hydration records for the calendar & medal system</td>
+                                </tr>
+                                <tr className="border-b border-slate-800">
+                                    <td className="py-3 px-4">Last reminder time & active date</td>
+                                    <td className="py-3 px-4">Timestamps for scheduling and daily reset logic</td>
+                                </tr>
+                                <tr className="border-b border-slate-800">
+                                    <td className="py-3 px-4">Active reminder ID</td>
+                                    <td className="py-3 px-4">Token to prevent double-counting drinks from re-opened tabs</td>
                                 </tr>
                             </tbody>
                         </table>

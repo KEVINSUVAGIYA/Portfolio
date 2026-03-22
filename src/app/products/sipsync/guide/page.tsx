@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, BookOpen, Droplets, Bell, Target, Settings, MonitorPlay, MessageCircleQuestion, Shield, ExternalLink, LayoutGrid } from "lucide-react";
+import { ArrowLeft, BookOpen, Droplets, Bell, Target, Settings, MonitorPlay, MessageCircleQuestion, Shield, ExternalLink, LayoutGrid, BarChart3 } from "lucide-react";
 
 export const metadata: Metadata = {
     title: "SipSync User Guide | Water Reminder & Tracker",
@@ -64,15 +64,15 @@ export default function SipSyncGuidePage() {
                         <h2 className="text-3xl font-bold text-white">2. Setting Your Daily Goal</h2>
                     </div>
                     <p className="leading-relaxed mb-4">
-                        To effectively track your hydration, you must set an overarching target for the day.
+                        To effectively track your hydration, you must set an overarching target for the day. You can set a maximum daily goal of <strong>6000ml</strong>.
                     </p>
                     <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-6">
                         <ol className="list-decimal list-inside space-y-4">
                             <li>Open the SipSync extension popup.</li>
                             <li>Look for the <strong>Target</strong> card below the main water wave circle.</li>
                             <li>Click the small <strong>Pencil icon</strong> to edit your daily goal.</li>
-                            <li>Type in your target in milliliters (ml) — for example, <code>2500</code> for 2.5 liters.</li>
-                            <li>Press Enter or click outside to save. Your progress circle will automatically adjust to this new target.</li>
+                            <li>Type in your target in milliliters (ml) — for example, <code>2500</code> for 2.5 liters (max 6000ml).</li>
+                            <li>Press <strong>Enter</strong> or click the <strong>check icon</strong> to save. Your progress circle will automatically adjust to this new target.</li>
                         </ol>
                     </div>
                 </section>
@@ -85,14 +85,16 @@ export default function SipSyncGuidePage() {
                         <h2 className="text-3xl font-bold text-white">3. Reminders & Intervals</h2>
                     </div>
                     <p className="leading-relaxed mb-4">
-                        SipSync uses Chrome's native alarm APIs to remind you. It will never spam you—if you step away from your computer, only the single most recent notification is held.
+                        SipSync uses Chrome&apos;s native alarm APIs to remind you. It will never spam you — if your laptop was asleep or Chrome was closed, only the single most recent notification is shown. No notification bursts.
                     </p>
                     <ul className="list-disc list-inside space-y-2 ml-4">
-                        <li>In the extension popup, find the <strong>Interval Dropdown</strong> at the bottom.</li>
-                        <li>Select how often you wish to be reminded (e.g., Every 30 minutes, Every 1 hour).</li>
-                        <li>Click <strong>"Start Reminder"</strong>. The button will change to "Stop Reminder" and your timer begins.</li>
-                        <li>When the timer expires, SipSync will send you a reminder.</li>
-                        <li>The notification will prompt you to "Drink 200ml" or "Ignore". Clicking "Drink" immediately updates your progress circle without needing to open the popup.</li>
+                        <li>In the extension popup, find the <strong>Reminder Interval</strong> input at the bottom.</li>
+                        <li>Set how often you wish to be reminded (e.g., every 15 minutes, every 1 hour). If the field is left empty or invalid, it automatically defaults to <strong>45 minutes</strong>.</li>
+                        <li>Click <strong>&quot;Start Reminder&quot;</strong>. The button will change to &quot;Stop Reminder&quot; and your timer begins.</li>
+                        <li>To change the interval while a reminder is active, update the value and click <strong>&quot;Save&quot;</strong>.</li>
+                        <li>When the timer expires, SipSync sends you a reminder via your chosen notification method.</li>
+                        <li>The notification will prompt you to <strong>&quot;I drank Xml&quot;</strong> (where X is your configured glass size) or <strong>&quot;Ignore&quot;</strong>. Clicking &quot;Drink&quot; immediately updates your progress circle.</li>
+                        <li><strong>Note:</strong> Clicking &quot;Drink&quot; from the main extension popup resets the reminder timer. Clicking from OS notifications or the reminder popup does <em>not</em> reset the timer — they continue on their regular schedule.</li>
                     </ul>
                 </section>
 
@@ -108,10 +110,36 @@ export default function SipSyncGuidePage() {
                     </p>
                     <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-6">
                         <ul className="list-disc list-inside space-y-2">
-                            <li><strong>Notification Style:</strong> Toggle between OS-level native desktop notifications or a custom Chrome HTML popup notification for your alerts.</li>
-                            <li><strong>Allow OS Notifications:</strong> If you choose OS notifications, ensure that your computer's operating system settings (macOS/Windows) allow notifications for Google Chrome.</li>
-                            <li><strong>Sound Effects:</strong> SipSync features a custom sound for reminders and a victory chime when you reach 100% of your daily goal. You can toggle all sounds off here.</li>
-                            <li><strong>Quotes:</strong> Toggle the motivational hydration quote displayed in your extension window.</li>
+                            <li><strong>Reminder Delivery:</strong> Toggle OS Notifications and/or Reminder Pop-up on or off. You can enable <strong>one or both</strong> simultaneously.</li>
+                            <li><strong>Sound Effects:</strong> SipSync features a custom sound for reminders and a special celebration sound when you reach 100% of your daily goal. Toggle all sounds on or off here.</li>
+                            <li><strong>Glass Size:</strong> Configure your glass size (default: 200ml, max: 1000ml). All &quot;Drink&quot; buttons across the extension — including notifications — will use this value.</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <section>
+                    <div className="flex items-center gap-3 mb-6">
+                        <div className="p-2 rounded-lg bg-purple-500/10 border border-purple-500/20">
+                            <BarChart3 size={24} className="text-purple-400" />
+                        </div>
+                        <h2 className="text-3xl font-bold text-white">5. Hydration Calendar & Statistics</h2>
+                    </div>
+                    <p className="leading-relaxed mb-4">
+                        Track your hydration progress over time with the built-in statistics page, accessible via the <strong>chart icon</strong> on the main homepage (beside the settings gear).
+                    </p>
+                    <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-6">
+                        <ul className="list-disc list-inside space-y-3">
+                            <li><strong>Monthly Calendar View:</strong> Displays a full month grid. Navigate between months using the Previous/Next buttons.</li>
+                            <li><strong>Medal System:</strong> Each completed day earns a medal based on how much of your goal you reached:
+                                <ul className="list-none space-y-1 mt-2 ml-6">
+                                    <li>🥇 <strong>Gold</strong> — Reached ≥100% of your daily target.</li>
+                                    <li>🥈 <strong>Silver</strong> — Reached ≥75% of your daily target.</li>
+                                    <li>🥉 <strong>Bronze</strong> — Reached ≥50% of your daily target.</li>
+                                </ul>
+                            </li>
+                            <li><strong>Color-Coded Days:</strong> Days with medals get distinct background/border colors (amber for gold, gray for silver, warm orange for bronze). Medals appear next to the day number.</li>
+                            <li><strong>All-Time Medal Totals:</strong> A summary card shows your lifetime gold, silver, and bronze counts. Unearned medals appear grayed out.</li>
+                            <li><strong>History Only:</strong> Medals are only shown for completed past days. Today&apos;s in-progress data is not displayed to avoid fluctuating medal states.</li>
                         </ul>
                     </div>
                 </section>
@@ -122,10 +150,10 @@ export default function SipSyncGuidePage() {
                             Hitting Your Goal
                         </h2>
                         <p className="leading-relaxed mb-4">
-                            When your progress tracker hits 100% of your daily target, SipSync will automatically trigger a confetti celebration, a victory sound, and a congratulatory popup!
+                            When your intake reaches your daily target, SipSync celebrates! If the extension popup is open, confetti fires directly inside the popup. If triggered from a notification, a separate celebration popup opens with confetti, a congratulatory message, and a special celebration sound. An OS &quot;🎉 Goal Complete!&quot; notification is also displayed.
                         </p>
                         <p className="leading-relaxed text-sky-300 font-medium">
-                            Don't worry about manual resets—at midnight, SipSync automatically resets your progress to 0ml to cleanly start the next day.
+                            Don&apos;t worry about manual resets — at midnight, SipSync automatically resets your progress to 0ml to cleanly start the next day. Your total daily intake is capped at <strong>6000ml</strong> across all entry points.
                         </p>
                     </div>
                     <div className="flex flex-col items-center justify-center p-4 bg-black/40 rounded-full w-32 h-32 border-4 border-sky-500 shadow-[0_0_30px_rgba(81,191,242,0.4)]">

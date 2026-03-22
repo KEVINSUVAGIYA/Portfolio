@@ -19,6 +19,7 @@ import {
     MessageCircleQuestion,
     CheckCircle2,
     Sparkles,
+    CalendarDays,
 } from "lucide-react";
 import { BASE_PATH } from "@/lib/constants";
 import { TiltCard } from "@/components/ui/TiltCard";
@@ -37,7 +38,7 @@ const features = [
         icon: Bell,
         title: "Dual Notifications",
         description:
-            "Choose between OS notifications, a pop-up reminder window, or both. Each comes with 'Drink 200ml' and 'Ignore' buttons.",
+            "Choose between OS notifications, a pop-up reminder window, or both. Each comes with 'I drank Xml' and 'Ignore' buttons — glass size is configurable.",
     },
     {
         icon: Shield,
@@ -67,7 +68,13 @@ const features = [
         icon: Settings,
         title: "Customizable",
         description:
-            "Set your daily water goal, choose notification style, toggle sounds, and enjoy motivational quotes in Settings.",
+            "Set your daily water goal, choose notification style, configure your glass size, and toggle sounds in Settings.",
+    },
+    {
+        icon: CalendarDays,
+        title: "Hydration Calendar",
+        description:
+            "View your monthly hydration history with a medal system — gold, silver, and bronze — based on your daily goal completion.",
     },
     {
         icon: Smartphone,
@@ -93,7 +100,7 @@ const steps = [
     {
         step: "03",
         title: "Hydrate on Alarm",
-        description: "Click 'Drink' on the notification to fill your wave. Each click logs 200ml automatically.",
+        description: "Click 'Drink' on the notification to fill your wave. Each click logs your configured glass size automatically.",
         icon: <Bell className="text-emerald-400" />
     },
     {

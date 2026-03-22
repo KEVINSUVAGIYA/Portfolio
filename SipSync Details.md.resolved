@@ -30,10 +30,11 @@
 
 ### 2.2 Dual Notification System
 Users choose how they receive reminders in Settings:
-- **OS Notification** — Native operating system notification with "Drink 200ml" and "Ignore" action buttons.
-- **Pop-up Reminder** — A dedicated browser pop-up window with a motivational quote, "Drink 200ml" and "Ignore" buttons.
+- **OS Notification** — Native operating system notification with "I drank Xml" and "Ignore" action buttons (X = user's configured glass size).
+- **Pop-up Reminder** — A dedicated browser pop-up window with a motivational quote, "I drank Xml" and "Ignore" buttons.
 - Users can enable **one or both** simultaneously.
-- Each notification includes two actions: **"Drink 200ml"** (logs 200ml intake) and **"Ignore"** (dismisses).
+- Each notification includes two actions: **"I drank Xml"** (logs glass size intake) and **"Ignore"** (dismisses).
+- **Anti-Reopen Protection:** Reminder popups validate an `activeReminderId` token on mount. If the token is already consumed (e.g., user presses `Cmd+Shift+T` to reopen a closed tab), the popup auto-closes immediately.
 
 ### 2.3 Intelligent Notification Management
 - **Single-instance guarantee:** Only one reminder notification exists at a time. Before creating a new notification, any existing one (OS or popup) is forcefully dismissed.
@@ -44,8 +45,11 @@ Users choose how they receive reminders in Settings:
 - Visual progress circle with animated water wave fill effect.
 - Shows current intake (e.g., "1200ml") and percentage.
 - Resets automatically every day at midnight.
-- Users set a customizable daily goal (default: 2000ml).
-- A "Drink 200ml" quick-action button on the main screen.
+- Users set a customizable daily goal (default: 2000ml, max: 6000ml).
+- A "Drink a glass" quick-action button on the main screen (uses the user's configured glass size).
+- **Intake Cap:** Total daily intake is hard-capped at 6000ml across all entry points (main popup, reminder popup, OS notification).
+- **Reminder timer reset:** Clicking "Drink" from the main extension popup resets the reminder timer. Clicking from OS notifications or the reminder popup does **not** reset the timer — they continue on their regular schedule.
+- **Interval blur validation:** If the user leaves the reminder interval input empty or invalid, it automatically snaps back to 45 minutes on blur.
 
 ### 2.5 Goal Completion Celebration
 - When the user reaches their daily goal, SipSync celebrates!
@@ -62,8 +66,23 @@ Users choose how they receive reminders in Settings:
 ### 2.7 Settings Page
 - **Reminder delivery:** Toggle OS notifications and/or pop-up reminders.
 - **Sound:** Toggle sound effects on/off.
-- Motivational quote displayed on the settings page.
-- Footer: "Built with ❤️ to help you stay hydrated and focus on what matters."
+- **Glass Size:** Configurable glass size (default: 200ml, max: 1000ml). Displayed as a single-row setting with a chip-styled "ml" unit badge. The "Drink" buttons across the extension use this value.
+- Footer pinned to bottom: "Built with ❤️ to help you stay hydrated and focus on what matters."
+- Footer links: User Guide and Privacy Policy.
+
+### 2.8 Statistics / Hydration Calendar Page
+- Accessible via a chart icon button on the main homepage (beside the settings gear).
+- **Monthly Calendar View:** Displays a full month grid with day numbers.
+- **Medal System:** Each past day can earn a medal based on hydration goal completion:
+  - 🥇 **Gold** — Reached ≥100% of daily target.
+  - 🥈 **Silver** — Reached ≥75% of daily target.
+  - 🥉 **Bronze** — Reached ≥50% of daily target.
+- **Color-coded cells:** Days with medals get distinct background/border colors (amber for gold, gray for silver, warm orange for bronze).
+- **Medal display:** Medals appear side-by-side next to the day number within each cell.
+- **Month Navigation:** Previous/Next buttons to browse historical months.
+- **All-Time Medal Totals:** Summary card showing lifetime gold, silver, and bronze counts. Unearned medals appear grayed out.
+- **History-only data:** Medals are only shown for completed past days (stored at daily reset). Today's in-progress data is not displayed to avoid fluctuating medal states.
+- **Consistent styling:** Uses the same background image as the homepage and settings page.
 
 ---
 
@@ -87,13 +106,15 @@ All data is stored **locally on the user's device** using `chrome.storage.sync`:
 |---|---|---|
 | `reminderInterval` | User's chosen reminder interval in minutes | `15` |
 | `lastReminderTime` | Timestamp of the last reminder fired | `1709654400000` |
-| `waterTarget` | User's daily hydration goal in ml | `2000` |
-| `currentIntake` | Water consumed today in ml | `1200` |
+| `waterTarget` | User's daily hydration goal in ml (max 6000) | `2000` |
+| `currentIntake` | Water consumed today in ml (max 6000) | `1200` |
 | `lastActiveDate` | Date string for daily reset logic | `"Thu Mar 06 2025"` |
 | `notificationModes` | Object: `{ os: true, popup: true }` | `{ os: true, popup: false }` |
 | `soundEnabled` | Whether sound effects are on | `true` |
 | `theme` | Light/dark theme preference | `"light"` |
-| `activeReminderId` | Token to prevent double-counting drinks | `"1709654400000"` |
+| `activeReminderId` | Token to prevent double-counting drinks and accidental re-opens | `"1709654400000"` |
+| `glassSize` | User's configured glass size in ml (max 1000) | `200` |
+| `intakeHistory` | Array of past daily records with date, amount, and target | `[{date: "...", amount: 2500, target: 3000}]` |
 
 ### 4.2 What Data Is NOT Collected
 - ❌ No personal information (name, email, age, location)
@@ -105,7 +126,7 @@ All data is stored **locally on the user's device** using `chrome.storage.sync`:
 - ❌ No ads or ad-related tracking
 
 ### 4.3 Data Sharing
-- **None.** SipSync shares absolutely zero data with anyone. There is no server, no database, no cloud storage, no API calls. Everything operates 100% securely and locally.
+- **None.** SipSync shares absolutely zero data with anyone. There is no server, no database, no cloud storage, no API calls. Everything operates 100% offline and locally.
 
 ### 4.4 Data Retention
 - Data persists in `chrome.storage.sync` as long as the extension is installed.
@@ -161,10 +182,12 @@ All data is stored **locally on the user's device** using `chrome.storage.sync`:
 2. **Features Overview** — Cards or sections for each major feature (Smart Reminders, Dual Notifications, Intake Tracker, Goal Celebrations, Sound Effects).
 3. **How It Works / User Guide:**
    - **Getting Started:** Install → click extension icon → set reminder interval → click "Start Reminder".
-   - **Tracking Intake:** Click "Drink 200ml" from the main screen, notification, or popup.
-   - **Setting Your Goal:** Click the pencil icon on the Target card → type your daily ml target → press Enter or click the check icon.
+   - **Tracking Intake:** Click "Drink a glass" from the main screen, notification, or popup. Glass size is configurable in Settings.
+   - **Setting Your Goal:** Click the pencil icon on the Target card → type your daily ml target (max 6000ml) → press Enter or click the check icon.
+   - **Glass Size:** Go to Settings → adjust the glass size (max 1000ml). All "Drink" buttons will use this value.
    - **Notification Preferences:** Go to Settings → toggle OS Notification and/or Reminder pop-up.
    - **Sound:** Go to Settings → toggle "Enable sound".
+   - **Hydration Calendar:** Click the chart icon on the homepage to view your monthly medal calendar and all-time medal totals.
    - **Goal Celebration:** When your intake reaches your target, confetti and a celebration sound fire automatically!
 4. **Screenshots** — Show the main popup, settings, reminder popup, and celebration screen.
 5. **FAQ:**
