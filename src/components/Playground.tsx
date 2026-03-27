@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Cloud, Music, Waves, Globe } from "lucide-react";
+import { Cloud, Music, Waves, Globe, Sparkles, LayoutGrid, Bomb } from "lucide-react";
 import { SectionHeader } from "./ui/SectionHeader";
 
 export const Playground = () => {
@@ -30,6 +30,30 @@ export const Playground = () => {
             href: "/playground/flight",
             color: "from-purple-500/20 to-pink-500/5",
             border: "group-hover:border-purple-500/50"
+        },
+        {
+            title: "Particle Verse",
+            description: "Shape thousands of particles into words with your thoughts.",
+            icon: <Sparkles className="w-6 h-6 text-teal-400" />,
+            href: "/playground/particles",
+            color: "from-teal-500/20 to-cyan-500/5",
+            border: "group-hover:border-teal-500/50"
+        },
+        {
+            title: "Wave Field",
+            description: "Create soothing ripple waves across a living grid.",
+            icon: <LayoutGrid className="w-6 h-6 text-sky-400" />,
+            href: "/playground/waves",
+            color: "from-sky-500/20 to-indigo-500/5",
+            border: "group-hover:border-sky-500/50"
+        },
+        {
+            title: "Carpet Bombing",
+            description: "Fly a jet, drop bombs, destroy everything in sight.",
+            icon: <Bomb className="w-6 h-6 text-red-400" />,
+            href: "/playground/carpet-bombing",
+            color: "from-red-500/20 to-orange-500/5",
+            border: "group-hover:border-red-500/50"
         },
         {
             title: "Spirit World",
