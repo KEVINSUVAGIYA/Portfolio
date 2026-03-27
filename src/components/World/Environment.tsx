@@ -9,18 +9,6 @@ import * as THREE from "three";
 import { setWaterWaveIntensity } from "@/lib/audio";
 
 export const Environment = () => {
-    // Collectible Orbs logic
-    const [orbs, setOrbs] = useState(() => {
-        const arr = [];
-        for (let i = 0; i < 40; i++) {
-            const x = (Math.random() - 0.5) * 300;
-            const z = (Math.random() - 0.5) * 300;
-            if (Math.abs(x) < 20 && Math.abs(z) < 20) continue; // Not in immediate start
-            arr.push({ id: i, x, y: 1 + Math.random() * 2, z, collected: false });
-        }
-        return arr;
-    });
-
     // Shrines logic
     const shrines = useMemo(() => [
         { id: 1, pos: [80, 0, -80] as [number, number, number], color: "#38bdf8", name: "Shrine of Water" },
@@ -60,27 +48,6 @@ export const Environment = () => {
     useFrame(() => {
         const playerPos = (window as any).__PLAYER_POS;
         if (!playerPos) return;
-
-        // Check Orb Collisions
-        let orbsToAdd = 0;
-        setOrbs(prev => {
-            let changed = false;
-            const next = prev.map(orb => {
-                if (orb.collected) return orb;
-                const dist = Math.sqrt(Math.pow(orb.x - playerPos.x, 2) + Math.pow(orb.z - playerPos.z, 2));
-                if (dist < 3) {
-                    orbsToAdd += 1;
-                    changed = true;
-                    return { ...orb, collected: true };
-                }
-                return orb;
-            });
-            return changed ? next : prev;
-        });
-
-        if (orbsToAdd > 0) {
-            addScore(orbsToAdd * 10);
-        }
 
         // Check Shrine Collisions
         shrines.forEach((shrine) => {
@@ -192,15 +159,7 @@ export const Environment = () => {
             <InstancedForest />
 
             {/* Orbs */}
-            {orbs.filter(o => !o.collected).map(o => (
-                <Float key={o.id} speed={4} rotationIntensity={1} floatIntensity={1} position={[o.x, o.y, o.z]}>
-                    <mesh>
-                        <octahedronGeometry args={[0.4, 0]} />
-                        <meshStandardMaterial color="#f0abfc" emissive="#f0abfc" emissiveIntensity={1.5} toneMapped={false} />
-                    </mesh>
-                    <pointLight color="#f0abfc" intensity={2} distance={5} />
-                </Float>
-            ))}
+            <Orbs />
 
             {/* Shrines */}
             {shrines.map(s => (
@@ -416,6 +375,60 @@ const InstancedForest = () => {
                 <sphereGeometry args={[1.2, 8, 8]} />
                 <meshStandardMaterial roughness={0.8} vertexColors />
             </instancedMesh>
+        </group>
+    );
+};
+
+const Orbs = () => {
+    const [orbs, setOrbs] = useState(() => {
+        const arr = [];
+        for (let i = 0; i < 40; i++) {
+            const x = (Math.random() - 0.5) * 300;
+            const z = (Math.random() - 0.5) * 300;
+            if (Math.abs(x) < 20 && Math.abs(z) < 20) continue; 
+            arr.push({ id: i, x, y: 1 + Math.random() * 2, z, collected: false });
+        }
+        return arr;
+    });
+
+    const addScore = useWorldStore(s => s.addScore);
+
+    useFrame(() => {
+        const playerPos = (window as any).__PLAYER_POS;
+        if (!playerPos) return;
+
+        let orbsToAdd = 0;
+        setOrbs(prev => {
+            let changed = false;
+            const next = prev.map(orb => {
+                if (orb.collected) return orb;
+                const dist = Math.sqrt(Math.pow(orb.x - playerPos.x, 2) + Math.pow(orb.z - playerPos.z, 2));
+                if (dist < 3) {
+                    orbsToAdd += 1;
+                    changed = true;
+                    return { ...orb, collected: true };
+                }
+                return orb;
+            });
+            return changed ? next : prev;
+        });
+
+        if (orbsToAdd > 0) {
+            addScore(orbsToAdd * 10);
+        }
+    });
+
+    return (
+        <group>
+            {orbs.map(o => (
+                <Float key={o.id} speed={4} rotationIntensity={1} floatIntensity={1} position={[o.x, o.y, o.z]}>
+                    <mesh visible={!o.collected}>
+                        <octahedronGeometry args={[0.4, 0]} />
+                        <meshStandardMaterial color="#f0abfc" emissive="#f0abfc" emissiveIntensity={1.5} toneMapped={false} />
+                    </mesh>
+                    <pointLight color="#f0abfc" intensity={o.collected ? 0 : 2} distance={5} />
+                </Float>
+            ))}
         </group>
     );
 };
