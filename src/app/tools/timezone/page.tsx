@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Search, Plus, X, Globe, ChevronDown, Clock, RotateCcw, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, Search, Plus, X, Globe, ChevronDown, ChevronUp, Clock, RotateCcw, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import moment from "moment-timezone";
 
@@ -130,13 +130,37 @@ function AddTZPanel({ allZones, selected, onAdd, onClose }: any) {
 }
 
 export default function TimezonePage() {
-  const [selectedZones, setSelectedZones] = useState<string[]>(DEFAULT_ZONES);
-  const [refDate, setRefDate] = useState(new Date());
+  const [selectedZones, setSelectedZones] = useState<string[]>([]);
+  const [zonesLoaded, setZonesLoaded] = useState(false);
+  const [refDate, setRefDate] = useState(() => new Date());
   const [isCustomTime, setIsCustomTime] = useState(false);
   const [showAdd, setShowAdd] = useState(false);
+  const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const addPanelRef = useRef<HTMLDivElement>(null);
   const allZones = moment.tz.names();
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("saved-timezones");
+      if (saved) {
+        try {
+          setSelectedZones(JSON.parse(saved));
+        } catch {
+          setSelectedZones(DEFAULT_ZONES);
+        }
+      } else {
+        setSelectedZones(DEFAULT_ZONES);
+      }
+      setZonesLoaded(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (zonesLoaded && typeof window !== "undefined") {
+      localStorage.setItem("saved-timezones", JSON.stringify(selectedZones));
+    }
+  }, [selectedZones, zonesLoaded]);
 
   useEffect(() => {
     if (!isCustomTime) {
@@ -152,6 +176,40 @@ export default function TimezonePage() {
   }, [showAdd]);
 
   const removeZone = (tz: string) => setSelectedZones((prev) => prev.filter((z) => z !== tz));
+  
+  const moveZoneUp = (idx: number) => {
+    if (idx <= 0) return;
+    const newZones = [...selectedZones];
+    [newZones[idx - 1], newZones[idx]] = [newZones[idx], newZones[idx - 1]];
+    setSelectedZones(newZones);
+  };
+
+  const moveZoneDown = (idx: number) => {
+    if (idx >= selectedZones.length - 1) return;
+    const newZones = [...selectedZones];
+    [newZones[idx + 1], newZones[idx]] = [newZones[idx], newZones[idx + 1]];
+    setSelectedZones(newZones);
+  };
+
+  const handleDragStart = (e: React.DragEvent, idx: number) => {
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("tzIndex", idx.toString());
+  };
+  const handleDragOver = (e: React.DragEvent, idx: number) => {
+    e.preventDefault();
+    setDragOverIdx(idx);
+  };
+  const handleDragLeave = () => setDragOverIdx(null);
+  const handleDrop = (e: React.DragEvent, targetIdx: number) => {
+    e.preventDefault();
+    setDragOverIdx(null);
+    const sourceIdx = Number(e.dataTransfer.getData("tzIndex"));
+    if (isNaN(sourceIdx) || sourceIdx === targetIdx) return;
+    const newZones = [...selectedZones];
+    const [moved] = newZones.splice(sourceIdx, 1);
+    newZones.splice(targetIdx, 0, moved);
+    setSelectedZones(newZones);
+  };
 
   const handleTimeChange = (tz: string, setHour: number) => {
     setIsCustomTime(true);
@@ -214,13 +272,42 @@ export default function TimezonePage() {
       {/* Main Content Area */}
       <div className="max-w-6xl mx-auto px-4 py-8">
         
-        <p className="text-slate-400 mb-8 max-w-lg leading-relaxed">
+        <p className="text-slate-400 mb-6 max-w-lg leading-relaxed">
           The ultimate timezone converter. <strong className="text-white font-medium">Drag the scrubber bar</strong> on any city below to instantly change the global time and see what time it reflects everywhere else.
         </p>
 
-        <div className="flex flex-col gap-4">
-          <AnimatePresence>
-            {selectedZones.map((tz) => {
+        {/* Quick Reorder Bar */}
+        {zonesLoaded && selectedZones.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-8 p-3.5 bg-slate-900 border border-white/5 rounded-2xl items-center sticky top-24 z-30 shadow-xl shadow-slate-950/50 backdrop-blur-md">
+            <span className="text-[10px] font-black text-slate-500 mr-2 tracking-wider">QUICK REORDER:</span>
+            <AnimatePresence>
+              {selectedZones.map((tz, idx) => (
+                <motion.div layout key={tz} 
+                  draggable 
+                  onDragStart={(e) => handleDragStart(e as unknown as React.DragEvent, idx)}
+                  onDragOver={(e) => handleDragOver(e as unknown as React.DragEvent, idx)}
+                  onDragLeave={handleDragLeave}
+                  onDrop={(e) => handleDrop(e as unknown as React.DragEvent, idx)}
+                  className={`flex items-center gap-1.5 border rounded-xl pl-3 pr-2 py-1.5 text-xs font-semibold shadow-sm cursor-grab active:cursor-grabbing transition-all ${
+                    dragOverIdx === idx ? "border-amber-400 bg-amber-400/10 scale-105" : "bg-slate-950 border-white/10 text-slate-300 hover:border-white/20"
+                  }`}
+                >
+                   <span className="mr-1">{getLabel(tz)}</span>
+                   <div className="flex items-center bg-slate-900 rounded-lg border border-white/5 overflow-hidden">
+                      <button onClick={() => moveZoneUp(idx)} disabled={idx===0} className="hover:bg-slate-700/80 hover:text-white disabled:opacity-20 flex-1 px-1.5 py-1 transition-colors"><ChevronLeft className="w-3.5 h-3.5" /></button>
+                      <button onClick={() => moveZoneDown(idx)} disabled={idx===selectedZones.length-1} className="hover:bg-slate-700/80 hover:text-white disabled:opacity-20 flex-1 px-1.5 py-1 transition-colors border-l border-white/5"><ChevronRight className="w-3.5 h-3.5" /></button>
+                   </div>
+                   <button onClick={() => removeZone(tz)} className="ml-1 p-1 text-slate-500 hover:text-red-400 hover:bg-red-400/15 rounded-full transition-colors"><X className="w-3.5 h-3.5" /></button>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+        )}
+
+        {zonesLoaded && (
+          <div className="flex flex-col gap-4">
+            <AnimatePresence>
+            {selectedZones.map((tz, index) => {
               const m = moment(refDate).tz(tz);
               const hour = m.hour() + m.minute() / 60;
               const status = getStatus(hour);
@@ -256,9 +343,13 @@ export default function TimezonePage() {
                         <span className={`text-sm font-medium ${isToday && !isCustomTime ? "text-emerald-400" : "text-indigo-300"}`}>
                           {m.format("ddd, MMMM D")}
                         </span>
-                        <button onClick={() => removeZone(tz)} className="p-1.5 text-slate-500 hover:bg-red-500/10 hover:text-red-400 rounded-lg transition-colors opacity-0 group-hover:opacity-100 hidden sm:block">
-                          <X className="w-4 h-4" />
-                        </button>
+                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity hidden sm:flex">
+                          {index > 0 && <button onClick={() => moveZoneUp(index)} className="p-1.5 text-slate-500 hover:bg-white/10 hover:text-white rounded-lg transition-colors"><ChevronUp className="w-4 h-4" /></button>}
+                          {index < selectedZones.length - 1 && <button onClick={() => moveZoneDown(index)} className="p-1.5 text-slate-500 hover:bg-white/10 hover:text-white rounded-lg transition-colors"><ChevronDown className="w-4 h-4" /></button>}
+                          <button onClick={() => removeZone(tz)} className="p-1.5 text-slate-500 hover:bg-red-500/10 hover:text-red-400 rounded-lg transition-colors">
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -266,15 +357,22 @@ export default function TimezonePage() {
                   {/* The Live Interactive Scrubber Timeline */}
                   <InteractiveTimeline tz={tz} refDate={refDate} onChangeTime={handleTimeChange} />
                   
-                  {/* Mobile remove button */}
-                  <div className="mt-3 sm:hidden text-right">
-                    <button onClick={() => removeZone(tz)} className="text-xs text-slate-500 hover:text-red-400 px-3 py-1.5 rounded-lg border border-transparent hover:border-red-500/20 transition-all">Remove</button>
+                  {/* Mobile move and remove buttons */}
+                  <div className="mt-3 sm:hidden flex justify-between items-center">
+                    <div className="flex gap-1">
+                      {index > 0 && <button onClick={() => moveZoneUp(index)} className="p-2 bg-slate-800 text-slate-400 rounded-lg hover:text-white transition-colors active:scale-95"><ChevronUp className="w-4 h-4" /></button>}
+                      {index < selectedZones.length - 1 && <button onClick={() => moveZoneDown(index)} className="p-2 bg-slate-800 text-slate-400 rounded-lg hover:text-white transition-colors active:scale-95"><ChevronDown className="w-4 h-4" /></button>}
+                    </div>
+                    <button onClick={() => removeZone(tz)} className="text-xs font-semibold text-slate-500 hover:text-red-400 px-4 py-2 rounded-lg border border-transparent hover:border-red-500/20 active:bg-red-500/10 transition-all">
+                      Remove
+                    </button>
                   </div>
                 </motion.div>
               );
             })}
-          </AnimatePresence>
-        </div>
+            </AnimatePresence>
+          </div>
+        )}
       </div>
     </div>
   );

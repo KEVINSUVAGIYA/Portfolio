@@ -6,8 +6,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Play, Pause, RotateCcw, Copy, CheckCheck, Timer } from "lucide-react";
 import Link from "next/link";
 import { getFirebaseDb, isFirebaseConfigured } from "@/lib/firebase";
-import { ref, set, onValue, off } from "firebase/database";
-import { copyToClipboard } from "@/lib/utils";
+import { ref, set, onValue, off, onDisconnect, remove } from "firebase/database";
+import { copyToClipboard, generateColor } from "@/lib/utils";
 
 interface TimerState {
   endsAt: number;    // epoch ms when timer reaches 0 (if running)
@@ -82,8 +82,18 @@ function TimerSetup({ onStart }: { onStart: (id: string) => void }) {
   const NumInput = ({ label: lbl, value, onChange, max }: { label: string; value: number; onChange: (n: number) => void; max: number }) => (
     <div className="flex flex-col items-center">
       <button onClick={() => onChange(Math.min(max, value + 1))} className="w-10 h-8 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-all text-lg font-bold">+</button>
-      <div className="w-16 h-14 bg-slate-900 border border-white/10 rounded-xl flex items-center justify-center">
-        <span className="text-2xl font-black text-white font-mono">{String(value).padStart(2, "0")}</span>
+      <div className="w-16 h-14 bg-slate-900 border border-white/10 rounded-xl flex items-center justify-center overflow-hidden">
+        <input 
+          type="number"
+          value={value || ""}
+          placeholder="00"
+          onChange={(e) => {
+            const parsed = parseInt(e.target.value, 10);
+            if (isNaN(parsed)) onChange(0);
+            else onChange(Math.max(0, Math.min(max, parsed)));
+          }}
+          className="w-full h-full text-center text-2xl font-black text-white font-mono bg-transparent outline-none m-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+        />
       </div>
       <button onClick={() => onChange(Math.max(0, value - 1))} className="w-10 h-8 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-all text-lg font-bold">−</button>
       <span className="text-xs text-slate-500 mt-1">{lbl}</span>
@@ -143,9 +153,19 @@ function SharedTimerView({ id }: { id: string }) {
   const circleRef = useRef<SVGCircleElement>(null);
   const timeTextRef = useRef<HTMLParagraphElement>(null);
 
-  // Check ownership client-side
+  const [activeUsers, setActiveUsers] = useState<string[]>([]);
+  const [myName, setMyName] = useState("");
+
+  // Check ownership client-side and set name
   useEffect(() => {
+    const adjectives = ["Swift","Quiet","Bold","Calm","Bright","Nova","Sage","Zephyr","Echo","Mist"];
+    const nouns = ["Fox","River","Star","Hawk","Moon","Wave","Pine","Ash","Reed","Stone"];
     if (typeof window !== "undefined") {
+      const storedName = sessionStorage.getItem("timer-name");
+      const name = storedName || (adjectives[Math.floor(Math.random()*adjectives.length)] + nouns[Math.floor(Math.random()*nouns.length)]);
+      if (!storedName) sessionStorage.setItem("timer-name", name);
+      setMyName(name);
+
       const storedOwner = sessionStorage.getItem(`timer-owner-${id}`);
       setState((s) => {
         if (s && storedOwner === s.ownerId) setIsOwner(true);
@@ -154,6 +174,21 @@ function SharedTimerView({ id }: { id: string }) {
       setIsOwner(!!storedOwner);
     }
   }, [id]);
+
+  useEffect(() => {
+    if (!myName) return;
+    const db = getFirebaseDb();
+    const presenceRef = ref(db, `tools/timers/${id}/presence/${myName}`);
+    const allPresenceRef = ref(db, `tools/timers/${id}/presence`);
+    
+    set(presenceRef, { name: myName, online: true });
+    onDisconnect(presenceRef).remove();
+
+    const unsub = onValue(allPresenceRef, (snap) => {
+      setActiveUsers(Object.values(snap.val() || {}).map((u:any) => u.name));
+    });
+    return () => { off(allPresenceRef); unsub(); remove(presenceRef); };
+  }, [id, myName]);
 
   // Subscribe to Firebase timer state
   useEffect(() => {
@@ -256,6 +291,16 @@ function SharedTimerView({ id }: { id: string }) {
       </div>
 
       <div className="flex-1 flex flex-col items-center justify-center px-4 py-12">
+        {/* Presence Tags */}
+        <div className="bg-slate-900/50 border border-white/5 py-2 px-3 rounded-xl flex gap-2 overflow-x-auto no-scrollbar max-w-sm w-full mx-auto justify-center mb-8">
+          {activeUsers.map((name, i) => (
+             <div key={i} className={`text-[10px] px-2 py-1 rounded-md flex items-center gap-1.5 whitespace-nowrap border border-white/5 ${name === myName ? "bg-white/5 text-sky-300" : "bg-slate-800 text-slate-300"}`}>
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
+                <span className={`font-semibold ${generateColor(name)}`}>{name} {name === myName ? "(You)" : ""}</span>
+             </div>
+          ))}
+          {activeUsers.length === 0 && <span className="text-xs text-slate-500 p-1">Connecting...</span>}
+        </div>
         <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center gap-8">
           {/* Circular progress */}
           <div className="relative">

@@ -50,8 +50,16 @@ function NotConfigured() {
 
 function ChatEntry({ onEnter }: { onEnter: (room: string) => void }) {
   const [room, setRoom] = useState("");
+  const [customName, setCustomName] = useState("");
+  
+  const handleJoin = () => {
+    if (customName.trim()) {
+      sessionStorage.setItem("chat-name", customName.trim());
+    }
+    onEnter(room);
+  };
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center px-4">
+    <div className="min-h-[100dvh] bg-slate-950 flex flex-col items-center justify-center px-4">
       <div className="w-full max-w-md">
         <Link href="/tools" className="inline-flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm mb-10">
           <ArrowLeft className="w-4 h-4" /> Back to Tools
@@ -68,12 +76,17 @@ function ChatEntry({ onEnter }: { onEnter: (room: string) => void }) {
             <div className="relative">
               <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 text-sm font-mono">#</div>
               <input type="text" value={room} onChange={(e) => setRoom(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && onEnter(room)}
+                onKeyDown={(e) => e.key === "Enter" && handleJoin()}
                 placeholder="my-room-name"
                 className="w-full bg-slate-900 border border-white/10 text-white pl-9 pr-4 py-4 rounded-xl text-base outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/10 transition-all placeholder:text-slate-600 font-mono"
               />
             </div>
-            <button onClick={() => onEnter(room)} className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-semibold py-4 rounded-xl hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shadow-lg shadow-violet-500/20">
+            <input type="text" value={customName} onChange={(e) => setCustomName(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleJoin()}
+              placeholder="Your name (optional)"
+              className="w-full bg-slate-900 border border-white/10 text-white px-4 py-3.5 rounded-xl text-sm outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/10 transition-all placeholder:text-slate-600"
+            />
+            <button onClick={handleJoin} className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-semibold py-4 rounded-xl hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shadow-lg shadow-violet-500/20">
               Enter Room →
             </button>
           </div>
@@ -96,7 +109,7 @@ function ChatRoom({ room }: { room: string }) {
   const myNameRef = useRef("");
   const [copied, setCopied] = useState(false);
   const [connected, setConnected] = useState(false);
-  const [userCount, setUserCount] = useState(1);
+  const [activeUsers, setActiveUsers] = useState<string[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const cleanupRef = useRef<(() => void)[]>([]);
 
@@ -122,10 +135,11 @@ function ChatRoom({ room }: { room: string }) {
     set(presenceRef, { name: myName, online: true, joinedAt: Date.now() });
     onDisconnect(presenceRef).remove();
 
-    // Count online users
+    // Count online users and track names
     const presenceUnsub = onValue(allPresenceRef, (snap) => {
       const size = snap.size ?? 0;
-      setUserCount(size || 1);
+      const vals = snap.val() || {};
+      setActiveUsers(Object.values(vals).map((u: any) => u.name));
       
       // If I am the only one in the room and I just joined, clear the old chat log.
       if (size === 1 && snap.val()?.[myName]) {
@@ -189,7 +203,7 @@ function ChatRoom({ room }: { room: string }) {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col">
+    <div className="fixed inset-0 overflow-hidden bg-slate-950 flex flex-col pt-safe-top pb-safe-bottom">
       <div className="border-b border-white/10 bg-slate-900/80 backdrop-blur-md sticky top-0 z-20">
         <div className="max-w-3xl mx-auto px-4 py-4 flex items-center gap-4">
           <Link href="/tools" className="text-slate-400 hover:text-white transition-colors"><ArrowLeft className="w-5 h-5" /></Link>
@@ -204,7 +218,7 @@ function ChatRoom({ room }: { room: string }) {
               </div>
               <p className="text-xs text-slate-400 flex items-center gap-1">
                 <Users className="w-3 h-3" />
-                {userCount} online · You are <span className="text-violet-400 font-medium">{myName || "…"}</span>
+                {activeUsers.length} online · You are <span className="text-violet-400 font-medium">{myName || "…"}</span>
               </p>
             </div>
           </div>
@@ -212,6 +226,15 @@ function ChatRoom({ room }: { room: string }) {
             {copied ? <CheckCheck className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
             {copied ? "Copied!" : "Share"}
           </button>
+        </div>
+        {/* Presence Tags */}
+        <div className="bg-slate-950/50 border-t border-white/5 py-2 px-4 flex gap-2 overflow-x-auto no-scrollbar max-w-3xl mx-auto w-full">
+          {activeUsers.map((name, i) => (
+             <div key={i} className={`text-[10px] px-2 py-1 rounded-md flex items-center gap-1.5 whitespace-nowrap border border-white/5 ${name === myName ? "bg-white/5 text-violet-300" : "bg-slate-800 text-slate-300"}`}>
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
+                <span className={`font-semibold ${generateColor(name)}`}>{name} {name === myName ? "(You)" : ""}</span>
+             </div>
+          ))}
         </div>
       </div>
 

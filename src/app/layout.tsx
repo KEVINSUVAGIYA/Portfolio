@@ -154,7 +154,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdWebsite) }}
         />
       </head>
-      <body className={cn(inter.className, "bg-slate-950 min-h-screen relative overflow-x-hidden")}>
+      <body suppressHydrationWarning className={cn(inter.className, "bg-slate-950 min-h-screen relative overflow-x-hidden")}>
         <ParticleBackground />
         <Spotlight className="hidden md:block" />
         <div className="relative z-10 selection:bg-cyan-500/30">

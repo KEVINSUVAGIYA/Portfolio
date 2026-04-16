@@ -1,5 +1,6 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getDatabase, Database } from "firebase/database";
+import { getAuth, Auth } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -30,4 +31,12 @@ export function getFirebaseDb(): Database {
   const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
   _db = getDatabase(app);
   return _db;
+}
+let _auth: Auth | null = null;
+export function getFirebaseAuth(): Auth {
+  if (_auth) return _auth;
+  if (!isFirebaseConfigured()) throw new Error("Firebase is not configured.");
+  const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+  _auth = getAuth(app);
+  return _auth;
 }

@@ -5,14 +5,17 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Plus, Trash2, Copy, CheckCheck, BarChart3 } from "lucide-react";
 import Link from "next/link";
-import { getFirebaseDb, isFirebaseConfigured } from "@/lib/firebase";
-import { ref, set, onValue, off, runTransaction } from "firebase/database";
-import { copyToClipboard } from "@/lib/utils";
+import { getFirebaseDb, isFirebaseConfigured, getFirebaseAuth } from "@/lib/firebase";
+import { ref, set, onValue, off, runTransaction, onDisconnect, remove } from "firebase/database";
+import { copyToClipboard, generateColor } from "@/lib/utils";
 
 interface PollData {
   question: string;
   options: string[];
   allowUndo: boolean;
+  requireName: boolean;
+  ownerUid?: string;
+  expiresAt?: number | null;
   createdAt: number;
 }
 
@@ -45,6 +48,8 @@ function CreatePoll() {
   const [options, setOptions] = useState(["", ""]);
   const [creating, setCreating] = useState(false);
   const [allowUndo, setAllowUndo] = useState(false);
+  const [requireName, setRequireName] = useState(false);
+  const [expirationMins, setExpirationMins] = useState(0);
 
   const addOption = () => setOptions((o) => [...o, ""]);
   const removeOption = (i: number) => setOptions((o) => o.filter((_, idx) => idx !== i));
@@ -57,12 +62,18 @@ function CreatePoll() {
     const cleanId = customId.trim().replace(/\s+/g, "-").toLowerCase();
     const id = cleanId || `poll-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
     const db = getFirebaseDb();
+    const auth = getFirebaseAuth();
+    
     await set(ref(db, `tools/polls/${id}`), {
       question: question.trim(),
       options: validOptions,
       allowUndo,
+      requireName,
+      ownerUid: auth.currentUser?.uid || null,
+      expiresAt: expirationMins > 0 ? Date.now() + expirationMins * 60 * 1000 : null,
       createdAt: Date.now(),
     });
+    sessionStorage.setItem(`poll-owner-${id}`, "true");
     router.push(`/tools/poll?id=${id}`);
   };
 
@@ -94,6 +105,18 @@ function CreatePoll() {
                 <input type="checkbox" checked={allowUndo} onChange={(e) => setAllowUndo(e.target.checked)} className="accent-amber-500 w-4 h-4 cursor-pointer" />
                 Allow users to change their vote
               </label>
+              <label className="flex items-center gap-3 text-sm text-slate-300 mt-2 p-2 rounded hover:bg-slate-800 cursor-pointer transition-colors w-fit">
+                <input type="checkbox" checked={requireName} onChange={(e) => setRequireName(e.target.checked)} className="accent-amber-500 w-4 h-4 cursor-pointer" />
+                Force voters to add name (no anonymous)
+              </label>
+              <label className="text-sm font-medium text-slate-300 block mt-4 mb-2">Poll Expiration</label>
+              <select value={expirationMins} onChange={(e) => setExpirationMins(Number(e.target.value))} className="w-full bg-slate-800 border border-white/10 text-white px-4 py-3 rounded-xl text-sm outline-none focus:border-amber-500/50 transition-all">
+                 <option value={0}>Never Expires</option>
+                 <option value={5}>5 Minutes</option>
+                 <option value={60}>1 Hour</option>
+                 <option value={1440}>24 Hours</option>
+                 <option value={10080}>7 Days</option>
+              </select>
             </div>
             <div>
               <label className="text-sm font-medium text-slate-300 mb-2 block">Options</label>
@@ -130,11 +153,40 @@ function CreatePoll() {
 
 function ViewPoll({ id }: { id: string }) {
   const [poll, setPoll] = useState<PollData | null>(null);
-  const [votes, setVotes] = useState<VoteCounts>({});
+  const [voters, setVoters] = useState<Record<string, number>>({});
   const [voted, setVoted] = useState<number | null>(null);
   const [copied, setCopied] = useState(false);
   const [notFound, setNotFound] = useState(false);
+  const [myName, setMyName] = useState("");
+  const [customVoterName, setCustomVoterName] = useState("");
+  const [activeUsers, setActiveUsers] = useState<string[]>([]);
+  const [isOwner, setIsOwner] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    setIsOwner(!!sessionStorage.getItem(`poll-owner-${id}`));
+    const adjectives = ["Swift","Quiet","Bold","Calm","Bright","Nova","Sage","Zephyr","Echo","Mist"];
+    const nouns = ["Fox","River","Star","Hawk","Moon","Wave","Pine","Ash","Reed","Stone"];
+    const storedName = sessionStorage.getItem("poll-name");
+    const name = storedName || (adjectives[Math.floor(Math.random()*adjectives.length)] + nouns[Math.floor(Math.random()*nouns.length)]);
+    if (!storedName) sessionStorage.setItem("poll-name", name);
+    setMyName(name);
+  }, []);
+
+  useEffect(() => {
+    if (!myName) return;
+    const db = getFirebaseDb();
+    const presenceRef = ref(db, `tools/polls/${id}/presence/${myName}`);
+    const allPresenceRef = ref(db, `tools/polls/${id}/presence`);
+    
+    set(presenceRef, { name: myName, online: true });
+    onDisconnect(presenceRef).remove();
+
+    const unsub = onValue(allPresenceRef, (snap) => {
+      setActiveUsers(Object.values(snap.val() || {}).map((u:any) => u.name));
+    });
+    return () => { off(allPresenceRef); unsub(); remove(presenceRef); };
+  }, [id, myName]);
 
   useEffect(() => {
     const db = getFirebaseDb();
@@ -153,38 +205,48 @@ function ViewPoll({ id }: { id: string }) {
       if (data?.question) {
         if (timeoutRef.current) clearTimeout(timeoutRef.current);
         setNotFound(false);
-        setPoll({ question: data.question, options: data.options, allowUndo: data.allowUndo || false, createdAt: data.createdAt });
+        const fetchedPoll = { 
+          question: data.question, options: data.options, 
+          allowUndo: !!data.allowUndo, requireName: !!data.requireName, 
+          ownerUid: data.ownerUid, expiresAt: data.expiresAt || null, createdAt: data.createdAt 
+        };
+        setPoll(fetchedPoll);
+        
+        // Ensure absolute deterministic ownership validation via UID fallback
+        const auth = getFirebaseAuth();
+        if (data.ownerUid && data.ownerUid === auth.currentUser?.uid) {
+           setIsOwner(true);
+           sessionStorage.setItem(`poll-owner-${id}`, "true");
+        }
       }
     });
 
-    const unsubVotes = onValue(votesRef, (snap) => {
-      const data: VoteCounts = snap.val() ?? {};
-      setVotes(data);
+    const unsubVoters = onValue(ref(db, `tools/polls/${id}/voters`), (snap) => {
+      setVoters(snap.val() || {});
     });
 
     return () => {
       off(pollRef); unsubPoll();
-      off(votesRef); unsubVotes();
+      off(ref(db, `tools/polls/${id}/voters`)); unsubVoters();
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
   }, [id]);
 
   const vote = async (optionIndex: number) => {
+    if (poll?.expiresAt && Date.now() > poll.expiresAt) {
+      return alert("This poll has expired and is no longer accepting votes.");
+    }
+    if (poll?.requireName && !customVoterName.trim()) {
+      return alert("The creator of this poll requires you to enter your name below in order to vote.");
+    }
+    
     if (voted === optionIndex) return;
     if (voted !== null && !poll?.allowUndo) return;
-    const oldVote = voted;
     setVoted(optionIndex); // Optimistic UI
     
     const db = getFirebaseDb();
-    const votesRef = ref(db, `tools/polls/${id}/votes`);
-    await runTransaction(votesRef, (current: Record<string, number> | null) => {
-      const state = current || {};
-      if (oldVote !== null && state[oldVote] > 0) {
-        state[oldVote]--;
-      }
-      state[optionIndex] = (state[optionIndex] || 0) + 1;
-      return state;
-    });
+    const identityKey = poll?.requireName ? customVoterName.trim().replace(/\s+/g,'-') : myName;
+    await set(ref(db, `tools/polls/${id}/voters/${identityKey}`), optionIndex);
 
     sessionStorage.setItem(`poll-voted-${id}`, String(optionIndex));
   };
@@ -195,7 +257,8 @@ function ViewPoll({ id }: { id: string }) {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const totalVotes = Object.values(votes).reduce((a, b) => a + b, 0);
+  const totalVotes = Object.keys(voters).length;
+  const isExpired = poll?.expiresAt ? Date.now() > poll.expiresAt : false;
 
   if (!poll && notFound) return (
     <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center px-4 text-center">
@@ -236,23 +299,50 @@ function ViewPoll({ id }: { id: string }) {
       </div>
 
       <div className="max-w-lg mx-auto px-4 py-12">
+        {/* Presence Tags */}
+        <div className="bg-slate-900/50 border border-white/5 py-2 px-3 rounded-xl mb-6 flex gap-2 overflow-x-auto no-scrollbar">
+          {activeUsers.map((name, i) => (
+             <div key={i} className={`text-[10px] px-2 py-1 rounded-md flex items-center gap-1.5 whitespace-nowrap border border-white/5 ${name === myName ? "bg-white/5 text-amber-300" : "bg-slate-800 text-slate-300"}`}>
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
+                <span className={`font-semibold ${generateColor(name)}`}>{name} {name === myName ? "(You)" : ""}</span>
+             </div>
+          ))}
+          {activeUsers.length === 0 && <span className="text-xs text-slate-500 p-1">Connecting...</span>}
+        </div>
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <h2 className="text-2xl font-black text-white mb-2">{poll.question}</h2>
-          <p className="text-slate-500 text-sm mb-8">{totalVotes} vote{totalVotes !== 1 ? "s" : ""} · {voted !== null ? "You voted" : "Choose an option"}</p>
+          <div className="flex justify-between items-start mb-2">
+            <h2 className="text-2xl font-black text-white">{poll.question}</h2>
+            <div className="flex gap-2 flex-wrap justify-end">
+              {isExpired && <span className="px-2 py-1 bg-red-500/10 border border-red-500/20 text-red-400 text-[10px] uppercase font-bold rounded">Expired</span>}
+              {isOwner && <span className="px-2 py-1 bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[10px] uppercase font-bold rounded">Owner View</span>}
+            </div>
+          </div>
+          <p className="text-slate-500 text-sm mb-6">{totalVotes} vote{totalVotes !== 1 ? "s" : ""} · {isExpired ? "Poll Locked" : (voted !== null ? "You voted" : "Choose an option")}</p>
+
+          {!isExpired && voted === null && poll.requireName && (
+             <div className="mb-6 p-4 rounded-xl border border-amber-500/30 bg-amber-500/5">
+                <label className="text-xs text-amber-400 font-semibold mb-2 block">Name required to vote</label>
+                <input value={customVoterName} onChange={(e) => setCustomVoterName(e.target.value)}
+                  placeholder="Enter your name..."
+                  className="w-full bg-slate-900 border border-white/10 text-white px-4 py-3 rounded-lg text-sm outline-none focus:border-amber-500 transition-colors"
+                />
+             </div>
+          )}
 
           <div className="space-y-3">
             {poll.options.map((opt, i) => {
-              const count = votes[i] ?? 0;
+              const count = Object.values(voters).filter(v => v === i).length;
               const pct = totalVotes > 0 ? Math.round((count / totalVotes) * 100) : 0;
               const isMyVote = voted === i;
-              const showResults = voted !== null;
+              const showResults = voted !== null || isOwner || isExpired;
+              const votersForOption = Object.entries(voters).filter(([, optIdx]) => optIdx === i).map(([name]) => name);
 
               return (
-                <motion.button key={i} onClick={() => vote(i)} disabled={voted !== null && !poll.allowUndo}
+                <motion.button key={i} onClick={() => vote(i)} disabled={(voted !== null && !poll.allowUndo) || isExpired}
                   className={`w-full relative text-left px-5 py-4 rounded-xl border transition-all overflow-hidden ${
                     isMyVote ? "border-amber-500/50 bg-amber-500/10" :
-                    showResults && !poll.allowUndo ? "border-white/10 bg-slate-900/50 cursor-default" :
-                    "border-white/10 bg-slate-900/50 hover:border-amber-500/30 hover:bg-amber-500/5"
+                    (showResults && !poll.allowUndo) || isExpired ? "border-white/10 bg-slate-900/50 cursor-default shadow-none" :
+                    "border-white/10 bg-slate-900/50 hover:border-amber-500/30 hover:bg-amber-500/5 cursor-pointer"
                   }`}
                 >
                   <AnimatePresence>
@@ -262,10 +352,20 @@ function ViewPoll({ id }: { id: string }) {
                       />
                     )}
                   </AnimatePresence>
-                  <div className="relative flex items-center justify-between">
-                    <span className={`font-medium text-sm ${isMyVote ? "text-amber-300" : "text-slate-200"}`}>{opt}</span>
+                  <div className="relative z-10 mt-1 flex justify-between items-center text-sm">
+                    <span className={`font-semibold ${isMyVote ? "text-amber-400" : "text-white"}`}>{opt}</span>
                     {showResults && <span className={`text-sm font-bold ml-4 flex-shrink-0 ${isMyVote ? "text-amber-400" : "text-slate-400"}`}>{pct}%</span>}
                   </div>
+                  
+                  {isOwner && votersForOption.length > 0 && (
+                    <div className="relative z-10 mt-3 flex flex-wrap gap-1.5">
+                      {votersForOption.map(name => (
+                        <span key={name} className="text-[10px] px-2 py-0.5 rounded-md bg-slate-950/70 border border-white/5 text-slate-300 shadow-inner">
+                          {name === customVoterName.trim() || name === myName ? `${name} (You)` : name}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </motion.button>
               );
             })}

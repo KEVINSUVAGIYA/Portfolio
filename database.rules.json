@@ -1,0 +1,38 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "tools": {
+      "chat": {
+        "$room": {
+          "messages": {
+            ".read": "true",
+            ".write": "auth != null"
+          },
+          "presence": {
+            ".read": "true",
+            ".write": "auth != null"
+          }
+        }
+      },
+      "timer": {
+        "$timerId": {
+           ".read": "true",
+           ".write": "auth != null"
+        }
+      },
+      "polls": {
+        "$pollId": {
+          ".read": "true",
+          ".write": "!data.exists() || data.child('ownerUid').val() === auth.uid",
+          "voters": {
+            ".read": "true",
+            "$voterName": {
+               ".write": "auth != null && (!data.parent().parent().hasChild('expiresAt') || now <= data.parent().parent().child('expiresAt').val())"
+            }
+          }
+        }
+      }
+    }
+  }
+}
