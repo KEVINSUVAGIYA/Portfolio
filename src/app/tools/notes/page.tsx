@@ -231,8 +231,8 @@ function NotesPageInner() {
   const key = searchParams.get("key");
   if (!isFirebaseConfigured()) return <NotConfigured />;
   function handleOpen(noteKey: string) {
-    const k = (noteKey || \`note-\${Date.now()}\`).trim().replace(/\s+/g, "-").toLowerCase();
-    router.push(\`/tools/notes?key=\${encodeURIComponent(k)}\`);
+    const k = (noteKey || `note-${Date.now()}`).trim().replace(/\s+/g, "-").toLowerCase();
+    router.push(`/tools/notes?key=${encodeURIComponent(k)}`);
   }
   if (!key) return <NotesEntry onOpen={handleOpen} />;
   return <SharedNote noteKey={key} />;
