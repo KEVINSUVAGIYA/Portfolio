@@ -208,7 +208,7 @@ export default function JsonFormatter() {
                 </AnimatePresence>
               </div>
               <div className="flex items-center gap-2">
-                {parsed && (
+                {parsed !== null && (
                   <div className="flex gap-1">
                     {(["formatted", "tree"] as const).map((v) => (
                       <button
