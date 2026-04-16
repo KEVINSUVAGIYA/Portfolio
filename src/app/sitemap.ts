@@ -20,6 +20,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
         "/playground/lanterns",
         "/playground/ripples",
         "/playground/flight",
+        "/tools",
+        "/tools/chat",
+        "/tools/notes",
+        "/tools/poll",
+        "/tools/timer",
+        "/tools/timezone",
+        "/tools/qr",
+        "/tools/password",
+        "/tools/json",
     ];
 
     return routes.map((route) => ({

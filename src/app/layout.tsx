@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: "Kevin Suvagiya | Salesforce Developer",
   description: "Salesforce Developer | Curious Explorer. Building the engines behind Salesforce clouds. Specializing in bi-directional integrations, high-performance LWC, and custom AppExchange solutions.",
-  keywords: ["Salesforce Developer", "LWC", "Apex", "Salesforce Certified", "Web Developer", "React", "Next.js", "Portfolio", "Kevin Suvagiya", "Salesforce Build Release Engineer", "AppExchange", "Lightning Web Components", "SipSync", "HeeraHisaab"],
+  keywords: ["Salesforce Developer", "LWC", "Apex", "Salesforce Certified", "Web Developer", "React", "Next.js", "Portfolio", "Kevin Suvagiya", "Salesforce Build Release Engineer", "AppExchange", "Lightning Web Components", "SipSync", "HeeraHisaab", "Web Tools", "Real-time Collaboration", "World Clock", "Peer-to-Peer Chat", "JSON Formatter"],
   authors: [{ name: "Kevin Suvagiya", url: SITE_URL }],
   creator: "Kevin Suvagiya",
   applicationName: "Kevin Suvagiya Portfolio",
@@ -128,6 +128,11 @@ const jsonLdWebsite = {
       "@type": "ViewAction",
       name: "HeeraHisaab",
       target: `${SITE_URL}/products/heerahisaab`,
+    },
+    {
+      "@type": "ViewAction",
+      name: "Web Tools Suite",
+      target: `${SITE_URL}/tools`,
     },
   ],
 };
