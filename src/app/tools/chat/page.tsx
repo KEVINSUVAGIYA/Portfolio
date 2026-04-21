@@ -196,6 +196,13 @@ function ChatRoom({ room }: { room: string }) {
     setInput("");
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  };
+
   const copyLink = async () => {
     await copyToClipboard(window.location.href);
     setCopied(true);
@@ -260,7 +267,7 @@ function ChatRoom({ room }: { room: string }) {
               className={`flex ${msg.isSelf ? "justify-end" : "justify-start"}`}>
               <div className={`max-w-[75%] flex flex-col gap-1 ${msg.isSelf ? "items-end" : "items-start"}`}>
                 {!msg.isSelf && <span className={`text-xs font-semibold pl-1 ${generateColor(msg.sender)}`}>{msg.sender}</span>}
-                <div className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${msg.isSelf ? "bg-gradient-to-br from-violet-600 to-indigo-600 text-white rounded-br-sm" : "bg-slate-800 text-slate-200 border border-white/5 rounded-bl-sm"}`}>
+                <div className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ${msg.isSelf ? "bg-gradient-to-br from-violet-600 to-indigo-600 text-white rounded-br-sm" : "bg-slate-800 text-slate-200 border border-white/5 rounded-bl-sm"}`}>
                   {msg.text}
                 </div>
                 <span className="text-xs text-slate-600 px-1">
@@ -274,20 +281,29 @@ function ChatRoom({ room }: { room: string }) {
       </div>
 
       <div className="border-t border-white/10 bg-slate-900/80 backdrop-blur-md">
-        <div className="max-w-3xl mx-auto px-4 py-4">
+        <div className="max-w-3xl mx-auto px-4 py-3">
           <div className="flex gap-3 items-end">
-            <input type="text" value={input} onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && sendMessage()}
-              placeholder="Type a message…"
-              className="flex-1 bg-slate-800 border border-white/10 text-white px-4 py-3 rounded-xl text-sm outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/10 transition-all placeholder:text-slate-500"
+            <textarea
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Type a message… (Shift+Enter for new line)"
+              rows={1}
+              className="flex-1 bg-slate-800 border border-white/10 text-white px-4 py-3 rounded-xl text-sm outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/10 transition-all placeholder:text-slate-500 resize-none max-h-32 overflow-y-auto"
+              style={{ height: "auto", minHeight: "44px" }}
+              onInput={(e) => {
+                const el = e.currentTarget;
+                el.style.height = "auto";
+                el.style.height = Math.min(el.scrollHeight, 128) + "px";
+              }}
               disabled={!connected}
             />
             <button onClick={sendMessage} disabled={!input.trim() || !connected}
-              className="w-11 h-11 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center hover:opacity-90 transition-opacity disabled:opacity-30 disabled:cursor-not-allowed flex-shrink-0 shadow-lg shadow-violet-500/20">
+              className="w-11 h-11 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center hover:opacity-90 transition-opacity disabled:opacity-30 disabled:cursor-not-allowed flex-shrink-0 shadow-lg shadow-violet-500/20 mb-0.5">
               <Send className="w-4 h-4 text-white" />
             </button>
           </div>
-          <p className="text-xs text-slate-600 mt-2 text-center">Powered by Firebase · Works on any device · No login</p>
+          <p className="text-xs text-slate-600 mt-1.5 text-center">Enter to send · Shift+Enter for new line · No login required</p>
         </div>
       </div>
     </div>

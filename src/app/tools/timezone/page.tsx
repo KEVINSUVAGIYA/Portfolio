@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Search, Plus, X, Globe, ChevronDown, ChevronUp, Clock, RotateCcw } from "lucide-react";
+import { ArrowLeft, Search, Plus, X, Globe, ChevronDown, ChevronUp, Clock, RotateCcw, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import moment from "moment-timezone";
 
