@@ -9,6 +9,8 @@ import { QRCode } from "react-qrcode-logo";
 export default function QRGenerator() {
   const [input, setInput] = useState("");
   const [copied, setCopied] = useState(false);
+  const QR_CHAR_LIMIT = 900; // Safe limit for M error-correction level
+  const isOverLimit = input.length > QR_CHAR_LIMIT;
   
   const [fgColor, setFgColor] = useState("#ffffff");
   const [bgColor, setBgColor] = useState("#0f172a");
@@ -89,13 +91,27 @@ export default function QRGenerator() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">URL or Text</label>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-medium text-slate-300">URL or Text</label>
+                <span className={`text-xs font-mono ${isOverLimit ? "text-red-400" : "text-slate-500"}`}>
+                  {input.length}/{QR_CHAR_LIMIT}
+                </span>
+              </div>
+              {isOverLimit && (
+                <div className="mb-2 flex items-center gap-2 text-xs text-red-400 bg-red-500/10 border border-red-500/20 px-3 py-2 rounded-lg">
+                  <span>⚠️</span> Input too long — QR codes support up to ~{QR_CHAR_LIMIT} characters. Shorten your text or use a URL shortener.
+                </div>
+              )}
               <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="https://example.com or any text…"
                 rows={3}
-                className="w-full bg-slate-900 border border-white/10 text-white px-4 py-3 rounded-xl text-sm outline-none focus:border-sky-500/50 focus:ring-2 focus:ring-sky-500/10 transition-all resize-none placeholder:text-slate-600"
+                className={`w-full bg-slate-900 border text-white px-4 py-3 rounded-xl text-sm outline-none focus:ring-2 transition-all resize-none placeholder:text-slate-600 ${
+                  isOverLimit
+                    ? "border-red-500/50 focus:border-red-500/50 focus:ring-red-500/10"
+                    : "border-white/10 focus:border-sky-500/50 focus:ring-sky-500/10"
+                }`}
               />
             </div>
 
@@ -195,7 +211,7 @@ export default function QRGenerator() {
               style={{ backgroundColor: bgColor }}
             >
               <div className="absolute inset-0 bg-gradient-to-tr from-white/5 to-transparent pointer-events-none" />
-              {input.trim() ? (
+              {input.trim() && !isOverLimit ? (
                 <motion.div
                   key={input + fgColor + bgColor + qrStyle + eyeRadius + logoUrl}
                   initial={{ opacity: 0, scale: 0.95 }}

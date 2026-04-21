@@ -233,21 +233,20 @@ function ViewPoll({ id }: { id: string }) {
   }, [id]);
 
   const vote = async (optionIndex: number) => {
-    if (poll?.expiresAt && Date.now() > poll.expiresAt) {
-      return alert("This poll has expired and is no longer accepting votes.");
-    }
-    if (poll?.requireName && !customVoterName.trim()) {
-      return alert("The creator of this poll requires you to enter your name below in order to vote.");
-    }
-    
-    if (voted === optionIndex) return;
+    if (poll?.expiresAt && Date.now() > poll.expiresAt) return;
+    // Already voted and undo not allowed — fully block, no error
     if (voted !== null && !poll?.allowUndo) return;
-    setVoted(optionIndex); // Optimistic UI
-    
+    // Same option — no-op
+    if (voted === optionIndex) return;
+    // Name required but not provided
+    if (poll?.requireName && !customVoterName.trim()) {
+      alert("The creator of this poll requires you to enter your name to vote.");
+      return;
+    }
+    setVoted(optionIndex);
     const db = getFirebaseDb();
     const identityKey = poll?.requireName ? customVoterName.trim().replace(/\s+/g,'-') : myName;
     await set(ref(db, `tools/polls/${id}/voters/${identityKey}`), optionIndex);
-
     sessionStorage.setItem(`poll-voted-${id}`, String(optionIndex));
   };
 
@@ -299,16 +298,19 @@ function ViewPoll({ id }: { id: string }) {
       </div>
 
       <div className="max-w-lg mx-auto px-4 py-12">
-        {/* Presence Tags */}
-        <div className="bg-slate-900/50 border border-white/5 py-2 px-3 rounded-xl mb-6 flex gap-2 overflow-x-auto no-scrollbar">
-          {activeUsers.map((name, i) => (
-             <div key={i} className={`text-[10px] px-2 py-1 rounded-md flex items-center gap-1.5 whitespace-nowrap border border-white/5 ${name === myName ? "bg-white/5 text-amber-300" : "bg-slate-800 text-slate-300"}`}>
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
-                <span className={`font-semibold ${generateColor(name)}`}>{name} {name === myName ? "(You)" : ""}</span>
-             </div>
-          ))}
-          {activeUsers.length === 0 && <span className="text-xs text-slate-500 p-1">Connecting...</span>}
-        </div>
+        {/* Presence Tags — owner only */}
+        {isOwner && (
+          <div className="bg-slate-900/50 border border-white/5 py-2 px-3 rounded-xl mb-6 flex gap-2 overflow-x-auto no-scrollbar">
+            <span className="text-[10px] font-bold text-amber-500/60 uppercase tracking-wider px-1 flex-shrink-0">Watching:</span>
+            {activeUsers.map((name, i) => (
+               <div key={i} className={`text-[10px] px-2 py-1 rounded-md flex items-center gap-1.5 whitespace-nowrap border border-white/5 ${name === myName ? "bg-white/5 text-amber-300" : "bg-slate-800 text-slate-300"}`}>
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
+                  <span className={`font-semibold ${generateColor(name)}`}>{name} {name === myName ? "(You)" : ""}</span>
+               </div>
+            ))}
+            {activeUsers.length === 0 && <span className="text-xs text-slate-500 p-1">Connecting...</span>}
+          </div>
+        )}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <div className="flex justify-between items-start mb-2">
             <h2 className="text-2xl font-black text-white">{poll.question}</h2>
@@ -338,10 +340,13 @@ function ViewPoll({ id }: { id: string }) {
               const votersForOption = Object.entries(voters).filter(([, optIdx]) => optIdx === i).map(([name]) => name);
 
               return (
-                <motion.button key={i} onClick={() => vote(i)} disabled={(voted !== null && !poll.allowUndo) || isExpired}
+                <motion.button key={i}
+                  onClick={() => vote(i)}
+                  disabled={(voted !== null && !poll.allowUndo) || isExpired}
                   className={`w-full relative text-left px-5 py-4 rounded-xl border transition-all overflow-hidden ${
                     isMyVote ? "border-amber-500/50 bg-amber-500/10" :
-                    (showResults && !poll.allowUndo) || isExpired ? "border-white/10 bg-slate-900/50 cursor-default shadow-none" :
+                    voted !== null && !poll.allowUndo ? "border-white/10 bg-slate-900/50 cursor-not-allowed" :
+                    isExpired ? "border-white/10 bg-slate-900/50 cursor-default" :
                     "border-white/10 bg-slate-900/50 hover:border-amber-500/30 hover:bg-amber-500/5 cursor-pointer"
                   }`}
                 >

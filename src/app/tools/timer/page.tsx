@@ -57,6 +57,7 @@ function TimerSetup({ onStart }: { onStart: (id: string) => void }) {
   const [customId, setCustomId] = useState("");
 
   const totalMs = (hours * 3600 + minutes * 60 + seconds) * 1000;
+  const isValid = totalMs > 0;
 
   const create = async () => {
     if (totalMs <= 0) return;
@@ -133,7 +134,7 @@ function TimerSetup({ onStart }: { onStart: (id: string) => void }) {
               />
             </div>
 
-            <button onClick={create} disabled={totalMs <= 0}
+            <button onClick={create} disabled={!isValid}
               className="w-full bg-gradient-to-r from-sky-600 to-cyan-600 text-white font-semibold py-4 rounded-xl hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed shadow-lg shadow-sky-500/20 flex items-center justify-center gap-2">
               <Play className="w-4 h-4" /> Start Shared Timer
             </button>

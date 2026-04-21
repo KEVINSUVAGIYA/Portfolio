@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback, Suspense, useMemo } from "react";
+import { useEffect, useRef, useState, useCallback, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { ArrowLeft, Copy, CheckCheck, FileText, Wifi, WifiOff, Shuffle, Users, Eraser } from "lucide-react";
@@ -8,13 +8,6 @@ import Link from "next/link";
 import { getFirebaseDb, isFirebaseConfigured } from "@/lib/firebase";
 import { ref, set, onValue, off, onDisconnect, remove } from "firebase/database";
 import { copyToClipboard, generateColor } from "@/lib/utils";
-import dynamic from "next/dynamic";
-import "react-quill/dist/quill.snow.css";
-
-const ReactQuill = dynamic(() => import("react-quill"), { 
-  ssr: false,
-  loading: () => <div className="flex-1 w-full min-h-[60vh] bg-slate-900/50 border border-white/10 rounded-xl flex items-center justify-center text-slate-500">Loading editor…</div> 
-});
 
 const adjectives = ["Swift","Quiet","Bold","Calm","Bright","Nova","Sage","Zephyr","Echo","Mist"];
 const nouns = ["Fox","River","Star","Hawk","Moon","Wave","Pine","Ash","Reed","Stone"];
@@ -133,11 +126,10 @@ function SharedNote({ noteKey }: { noteKey: string }) {
     });
   }, [noteRefPath]);
 
-  const handleChange = (val: string, delta: any, source: string) => {
-    if (source !== 'user') return; // Ignore programmatic remote updates setting off loops
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const val = e.target.value;
     localTextRef.current = val;
     setText(val);
-    
     // Set typing status
     const db = getFirebaseDb();
     set(ref(db, `${presenceRefPath}/${myNameRef.current}/isTyping`), true);
@@ -145,22 +137,13 @@ function SharedNote({ noteKey }: { noteKey: string }) {
     typingResetRef.current = setTimeout(() => {
       set(ref(db, `${presenceRefPath}/${myNameRef.current}/isTyping`), false);
     }, 1500);
-
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => syncToFirebase(val), 600);
   };
 
   const copyLink = async () => { await copyToClipboard(window.location.href); setCopied(true); setTimeout(() => setCopied(false), 2000); };
   
-  const modules = useMemo(() => ({
-    toolbar: [
-      [{ 'header': [1, 2, 3, false] }],
-      ['bold', 'italic', 'underline', 'strike', 'blockquote', 'code-block'],
-      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-      ['link'],
-      ['clean']
-    ]
-  }), []);
+  // No modules needed - using plain textarea
 
   return (
     <div className="min-h-screen bg-slate-950 flex flex-col">
@@ -213,11 +196,17 @@ function SharedNote({ noteKey }: { noteKey: string }) {
           {activeUsers.length === 0 && <span className="text-xs text-slate-500">Connecting…</span>}
         </div>
 
-        {/* Editor Wrapper */}
+        {/* Editor */}
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex-1 flex flex-col pb-10">
-          <ReactQuill theme="snow" value={text} onChange={handleChange} modules={modules} placeholder="Start typing rich text together…" />
+          <textarea
+            value={text}
+            onChange={handleChange}
+            placeholder="Start typing together… synced live across all tabs."
+            className="flex-1 w-full min-h-[60vh] bg-slate-900 border border-white/10 text-slate-100 px-6 py-5 rounded-xl text-base outline-none focus:border-emerald-500/40 transition-colors resize-none font-mono leading-relaxed placeholder:text-slate-600"
+          />
           <div className="mt-3 text-xs text-slate-600 flex justify-between">
-            <span>Cleared automatically when empty. RTDB sync limit: 1MB.</span>
+            <span>Plain text · Auto-saved · Cleared when no one is in the room.</span>
+            <span>{text.length} chars</span>
           </div>
         </motion.div>
       </div>
