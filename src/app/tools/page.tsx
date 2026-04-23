@@ -186,7 +186,7 @@ export default function ToolsPage() {
               </span>
             </h1>
             <p className="text-slate-400 text-lg max-w-2xl mx-auto">
-              18 genuinely useful everyday tools. Real-time tools use Gun.js — fully decentralized. Browser tools are 100% client-side.
+              18 genuinely useful everyday tools. All run client-side — nothing uploaded, no account needed.
             </p>
           </motion.div>
         </div>
@@ -232,7 +232,7 @@ export default function ToolsPage() {
         <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }}
           className="text-center text-xs text-slate-700 mt-12"
         >
-          Real-time tools powered by Gun.js (decentralized P2P) · No accounts · No servers · No tracking
+          No accounts · No Tracking · No Worries
         </motion.p>
       </div>
     </div>

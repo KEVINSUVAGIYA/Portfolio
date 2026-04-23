@@ -3,9 +3,10 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import {
-  Hash, FileText, QrCode, ShieldCheck, Braces, BarChart2, Timer, Globe,
-  Zap, ArrowRight, Sparkles
+  Hash, FileText, QrCode, Braces, BarChart2, Timer, Globe,
+  Zap, ArrowRight, Sparkles, Keyboard, Regex, ImageIcon, Music, Code2
 } from "lucide-react";
+
 import { SectionHeader } from "./ui/SectionHeader";
 
 const tools = [
@@ -60,38 +61,26 @@ const tools = [
   {
     id: "qr",
     title: "QR Generator",
-    description: "Custom-colored QR codes. Instant PNG download.",
+    description: "WiFi, vCard, Email & URL templates. Custom colors and logo.",
     icon: QrCode,
     href: "/tools/qr",
     gradient: "from-sky-500 to-blue-600",
     glow: "group-hover:shadow-sky-500/20",
     border: "group-hover:border-sky-500/40",
     beam: "from-sky-500/0 via-sky-500/30 to-sky-500/0",
-    tag: "Offline",
-  },
-  {
-    id: "password",
-    title: "Password Generator",
-    description: "Cryptographically secure. Runs 100% in your browser.",
-    icon: ShieldCheck,
-    href: "/tools/password",
-    gradient: "from-rose-500 to-pink-600",
-    glow: "group-hover:shadow-rose-500/20",
-    border: "group-hover:border-rose-500/40",
-    beam: "from-rose-500/0 via-rose-500/30 to-rose-500/0",
-    tag: "Offline",
+    tag: "Browser",
   },
   {
     id: "json",
     title: "JSON Formatter",
-    description: "Format, validate & explore JSON trees. No data leaves your browser.",
+    description: "Format, validate, diff two JSONs, and explore as a tree.",
     icon: Braces,
     href: "/tools/json",
     gradient: "from-amber-500 to-orange-600",
     glow: "group-hover:shadow-amber-500/20",
     border: "group-hover:border-amber-500/40",
     beam: "from-amber-500/0 via-amber-500/30 to-amber-500/0",
-    tag: "Offline",
+    tag: "Browser",
   },
   {
     id: "timezone",
@@ -103,9 +92,70 @@ const tools = [
     glow: "group-hover:shadow-cyan-500/20",
     border: "group-hover:border-cyan-500/40",
     beam: "from-cyan-500/0 via-cyan-500/30 to-cyan-500/0",
-    tag: "Offline",
+    tag: "Browser",
+  },
+  {
+    id: "typing",
+    title: "Typing Speed Test",
+    description: "Time & word modes, live WPM chart, Zen mode. Tab = new quote.",
+    icon: Keyboard,
+    href: "/tools/typing",
+    gradient: "from-green-500 to-emerald-600",
+    glow: "group-hover:shadow-green-500/20",
+    border: "group-hover:border-green-500/40",
+    beam: "from-green-500/0 via-green-500/30 to-green-500/0",
+    tag: "Browser",
+  },
+  {
+    id: "regex",
+    title: "Regex Tester",
+    description: "Live highlights, plain-English explainer, code export, unit tests.",
+    icon: Regex,
+    href: "/tools/regex",
+    gradient: "from-violet-600 to-purple-700",
+    glow: "group-hover:shadow-violet-500/20",
+    border: "group-hover:border-violet-500/40",
+    beam: "from-violet-500/0 via-violet-500/30 to-violet-500/0",
+    tag: "Dev",
+  },
+  {
+    id: "imagecompress",
+    title: "Image Compressor",
+    description: "Before/after drag slider, bulk 20 images, JPEG/WebP/PNG.",
+    icon: ImageIcon,
+    href: "/tools/imagecompress",
+    gradient: "from-amber-500 to-orange-600",
+    glow: "group-hover:shadow-amber-500/20",
+    border: "group-hover:border-amber-500/40",
+    beam: "from-amber-500/0 via-amber-500/30 to-amber-500/0",
+    tag: "Browser",
+  },
+  {
+    id: "metronome",
+    title: "Metronome",
+    description: "Sample-accurate timing, tap tempo, subdivisions, flash mode.",
+    icon: Music,
+    href: "/tools/metronome",
+    gradient: "from-violet-500 to-indigo-700",
+    glow: "group-hover:shadow-violet-500/20",
+    border: "group-hover:border-violet-500/40",
+    beam: "from-violet-500/0 via-violet-500/30 to-violet-500/0",
+    tag: "Browser",
+  },
+  {
+    id: "markdown",
+    title: "Markdown Editor",
+    description: "Live preview, bidirectional scroll sync, styled HTML export.",
+    icon: Code2,
+    href: "/tools/markdown",
+    gradient: "from-indigo-500 to-violet-700",
+    glow: "group-hover:shadow-indigo-500/20",
+    border: "group-hover:border-indigo-500/40",
+    beam: "from-indigo-500/0 via-indigo-500/30 to-indigo-500/0",
+    tag: "Browser",
   },
 ];
+
 
 export const Tools = () => {
   return (
@@ -143,7 +193,7 @@ export const Tools = () => {
             No login · No signup · Just open and use
           </div>
           <p className="text-neutral-300 text-lg max-w-2xl text-center leading-relaxed">
-            Everyday tools that are actually useful — instantly. Real-time tools run on Gun.js, so there&apos;s no server involved at all.
+            Everyday tools that are actually useful — instantly. No login, no setup, just open and go.
           </p>
         </motion.div>
 
@@ -155,7 +205,7 @@ export const Tools = () => {
           variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.06 } } }}
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5"
         >
-          {tools.map((tool) => {
+          {tools.slice(0, 8).map((tool) => {
             const Icon = tool.icon;
             return (
               <motion.div
@@ -181,11 +231,12 @@ export const Tools = () => {
                       <h3 className="text-white font-bold text-[15px] leading-tight group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-slate-400 transition-all">
                         {tool.title}
                       </h3>
-                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium border flex-shrink-0 ${
-                        tool.tag === "Real-time"
+                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium border flex-shrink-0 ${tool.tag === "Real-time"
                           ? "text-violet-400 bg-violet-500/10 border-violet-500/20"
-                          : "text-slate-400 bg-slate-500/10 border-slate-500/20"
-                      }`}>
+                          : tool.tag === "Dev"
+                            ? "text-cyan-400 bg-cyan-500/10 border-cyan-500/20"
+                            : "text-slate-400 bg-slate-500/10 border-slate-500/20"
+                        }`}>
                         {tool.tag}
                       </span>
                     </div>
@@ -223,7 +274,7 @@ export const Tools = () => {
             Explore All Tools
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
-          <p className="text-slate-600 text-xs mt-3">Real-time tools are decentralized via Gun.js · No server · No tracking</p>
+          <p className="text-slate-600 text-xs mt-3">No accounts · No Tracking · No Worries</p>
         </motion.div>
       </div>
     </section>
