@@ -3,106 +3,158 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import {
-  Hash, FileText, QrCode, ShieldCheck, Braces, BarChart2, Timer, Globe,
-  Zap, ArrowRight
+  Hash, FileText, QrCode, Braces, BarChart2, Timer, Globe,
+  Zap, ArrowRight, Keyboard, Pipette, Regex, FileCode,
+  ImageIcon, Shuffle, Music, Calculator,
+  Map, Pencil, Code2
 } from "lucide-react";
 
 const tools = [
+  // Real-time
   {
-    id: "chat",
-    title: "Instant Chat",
+    id: "chat", title: "Instant Chat",
     description: "Real-time chat room via a shared URL. No signup, no server.",
-    icon: Hash,
-    href: "/tools/chat",
-    color: "from-violet-500 to-indigo-600",
-    glow: "rgba(139,92,246,0.3)",
-    border: "group-hover:border-violet-500/40",
-    tag: "Real-time",
+    icon: Hash, href: "/tools/chat",
+    color: "from-violet-500 to-indigo-600", glow: "rgba(139,92,246,0.3)",
+    border: "group-hover:border-violet-500/40", tag: "Real-time",
     tagColor: "text-violet-400 bg-violet-500/10 border-violet-500/20",
   },
   {
-    id: "notes",
-    title: "Shared Notes",
-    description: "Live-synced text pad. Share the URL and type together.",
-    icon: FileText,
-    href: "/tools/notes",
-    color: "from-emerald-500 to-teal-600",
-    glow: "rgba(16,185,129,0.3)",
-    border: "group-hover:border-emerald-500/40",
-    tag: "Real-time",
+    id: "notes", title: "Shared Notes",
+    description: "Live-synced text pad. Share the URL and type together in real-time.",
+    icon: FileText, href: "/tools/notes",
+    color: "from-emerald-500 to-teal-600", glow: "rgba(16,185,129,0.3)",
+    border: "group-hover:border-emerald-500/40", tag: "Real-time",
     tagColor: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
   },
   {
-    id: "poll",
-    title: "Instant Poll",
-    description: "Create a quick poll and share. Votes appear live.",
-    icon: BarChart2,
-    href: "/tools/poll",
-    color: "from-fuchsia-500 to-purple-600",
-    glow: "rgba(217,70,239,0.3)",
-    border: "group-hover:border-fuchsia-500/40",
-    tag: "Real-time",
+    id: "poll", title: "Instant Poll",
+    description: "Create a quick poll and share. Votes appear live across all devices.",
+    icon: BarChart2, href: "/tools/poll",
+    color: "from-fuchsia-500 to-purple-600", glow: "rgba(217,70,239,0.3)",
+    border: "group-hover:border-fuchsia-500/40", tag: "Real-time",
     tagColor: "text-fuchsia-400 bg-fuchsia-500/10 border-fuchsia-500/20",
   },
   {
-    id: "timer",
-    title: "Shared Timer",
-    description: "Countdown timer everyone on the URL sees simultaneously.",
-    icon: Timer,
-    href: "/tools/timer",
-    color: "from-orange-500 to-red-600",
-    glow: "rgba(249,115,22,0.3)",
-    border: "group-hover:border-orange-500/40",
-    tag: "Real-time",
+    id: "timer", title: "Shared Timer",
+    description: "Countdown timer everyone on the same URL sees simultaneously.",
+    icon: Timer, href: "/tools/timer",
+    color: "from-orange-500 to-red-600", glow: "rgba(249,115,22,0.3)",
+    border: "group-hover:border-orange-500/40", tag: "Real-time",
     tagColor: "text-orange-400 bg-orange-500/10 border-orange-500/20",
   },
+  // Browser tools
   {
-    id: "qr",
-    title: "QR Generator",
-    description: "Generate QR codes with custom colors. Download as PNG.",
-    icon: QrCode,
-    href: "/tools/qr",
-    color: "from-sky-500 to-blue-600",
-    glow: "rgba(14,165,233,0.3)",
-    border: "group-hover:border-sky-500/40",
-    tag: "Offline",
+    id: "qr", title: "QR Generator",
+    description: "5 templates: URL, WiFi (WPA/open), vCard contact, Email. Custom colors, logo, dot styles.",
+    icon: QrCode, href: "/tools/qr",
+    color: "from-sky-500 to-blue-600", glow: "rgba(14,165,233,0.3)",
+    border: "group-hover:border-sky-500/40", tag: "Browser",
     tagColor: "text-sky-400 bg-sky-500/10 border-sky-500/20",
   },
   {
-    id: "password",
-    title: "Password Generator",
-    description: "Cryptographically secure passwords. Runs entirely in your browser.",
-    icon: ShieldCheck,
-    href: "/tools/password",
-    color: "from-rose-500 to-pink-600",
-    glow: "rgba(244,63,94,0.3)",
-    border: "group-hover:border-rose-500/40",
-    tag: "Offline",
-    tagColor: "text-rose-400 bg-rose-500/10 border-rose-500/20",
-  },
-  {
-    id: "json",
-    title: "JSON Formatter",
-    description: "Format, validate, and explore JSON as an interactive tree.",
-    icon: Braces,
-    href: "/tools/json",
-    color: "from-amber-500 to-orange-600",
-    glow: "rgba(245,158,11,0.3)",
-    border: "group-hover:border-amber-500/40",
-    tag: "Offline",
+    id: "json", title: "JSON Formatter",
+    description: "Format, minify, validate, diff two JSONs side-by-side, search keys/values, interactive tree.",
+    icon: Braces, href: "/tools/json",
+    color: "from-amber-500 to-orange-600", glow: "rgba(245,158,11,0.3)",
+    border: "group-hover:border-amber-500/40", tag: "Browser",
     tagColor: "text-amber-400 bg-amber-500/10 border-amber-500/20",
   },
   {
-    id: "timezone",
-    title: "World Clock",
-    description: "Live clocks across every timezone with meeting-friendly status.",
-    icon: Globe,
-    href: "/tools/timezone",
-    color: "from-cyan-500 to-blue-600",
-    glow: "rgba(6,182,212,0.3)",
-    border: "group-hover:border-cyan-500/40",
-    tag: "Offline",
+    id: "timezone", title: "World Clock",
+    description: "Live clocks across every timezone. Pin zones, drag to reorder.",
+    icon: Globe, href: "/tools/timezone",
+    color: "from-cyan-500 to-blue-600", glow: "rgba(6,182,212,0.3)",
+    border: "group-hover:border-cyan-500/40", tag: "Browser",
     tagColor: "text-cyan-400 bg-cyan-500/10 border-cyan-500/20",
+  },
+  {
+    id: "typing", title: "Typing Speed Test",
+    description: "Time & word modes, live WPM chart, color-coded character display, Zen mode. Tab = new quote.",
+    icon: Keyboard, href: "/tools/typing",
+    color: "from-green-500 to-emerald-600", glow: "rgba(34,197,94,0.3)",
+    border: "group-hover:border-green-500/40", tag: "Browser",
+    tagColor: "text-green-400 bg-green-500/10 border-green-500/20",
+  },
+  {
+    id: "palette", title: "Color Palette",
+    description: "Generate palettes, WCAG contrast checker (AAA/AA/Fail), colorblind simulator, CSS vars copy.",
+    icon: Pipette, href: "/tools/palette",
+    color: "from-pink-500 to-rose-600", glow: "rgba(236,72,153,0.3)",
+    border: "group-hover:border-pink-500/40", tag: "Browser",
+    tagColor: "text-pink-400 bg-pink-500/10 border-pink-500/20",
+  },
+  {
+    id: "regex", title: "Regex Tester",
+    description: "Live highlights, plain-English explainer, JS/Python/Go/Java code export, unit tests.",
+    icon: Regex, href: "/tools/regex",
+    color: "from-violet-600 to-purple-700", glow: "rgba(139,92,246,0.3)",
+    border: "group-hover:border-violet-500/40", tag: "Dev",
+    tagColor: "text-violet-400 bg-violet-500/10 border-violet-500/20",
+  },
+  {
+    id: "encoder", title: "Encoder / Decoder",
+    description: "Base64, URL, JWT inspector with signature verify — fully client-side.",
+    icon: FileCode, href: "/tools/encoder",
+    color: "from-cyan-500 to-blue-700", glow: "rgba(6,182,212,0.3)",
+    border: "group-hover:border-cyan-500/40", tag: "Dev",
+    tagColor: "text-cyan-400 bg-cyan-500/10 border-cyan-500/20",
+  },
+  {
+    id: "imagecompress", title: "Image Compressor",
+    description: "Before/after drag slider, bulk up to 20 images, JPEG/WebP/PNG — nothing uploaded.",
+    icon: ImageIcon, href: "/tools/imagecompress",
+    color: "from-amber-500 to-orange-600", glow: "rgba(245,158,11,0.3)",
+    border: "group-hover:border-amber-500/40", tag: "Browser",
+    tagColor: "text-amber-400 bg-amber-500/10 border-amber-500/20",
+  },
+  {
+    id: "spinner", title: "Decision Spinner",
+    description: "Spin with ticking sounds & confetti. Auto-remove winners. CSV import.",
+    icon: Shuffle, href: "/tools/spinner",
+    color: "from-fuchsia-500 to-violet-700", glow: "rgba(217,70,239,0.3)",
+    border: "group-hover:border-fuchsia-500/40", tag: "Fun",
+    tagColor: "text-fuchsia-400 bg-fuchsia-500/10 border-fuchsia-500/20",
+  },
+  {
+    id: "metronome", title: "Metronome",
+    description: "Sample-accurate Web Audio timing, tap tempo, subdivisions (8th/triplet/16th), flash & volume.",
+    icon: Music, href: "/tools/metronome",
+    color: "from-violet-500 to-indigo-700", glow: "rgba(99,102,241,0.3)",
+    border: "group-hover:border-violet-500/40", tag: "Browser",
+    tagColor: "text-violet-400 bg-violet-500/10 border-violet-500/20",
+  },
+  {
+    id: "calc", title: "Programmer Calc",
+    description: "HEX/DEC/OCT/BIN, 8/16/32/64-bit word sizes, ROL/ROR shifts, ASCII lookup, bit viewer.",
+    icon: Calculator, href: "/tools/calc",
+    color: "from-slate-500 to-slate-700", glow: "rgba(100,116,139,0.3)",
+    border: "group-hover:border-slate-500/40", tag: "Dev",
+    tagColor: "text-slate-400 bg-slate-500/10 border-slate-500/20",
+  },
+  {
+    id: "meeting", title: "Meeting Planner",
+    description: "Visual 24h overlap grid across timezones. Find the perfect meeting slot instantly.",
+    icon: Map, href: "/tools/meeting",
+    color: "from-sky-500 to-cyan-700", glow: "rgba(14,165,233,0.3)",
+    border: "group-hover:border-sky-500/40", tag: "Browser",
+    tagColor: "text-sky-400 bg-sky-500/10 border-sky-500/20",
+  },
+  {
+    id: "whiteboard", title: "Whiteboard",
+    description: "Draw, add text, shapes, arrows. Keyboard shortcuts. Undo. Export PNG.",
+    icon: Pencil, href: "/tools/whiteboard",
+    color: "from-orange-500 to-red-700", glow: "rgba(249,115,22,0.3)",
+    border: "group-hover:border-orange-500/40", tag: "Creative",
+    tagColor: "text-orange-400 bg-orange-500/10 border-orange-500/20",
+  },
+  {
+    id: "markdown", title: "Markdown Editor",
+    description: "Live preview, bidirectional scroll sync, reading time estimate, full-CSS HTML export.",
+    icon: Code2, href: "/tools/markdown",
+    color: "from-indigo-500 to-violet-700", glow: "rgba(99,102,241,0.3)",
+    border: "group-hover:border-indigo-500/40", tag: "Browser",
+    tagColor: "text-indigo-400 bg-indigo-500/10 border-indigo-500/20",
   },
 ];
 
@@ -134,18 +186,16 @@ export default function ToolsPage() {
               </span>
             </h1>
             <p className="text-slate-400 text-lg max-w-2xl mx-auto">
-              A collection of genuinely useful everyday tools. Real-time tools use Gun.js — fully decentralized, no server needed.
+              18 genuinely useful everyday tools. Real-time tools use Gun.js — fully decentralized. Browser tools are 100% client-side.
             </p>
           </motion.div>
         </div>
       </div>
 
-      {/* Tools grid */}
+      {/* Grid */}
       <div className="max-w-5xl mx-auto px-4 py-16">
         <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
+          variants={containerVariants} initial="hidden" animate="visible"
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
         >
           {tools.map((tool) => {
@@ -179,13 +229,10 @@ export default function ToolsPage() {
           })}
         </motion.div>
 
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
+        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }}
           className="text-center text-xs text-slate-700 mt-12"
         >
-          Real-time tools are powered by Gun.js (decentralized P2P) · No accounts · No servers · No tracking
+          Real-time tools powered by Gun.js (decentralized P2P) · No accounts · No servers · No tracking
         </motion.p>
       </div>
     </div>
