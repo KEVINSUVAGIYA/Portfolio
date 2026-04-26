@@ -115,7 +115,7 @@ function diffLines(a: string, b: string) {
   }));
 }
 
-type ViewMode = "formatted" | "tree" | "diff";
+type ViewMode = "formatted" | "minified" | "tree" | "diff";
 
 export default function JsonFormatter() {
   const [input, setInput] = useState("");
@@ -291,7 +291,7 @@ export default function JsonFormatter() {
                 className="flex items-center gap-1.5 px-4 py-3 rounded-xl bg-slate-800 border border-white/10 text-slate-300 hover:text-white disabled:opacity-40 transition-all text-sm"
                 title="Copy minified JSON"
               >
-                <Minimize2 className="w-4 h-4" /> {copiedMinify ? "Copied!" : "Minify"}
+                <Minimize2 className="w-4 h-4" /> {copiedMinify ? "Copied Minified!" : "Copy Minified"}
               </button>
             </div>
             {parsed.error && (
@@ -315,6 +315,7 @@ export default function JsonFormatter() {
                   <div className="flex gap-1 p-1 bg-slate-800 rounded-lg border border-white/10">
                     {([
                       { id: "formatted" as const, label: "{ } Format", icon: Maximize2 },
+                      { id: "minified" as const, label: "Minified", icon: Minimize2 },
                       { id: "tree" as const, label: "🌲 Tree", icon: null },
                       { id: "diff" as const, label: "Diff", icon: GitCompare },
                     ]).map(v => (
@@ -359,6 +360,10 @@ export default function JsonFormatter() {
 
               {parsed.formatted && view === "formatted" && (
                 <pre className="p-4 font-mono text-sm text-emerald-300 whitespace-pre-wrap break-all">{parsed.formatted}</pre>
+              )}
+
+              {minified && view === "minified" && (
+                <pre className="p-4 font-mono text-sm text-emerald-300 whitespace-pre-wrap break-all">{minified}</pre>
               )}
 
               {lastValidObj !== null && view === "tree" && (
