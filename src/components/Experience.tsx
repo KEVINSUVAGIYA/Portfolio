@@ -6,11 +6,19 @@ import { SectionHeader } from "./ui/SectionHeader";
 
 const experience = [
     {
-        id: 1,
+        id: 4,
+        role: "Consultant",
+        company: "Leap",
+        period: "Apr 2026 - Present",
+        description: "Focusing on Revenue Management in Salesforce. Excited to learn, adapt, and implement new strategies for enterprise financial workflows.",
+        skills: ["Salesforce", "Revenue Management", "Consulting", "Problem Solving"]
+    },
+    {
+        id: 3,
         role: "Salesforce Developer",
         company: "MV Clouds",
-        period: "Feb 2024 - Present",
-        description: "Currently working as a Salesforce Developer, delivering scalable and customized solutions to enhance business processes and user experience.",
+        period: "Feb 2024 - Apr 2026",
+        description: "Worked as a Salesforce Developer, delivering scalable and customized solutions to enhance business processes and user experience.",
         skills: ["Lightning Web Components", "Apex Programming", "Integrations", "Flows", "Client Communication", "Version Control", "Problem Solving", "Team Collaboration", "Deployment", "Documentation"]
     },
     {
@@ -22,7 +30,7 @@ const experience = [
         skills: ["Lightning Web Components", "Apex Programming", "Flows", "Integrations", "Version Control", "Problem Solving"]
     },
     {
-        id: 3,
+        id: 1,
         role: "Graphic Designer",
         company: "E-cell ignite",
         period: "Jul 2022 - Mar 2023",

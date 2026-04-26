@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, Copy, CheckCheck, RefreshCw, Pipette, ImageIcon, Lock, Unlock } from "lucide-react";
+
 import Link from "next/link";
 
 // ── Color math helpers ──────────────────────────────────────────────────────
@@ -120,6 +121,7 @@ export default function ColorPalettePage() {
   const [contrastBg, setContrastBg] = useState("#ffffff");
   const [showContrast, setShowContrast] = useState(false);
   const [cbType, setCbType] = useState<"none"|"protanopia"|"deuteranopia"|"tritanopia">("none");
+  const [copiedCSS, setCopiedCSS] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const regenerate = useCallback((s: Scheme = scheme) => {
@@ -161,8 +163,9 @@ export default function ColorPalettePage() {
       canvas.width=Math.floor(img.width*scale); canvas.height=Math.floor(img.height*scale);
       const ctx=canvas.getContext("2d")!; ctx.drawImage(img,0,0,canvas.width,canvas.height);
       const data=ctx.getImageData(0,0,canvas.width,canvas.height).data;
-      setColors(extractPaletteFromImageData(data,canvas.width,canvas.height));
-      setLocked([false,false,false,false,false]);
+      const extracted=extractPaletteFromImageData(data,canvas.width,canvas.height);
+      // Preserve locked colors
+      setColors(prev => prev.map((c,i) => locked[i] ? c : extracted[i] ?? c));
       URL.revokeObjectURL(url);
     };
     img.src=url; e.target.value="";
@@ -171,6 +174,8 @@ export default function ColorPalettePage() {
   const copyCSS = () => {
     const css=colors.map((c,i)=>`--color-${i+1}: ${c};`).join("\n");
     navigator.clipboard.writeText(`:root {\n${css}\n}`);
+    setCopiedCSS(true);
+    setTimeout(() => setCopiedCSS(false), 1800);
   };
 
   const displayColors = cbType==="none" ? colors : colors.map(c=>simulateColorblind(c,cbType as any));
@@ -243,8 +248,8 @@ export default function ColorPalettePage() {
           <button onClick={()=>regenerate()} className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-pink-500 to-rose-600 text-white rounded-xl font-semibold hover:opacity-90 transition-opacity shadow-lg shadow-pink-500/20">
             <RefreshCw className="w-4 h-4"/> Generate
           </button>
-          <button onClick={copyCSS} className="flex items-center gap-2 px-5 py-3 bg-slate-800 border border-white/10 text-slate-300 hover:text-white rounded-xl font-semibold transition-colors text-sm">
-            <Copy className="w-4 h-4"/> CSS Vars
+          <button onClick={copyCSS} className={`flex items-center gap-2 px-5 py-3 rounded-xl font-semibold transition-colors text-sm border ${copiedCSS ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300" : "bg-slate-800 border-white/10 text-slate-300 hover:text-white"}`}>
+            {copiedCSS ? <CheckCheck className="w-4 h-4"/> : <Copy className="w-4 h-4"/>} {copiedCSS ? "Copied!" : "CSS Vars"}
           </button>
           <button onClick={()=>setShowContrast(c=>!c)} className={`flex items-center gap-2 px-5 py-3 rounded-xl font-semibold transition-colors text-sm border ${showContrast?"bg-pink-500/10 border-pink-500/30 text-pink-300":"bg-slate-800 border-white/10 text-slate-300 hover:text-white"}`}>
             WCAG Contrast
@@ -262,10 +267,15 @@ export default function ColorPalettePage() {
             ))}
           </div>
           {cbType!=="none" && (
-            <div className="flex gap-2 rounded-xl overflow-hidden h-12">
-              {displayColors.map((hex,i)=>(
-                <div key={i} className="flex-1 transition-colors" style={{backgroundColor:hex}} title={`Simulated: ${hex}`}/>
-              ))}
+            <div className="space-y-2">
+              <div className="flex gap-2 rounded-xl overflow-hidden h-12">
+                {displayColors.map((hex,i)=>(
+                  <div key={i} className="flex-1 transition-colors flex items-end pb-1 px-1" style={{backgroundColor:hex}}>
+                    <span className={`text-[8px] font-mono font-bold ${isLight(hex)?"text-black/70":"text-white/70"}`}>{hex}</span>
+                  </div>
+                ))}
+              </div>
+              <p className="text-[10px] text-slate-600">Simulated view — colors shown as perceived by someone with this vision type.</p>
             </div>
           )}
         </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft, Copy, CheckCheck, Braces, AlertCircle, CheckCircle2,
@@ -9,8 +9,28 @@ import {
 import Link from "next/link";
 
 // ── Tree renderer ──────────────────────────────────────────────────────────
-function JsonTree({ data, searchTerm }: { data: unknown; searchTerm: string }) {
+function JsonTree({ data, searchTerm, expandAllCount }: { data: unknown; searchTerm: string; expandAllCount: number }) {
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
+
+  // Reset collapsed when expandAllCount changes
+  useMemo(() => {
+    if (expandAllCount > 0) setCollapsed(new Set());
+  }, [expandAllCount]);
+
+  // Collapse all
+  const handleCollapseAll = () => {
+    const allPaths = new Set<string>();
+    const traverse = (val: unknown, path: string) => {
+      if (val && typeof val === "object") {
+        allPaths.add(path);
+        if (Array.isArray(val)) val.forEach((v, i) => traverse(v, `${path}.${i}`));
+        else Object.entries(val).forEach(([k, v]) => traverse(v, `${path}.${k}`));
+      }
+    };
+    traverse(data, "root");
+    setCollapsed(allPaths);
+  };
+
   const toggle = (path: string) => setCollapsed(prev => {
     const next = new Set(prev);
     next.has(path) ? next.delete(path) : next.add(path);
@@ -72,7 +92,15 @@ function JsonTree({ data, searchTerm }: { data: unknown; searchTerm: string }) {
     return <span className="text-slate-300">{String(value)}</span>;
   };
 
-  return <div className="font-mono text-sm leading-relaxed">{renderValue(data, "root")}</div>;
+  return (
+    <div className="font-mono text-sm leading-relaxed relative pt-8">
+      <div className="absolute top-0 right-0 flex gap-2">
+        <button onClick={() => setCollapsed(new Set())} className="text-[10px] bg-slate-800 text-slate-300 hover:text-white px-2 py-1 rounded">Expand All</button>
+        <button onClick={handleCollapseAll} className="text-[10px] bg-slate-800 text-slate-300 hover:text-white px-2 py-1 rounded">Collapse All</button>
+      </div>
+      {renderValue(data, "root")}
+    </div>
+  );
 }
 
 // ── Diff highlighter ───────────────────────────────────────────────────────
@@ -98,26 +126,44 @@ export default function JsonFormatter() {
   const [copiedMinify, setCopiedMinify] = useState(false);
   const [copiedFormat, setCopiedFormat] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [sortAlphabetical, setSortAlphabetical] = useState(false);
+  const [lastValidObj, setLastValidObj] = useState<unknown>(null);
+  const [expandAllCount, setExpandAllCount] = useState(0);
+
+  const sortKeysFn = useCallback((o: any): any => {
+    if (Array.isArray(o)) return o.map(sortKeysFn);
+    if (o !== null && typeof o === "object") {
+      return Object.keys(o).sort().reduce((acc, k) => { acc[k] = sortKeysFn(o[k]); return acc; }, {} as any);
+    }
+    return o;
+  }, []);
 
   const parsed = useMemo(() => {
     if (!input.trim()) return { obj: null, error: null, formatted: "" };
     try {
-      const obj = JSON.parse(input);
+      let obj = JSON.parse(input);
+      if (sortAlphabetical) obj = sortKeysFn(obj);
       return { obj, error: null, formatted: JSON.stringify(obj, null, indent) };
     } catch (e) {
       return { obj: null, error: (e as Error).message, formatted: "" };
     }
-  }, [input, indent]);
+  }, [input, indent, sortAlphabetical, sortKeysFn]);
+
+  // Keep last valid object mounted for the tree to avoid collapse reset
+  useEffect(() => {
+    if (parsed.obj !== null) setLastValidObj(parsed.obj);
+  }, [parsed.obj]);
 
   const parsedDiff = useMemo(() => {
     if (!diffInput.trim()) return { obj: null, error: null, formatted: "" };
     try {
-      const obj = JSON.parse(diffInput);
+      let obj = JSON.parse(diffInput);
+      if (sortAlphabetical) obj = sortKeysFn(obj);
       return { obj, error: null, formatted: JSON.stringify(obj, null, indent) };
     } catch (e) {
       return { obj: null, error: (e as Error).message, formatted: "" };
     }
-  }, [diffInput, indent]);
+  }, [diffInput, indent, sortAlphabetical, sortKeysFn]);
 
   const minified = useMemo(() => {
     if (!parsed.obj) return "";
@@ -194,6 +240,9 @@ export default function JsonFormatter() {
               <option value={4}>4 spaces</option>
               <option value={1}>1 space</option>
             </select>
+            <button onClick={() => setSortAlphabetical(s => !s)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${sortAlphabetical ? "bg-amber-500/20 border-amber-500/50 text-amber-400" : "bg-slate-900 border-white/10 text-slate-400 hover:text-white"}`}
+            >Sort Keys {sortAlphabetical ? "On" : "Off"}</button>
             <button onClick={() => { setInput(EXAMPLE); }}
               className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-slate-400 hover:text-white transition-all text-xs"
             >Load Example</button>
@@ -312,8 +361,8 @@ export default function JsonFormatter() {
                 <pre className="p-4 font-mono text-sm text-emerald-300 whitespace-pre-wrap break-all">{parsed.formatted}</pre>
               )}
 
-              {parsed.formatted && view === "tree" && (
-                <div className="p-4"><JsonTree data={parsed.obj} searchTerm={searchTerm} /></div>
+              {lastValidObj !== null && view === "tree" && (
+                <div className="p-4"><JsonTree data={lastValidObj} searchTerm={searchTerm} expandAllCount={expandAllCount} /></div>
               )}
 
               {view === "diff" && (

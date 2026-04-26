@@ -86,8 +86,16 @@ export default function ImageCompressorPage() {
 
 
   useEffect(() => {
-    return () => { images.forEach(img => URL.revokeObjectURL(img.originalUrl)); };
+    return () => { images.forEach(img => { URL.revokeObjectURL(img.originalUrl); URL.revokeObjectURL(img.outputUrl); }); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Prevent default drag/drop on the window so dropping on slider doesn't navigate away
+  useEffect(() => {
+    const prevent = (e: DragEvent) => e.preventDefault();
+    window.addEventListener("dragover", prevent);
+    window.addEventListener("drop", prevent);
+    return () => { window.removeEventListener("dragover", prevent); window.removeEventListener("drop", prevent); };
   }, []);
 
   const compressFile = useCallback((file: File, q: number, fmt: OutputFormat): Promise<ImageEntry> => {
@@ -104,7 +112,7 @@ export default function ImageCompressorPage() {
           else ctx.clearRect(0, 0, canvas.width, canvas.height);
           ctx.drawImage(img, 0, 0);
           const mime = fmt === "jpeg" ? "image/jpeg" : fmt === "webp" ? "image/webp" : "image/png";
-          const dataUrl = canvas.toDataURL(mime, fmt !== "png" ? q / 100 : undefined);
+          const dataUrl = canvas.toDataURL(mime, fmt === "png" ? undefined : q / 100);
           fetch(dataUrl).then(r => r.blob()).then(blob => {
             const originalUrl = URL.createObjectURL(file);
             resolve({
@@ -132,7 +140,7 @@ export default function ImageCompressorPage() {
     }
     setImages(prev => {
       if (append) return [...prev, ...entries];
-      prev.forEach(img => URL.revokeObjectURL(img.originalUrl));
+      prev.forEach(img => { URL.revokeObjectURL(img.originalUrl); URL.revokeObjectURL(img.outputUrl); });
       return entries;
     });
     if (!append) setSelected(0);
@@ -265,19 +273,24 @@ export default function ImageCompressorPage() {
               )}
             </div>
 
-            {/* Thumbnails (only for batch) */}
             {images.length > 1 && (
-              <div className="flex gap-2 overflow-x-auto pb-1">
+              <div className="flex gap-2 overflow-x-auto pb-1 items-end">
                 {images.map((img, i) => {
                   const savings = Math.round((1 - img.outputSize / img.originalSize) * 100);
+                  const ext = format === "jpeg" ? "jpg" : format;
                   return (
-                    <button key={i} onClick={() => setSelected(i)}
-                      className={`flex-shrink-0 rounded-xl border overflow-hidden transition-all ${selected === i ? "border-amber-500 scale-105" : "border-white/10"}`}
-                    >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={img.outputUrl} alt={img.name} className="w-20 h-14 object-cover" />
-                      <div className="bg-slate-900 px-2 py-1 text-[9px] text-center text-emerald-400 font-bold">-{savings}%</div>
-                    </button>
+                    <div key={i} className="flex flex-col gap-1">
+                      <button onClick={() => setSelected(i)}
+                        className={`flex-shrink-0 rounded-xl border overflow-hidden transition-all ${selected === i ? "border-amber-500 scale-105" : "border-white/10"}`}
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={img.outputUrl} alt={img.name} className="w-20 h-14 object-cover" />
+                        <div className="bg-slate-900 px-2 py-1 text-[9px] text-center text-emerald-400 font-bold">-{savings > 0 ? savings : 0}%</div>
+                      </button>
+                      <a href={img.outputUrl} download={`${img.name.replace(/\.[^/.]+$/, "")}_compressed.${ext}`}
+                        className="text-[9px] bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 px-1 py-0.5 rounded text-center transition-colors font-bold"
+                      >↓ Get</a>
+                    </div>
                   );
                 })}
               </div>

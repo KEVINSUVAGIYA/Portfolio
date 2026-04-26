@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Calculator, Copy, AlertCircle } from "lucide-react";
+import { ArrowLeft, Calculator, Copy, CheckCheck, AlertCircle, RotateCcw } from "lucide-react";
 import Link from "next/link";
 
 type Base = "HEX" | "DEC" | "OCT" | "BIN";
@@ -46,9 +46,10 @@ export default function ProgrammerCalcPage() {
   const [valA, setValA] = useState("10");
   const [valB, setValB] = useState("5");
   const [bitwiseBase, setBitwiseBase] = useState<Base>("DEC");
+  const [copiedBase, setCopiedBase] = useState<string | null>(null);
 
-  // JS bitwise ops are 32-bit; for smaller word sizes, mask lower bits
-  const mask: number = wordSize >= 32 ? 0xFFFFFFFF : (1 << wordSize) - 1;
+  // JS bitwise ops are 32-bit; for word sizes > 32, we cap at 32-bit (JS limitation)
+  const mask: number = wordSize <= 8 ? (1 << wordSize) - 1 : wordSize === 16 ? 0xFFFF : 0xFFFFFFFF;
 
   // Derive all bases from main input
   const num = parseNumber(val, base);
@@ -115,13 +116,23 @@ export default function ProgrammerCalcPage() {
   const bitwiseResult = formatNumber(res, bitwiseBase);
   const showBitwiseError = ((valA && isNaN(nA)) || (valB && op !== "NOT" && isNaN(nB)));
 
+  const copyBase = (text: string, id: string) => {
+    if (!text || text === "—") return;
+    navigator.clipboard.writeText(text);
+    setCopiedBase(id);
+    setTimeout(() => setCopiedBase(null), 1500);
+  };
+
   return (
     <div className="min-h-screen bg-slate-950">
-      <div className="border-b border-white/10 bg-slate-900/80 backdrop-blur-md">
+      <div className="border-b border-white/10 bg-slate-900/80 backdrop-blur-md sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center gap-4">
           <Link href="/tools" className="text-slate-400 hover:text-white transition-colors"><ArrowLeft className="w-5 h-5" /></Link>
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-700 flex items-center justify-center"><Calculator className="w-4 h-4 text-white" /></div>
           <span className="text-white font-bold">Programmer Calc</span>
+          <button onClick={() => { setVal("0"); }} className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/10 text-slate-400 hover:text-white text-xs transition-colors">
+            <RotateCcw className="w-3.5 h-3.5" /> Clear
+          </button>
         </div>
       </div>
 
@@ -164,17 +175,23 @@ export default function ProgrammerCalcPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             {bases.map(b => (
-              <div key={b.id} onClick={() => navigator.clipboard.writeText(b.val)}
+              <div key={b.id} onClick={() => copyBase(b.val, b.id)}
                 className="bg-slate-950 border border-white/5 rounded-xl p-4 cursor-pointer hover:border-indigo-500/30 transition-colors group"
                 title="Click to copy"
               >
-                <div className="text-[10px] text-slate-500 font-bold mb-1 flex justify-between">
-                  {b.id} <Copy className="w-3 h-3 opacity-0 group-hover:opacity-100" />
+                <div className="text-[10px] text-slate-500 font-bold mb-1 flex justify-between items-center">
+                  {b.id}
+                  {copiedBase === b.id
+                    ? <CheckCheck className="w-3 h-3 text-emerald-400" />
+                    : <Copy className="w-3 h-3 opacity-0 group-hover:opacity-100" />}
                 </div>
                 <div className="text-lg text-slate-300 font-mono break-all leading-tight">{b.val || "—"}</div>
               </div>
             ))}
           </div>
+          {wordSize === 64 && (
+            <p className="text-[10px] text-amber-500/70 mt-2">⚠ JavaScript bitwise ops are 32-bit. 64-bit mode shows 32-bit results.</p>
+          )}
 
           {/* Bits Viewer */}
           <div className="mt-6 pt-6 border-t border-white/5">
@@ -191,7 +208,7 @@ export default function ProgrammerCalcPage() {
               {bits.map((bit, i) => (
                 <div key={i} className="flex flex-col items-center">
                   <div className={`w-full py-1.5 rounded text-center text-xs font-mono transition-colors ${bit===1?"bg-indigo-500/20 text-indigo-300 border border-indigo-500/30":"bg-slate-800 text-slate-600 border border-white/5"}`}>{bit}</div>
-                  {(i+1) % 8 === 0 && <div className="text-[7px] text-slate-700 mt-0.5">{wordSize-i-1}…{wordSize-i-8}</div>}
+                  {(i+1) % 8 === 0 && <div className="text-[7px] text-slate-700 mt-0.5">{(wordSize-i-1).toString().padStart(2,"0")}</div>}
                 </div>
               ))}
             </div>

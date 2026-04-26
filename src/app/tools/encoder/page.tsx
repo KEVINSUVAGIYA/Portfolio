@@ -93,7 +93,7 @@ export default function Base64Page() {
         {/* Mode Tabs */}
         <div className="flex gap-2 bg-slate-900 border border-white/10 rounded-xl p-1.5">
           {([["base64", "Base64"], ["url", "URL Encode"], ["jwt", "JWT Decoder"]] as const).map(([m, label]) => (
-            <button key={m} onClick={() => { setMode(m); setInput(""); }}
+            <button key={m} onClick={() => { setMode(m); if (m === "jwt") setInput(""); }}
               className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all ${mode === m ? "bg-cyan-600 text-white shadow-lg" : "text-slate-400 hover:text-slate-200"}`}
             >{label}</button>
           ))}
@@ -130,9 +130,13 @@ export default function Base64Page() {
 
         {/* Output */}
         <AnimatePresence>
-          {(output || jwt) && (
+          {(output || jwt || (mode === "jwt" && input.trim() && !jwt)) && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-              {mode === "jwt" && jwt ? (
+              {mode === "jwt" && input.trim() && !jwt ? (
+                <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-5">
+                  <p className="text-red-400 text-sm font-semibold">⛔ Invalid JWT — token must have 3 dot-separated base64 parts.</p>
+                </div>
+              ) : mode === "jwt" && jwt ? (
                 <div className="space-y-3">
                   {([
                     ["Header", jwt.header, "from-blue-500 to-cyan-600"],

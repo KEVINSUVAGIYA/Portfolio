@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, Download, Copy, CheckCheck, QrCode, UploadCloud, Trash } from "lucide-react";
 import Link from "next/link";
@@ -11,7 +11,7 @@ type Template = "url" | "wifi" | "vcard" | "email" | "text";
 export default function QRGenerator() {
   const [template, setTemplate] = useState<Template>("url");
   const [copied, setCopied] = useState(false);
-  const QR_CHAR_LIMIT = 900;
+  const QR_CHAR_LIMIT = 2500;
 
   // URL / text
   const [textInput, setTextInput] = useState("");
@@ -72,6 +72,10 @@ export default function QRGenerator() {
       alert("Your browser blocks script image copying. Please use Download instead.");
     }
   };
+
+  useEffect(() => {
+    return () => { if (logoUrl) URL.revokeObjectURL(logoUrl); };
+  }, [logoUrl]);
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

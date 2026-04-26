@@ -167,6 +167,20 @@ export default function MarkdownPage() {
     }
   };
 
+  const insertText = (before: string, after: string = "") => {
+    const ta = textareaRef.current;
+    if (!ta) return;
+    const start = ta.selectionStart;
+    const end = ta.selectionEnd;
+    const text = md.substring(start, end);
+    handleChange(md.substring(0, start) + before + text + after + md.substring(end));
+    setTimeout(() => {
+      ta.focus();
+      ta.selectionStart = start + before.length;
+      ta.selectionEnd = end + before.length;
+    }, 0);
+  };
+
   const wordCount = md.trim() ? md.trim().split(/\s+/).length : 0;
   const charCount = md.length;
   const readingMin = Math.max(1, Math.ceil(wordCount / 200));
@@ -217,9 +231,18 @@ export default function MarkdownPage() {
         {/* Editor pane */}
         {(view === "edit" || view === "split") && (
           <div className={`flex flex-col ${view === "split" ? "w-1/2 border-r border-white/10" : "flex-1"}`}>
-            <div className="px-4 py-2 bg-slate-900/50 border-b border-white/5 text-xs text-slate-600 font-semibold uppercase tracking-wider flex-shrink-0 flex justify-between">
-              <span>Markdown</span>
-              {view === "split" && <span className="text-slate-700">↕ Scroll synced</span>}
+            <div className="px-4 py-2 bg-slate-900/50 border-b border-white/5 flex-shrink-0 flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <span className="text-xs text-slate-600 font-semibold uppercase tracking-wider">Markdown</span>
+                <div className="flex gap-1 border-l border-white/10 pl-4">
+                  <button onClick={() => insertText("**", "**")} className="px-2 py-0.5 text-slate-400 hover:text-white hover:bg-white/5 rounded text-xs font-bold transition-colors" title="Bold">B</button>
+                  <button onClick={() => insertText("*", "*")} className="px-2 py-0.5 text-slate-400 hover:text-white hover:bg-white/5 rounded text-xs italic transition-colors font-serif" title="Italic">I</button>
+                  <button onClick={() => insertText("~~", "~~")} className="px-2 py-0.5 text-slate-400 hover:text-white hover:bg-white/5 rounded text-xs line-through transition-colors" title="Strikethrough">S</button>
+                  <button onClick={() => insertText("[", "](url)")} className="px-2 py-0.5 text-slate-400 hover:text-white hover:bg-white/5 rounded text-xs transition-colors" title="Link">🔗</button>
+                  <button onClick={() => insertText("`", "`")} className="px-2 py-0.5 text-slate-400 hover:text-white hover:bg-white/5 rounded text-xs font-mono transition-colors" title="Code">`</button>
+                </div>
+              </div>
+              {view === "split" && <span className="text-xs text-slate-700 font-semibold uppercase tracking-wider">↕ Scroll synced</span>}
             </div>
             <textarea
               ref={textareaRef}

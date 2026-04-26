@@ -77,7 +77,14 @@ function playClick() {
 }
 
 export default function SpinnerPage() {
-  const [items, setItems] = useState(["Option 1","Option 2","Option 3","Option 4","Option 5"]);
+  const [items, setItems] = useState<string[]>(() => {
+    if (typeof window === "undefined") return ["Option 1","Option 2","Option 3","Option 4","Option 5"];
+    try {
+      const saved = localStorage.getItem("spinner-items");
+      const parsed = saved ? JSON.parse(saved) : null;
+      return Array.isArray(parsed) && parsed.length > 0 ? parsed : ["Option 1","Option 2","Option 3","Option 4","Option 5"];
+    } catch { return ["Option 1","Option 2","Option 3","Option 4","Option 5"]; }
+  });
   const [newItem, setNewItem] = useState("");
   const [csvInput, setCsvInput] = useState("");
   const [spinning, setSpinning] = useState(false);
@@ -92,6 +99,11 @@ export default function SpinnerPage() {
   const rafRef = useRef<number | null>(null);
   const [size, setSize] = useState(360);
   const audioCtxRef = useRef<AudioContext | null>(null);
+
+  // Persist items to localStorage
+  useEffect(() => {
+    localStorage.setItem("spinner-items", JSON.stringify(items));
+  }, [items]);
 
 
   useEffect(() => {
@@ -192,15 +204,15 @@ export default function SpinnerPage() {
   };
 
   const importCSV = () => {
-    const parsed = csvInput.split(",").map(s => s.trim()).filter(s => s && !items.includes(s));
-    if (!parsed.length) return;
+    const parsed = csvInput.split(",").map(s => s.trim()).filter(s => s.length > 0 && !items.includes(s));
+    if (!parsed.length) { setCsvInput(""); return; }
     setItems(prev => [...prev, ...parsed].slice(0, 20));
     setCsvInput(""); setWinner(null);
   };
 
   const removeItem = (idx: number) => { setItems(i => i.filter((_, j) => j !== idx)); setWinner(null); };
   const shuffle = () => setItems(i => [...i].sort(() => Math.random() - 0.5));
-  const reset = () => { setItems(["Option 1","Option 2","Option 3","Option 4","Option 5"]); setWinner(null); setHistory([]); };
+  const reset = () => { setItems(["Option 1","Option 2","Option 3","Option 4","Option 5"]); setWinner(null); setHistory([]); localStorage.removeItem("spinner-items"); };
 
   return (
     <div className="min-h-screen bg-slate-950">

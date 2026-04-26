@@ -58,6 +58,7 @@ export default function MetronomePage() {
   const [bpm, setBpm] = useState(120);
   const [running, setRunning] = useState(false);
   const [beat, setBeat] = useState(0);
+  const [totalBeats, setTotalBeats] = useState(0);
   const [beatsPerBar, setBeatsPerBar] = useState(4);
   const [subdivision, setSubdivision] = useState(1);
   const [soundPack, setSoundPack] = useState<SoundPack>("click");
@@ -99,16 +100,19 @@ export default function MetronomePage() {
 
     while (nextBeatTimeRef.current < ctx.currentTime + SCHEDULE_AHEAD) {
       const subIdx = subCounterRef.current % totalSubs;
-      const isMain = subIdx % subDiv === 0;
+      const isMain = subCounterRef.current % subDiv === 0;
       const beatNum = Math.floor(subIdx / subDiv);
+      const totalBeatCount = Math.floor(subCounterRef.current / subDiv);
       const isAccent = beatNum === 0;
       scheduleNote(ctx, isAccent, isMain, packRef.current, nextBeatTimeRef.current, volRef.current);
 
       if (isMain) {
         const delay = Math.max(0, (nextBeatTimeRef.current - ctx.currentTime) * 1000);
         const capturedBeat = beatNum;
+        const capturedTotal = totalBeatCount;
         setTimeout(() => {
           setBeat(capturedBeat);
+          setTotalBeats(capturedTotal);
           if (flashRef.current) { setIsFlashing(true); setTimeout(() => setIsFlashing(false), 80); }
         }, delay);
       }
@@ -162,7 +166,7 @@ export default function MetronomePage() {
     }
   };
 
-  const reset = () => { setRunning(false); setBeat(0); setTapTimes([]); };
+  const reset = () => { setRunning(false); setBeat(0); setTotalBeats(0); setTapTimes([]); };
 
   const SUBDIV_OPTIONS = [
     { val: 1, label: "♩ Quarter" }, { val: 2, label: "♪ 8th" },
@@ -191,7 +195,7 @@ export default function MetronomePage() {
         <div className={`rounded-3xl p-8 flex flex-col items-center gap-6 border transition-colors ${flashMode && isFlashing && running ? "bg-violet-500/20 border-violet-500/40" : "bg-slate-900 border-white/10"}`}>
           <div className="relative h-36 w-full flex items-end justify-center">
             <div className="absolute top-0 w-px h-full bg-slate-700" />
-            <motion.div animate={{ x: running ? (beat % 2 === 0 ? 55 : -55) : 0 }}
+            <motion.div animate={{ x: running ? (totalBeats % 2 === 0 ? 55 : -55) : 0 }}
               transition={{ duration: (60 / bpm) * 0.85, ease: "easeInOut" }}
               className="absolute top-0 flex flex-col items-center"
             >

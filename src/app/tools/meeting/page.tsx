@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Plus, X, Globe, Clock } from "lucide-react";
 import Link from "next/link";
@@ -42,13 +42,21 @@ export default function MeetingPlannerPage() {
   const [selectedHour, setSelectedHour] = useState<number | null>(null);
   const [adding, setAdding] = useState(false);
   const [search, setSearch] = useState("");
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Get a stable "now" at render — recreated on each render but consistent within it.
-  // If you need live updates, wrap in useEffect with a timer.
-  const now = moment();
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setAdding(false); setSearch("");
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
 
   const addZone = (tz: string) => {
-    if (!zones.includes(tz) && zones.length < 8) setZones(z => [...z, tz]);
+    if (!zones.includes(tz) && zones.length < 10) setZones(z => [...z, tz]);
     setAdding(false); setSearch("");
   };
 
@@ -207,8 +215,8 @@ export default function MeetingPlannerPage() {
               <button onClick={() => removeZone(tz)} className="text-slate-600 hover:text-red-400 transition-colors"><X className="w-3 h-3" /></button>
             </div>
           ))}
-          {zones.length < 8 && (
-            <div className="relative">
+          {zones.length < 10 && (
+            <div ref={dropdownRef} className="relative">
               <button onClick={() => setAdding(!adding)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-dashed border-white/20 text-slate-500 hover:text-white text-xs transition-colors">
                 <Plus className="w-3.5 h-3.5" /> Add zone
               </button>
