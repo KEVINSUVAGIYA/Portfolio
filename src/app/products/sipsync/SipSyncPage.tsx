@@ -74,7 +74,7 @@ const features = [
         icon: CalendarDays,
         title: "Hydration Calendar",
         description:
-            "View your monthly hydration history with a medal system — gold, silver, and bronze — based on your daily goal completion.",
+            "Interactive monthly calendar with dynamic water fill animations, hover tooltips, perfect day 🏆 highlights, monthly stats overview, and all-time achievements.",
     },
     {
         icon: Smartphone,

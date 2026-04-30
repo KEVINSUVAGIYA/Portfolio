@@ -129,17 +129,19 @@ export default function SipSyncGuidePage() {
                     </p>
                     <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-6">
                         <ul className="list-disc list-inside space-y-3">
-                            <li><strong>Monthly Calendar View:</strong> Displays a full month grid. Navigate between months using the Previous/Next buttons.</li>
-                            <li><strong>Medal System:</strong> Each completed day earns a medal based on how much of your goal you reached:
+                            <li><strong>Monthly Calendar View:</strong> Displays a full month grid with day numbers. Navigate between months using the Previous/Next buttons.</li>
+                            <li><strong>Dynamic Water Fill:</strong> Each day cell fills with blue water visually from bottom to top based on the percentage of your daily goal reached (e.g., reaching 1500ml of a 3000ml goal fills the cell halfway).</li>
+                            <li><strong>Hover Tooltips:</strong> Hover over any tracked day to see exact intake details (e.g., &quot;1800ml / 3000ml (60%)&quot;).</li>
+                            <li><strong>Perfect Days:</strong> Days where you hit 100% of your goal are highlighted with a golden fill and a 🏆 icon.</li>
+                            <li><strong>Monthly Overview:</strong> A stats panel below the calendar shows your total consumed, active days (excluding days with 0 intake), and average daily intake for the selected month — along with a motivational message.</li>
+                            <li><strong>All-Time Achievements:</strong> A summary card showing lifetime metrics:
                                 <ul className="list-none space-y-1 mt-2 ml-6">
-                                    <li>🥇 <strong>Gold</strong> — Reached ≥100% of your daily target.</li>
-                                    <li>🥈 <strong>Silver</strong> — Reached ≥75% of your daily target.</li>
-                                    <li>🥉 <strong>Bronze</strong> — Reached ≥50% of your daily target.</li>
+                                    <li>🏆 <strong>Perfect Days</strong> — Total count of days you hit 100% of your goal.</li>
+                                    <li>💧 <strong>Monthly Avg</strong> — Average water consumed per active month across all time.</li>
+                                    <li>🌱 <strong>Active Days</strong> — Total count of days where you tracked at least some water.</li>
                                 </ul>
                             </li>
-                            <li><strong>Color-Coded Days:</strong> Days with medals get distinct background/border colors (amber for gold, gray for silver, warm orange for bronze). Medals appear next to the day number.</li>
-                            <li><strong>All-Time Medal Totals:</strong> A summary card shows your lifetime gold, silver, and bronze counts. Unearned medals appear grayed out.</li>
-                            <li><strong>History Only:</strong> Medals are only shown for completed past days. Today&apos;s in-progress data is not displayed to avoid fluctuating medal states.</li>
+                            <li><strong>Real-Time Updates:</strong> Today&apos;s calendar tile dynamically fills in real-time as you drink water throughout the day.</li>
                         </ul>
                     </div>
                 </section>

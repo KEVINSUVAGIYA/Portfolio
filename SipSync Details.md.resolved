@@ -11,7 +11,7 @@
 | Field | Value |
 |---|---|
 | **Name** | SipSync - Water Reminder & Hydration Tracker |
-| **Version** | 1.0.0 |
+| **Version** | 1.0.2 |
 | **Platform** | Google Chrome Extension (Manifest V3) |
 | **Developer** | Kevin Suvagiya (Nexsaar Technologies) |
 | **Contact Email** | *(Kevin to fill in)* |
@@ -73,15 +73,16 @@ Users choose how they receive reminders in Settings:
 ### 2.8 Statistics / Hydration Calendar Page
 - Accessible via a chart icon button on the main homepage (beside the settings gear).
 - **Monthly Calendar View:** Displays a full month grid with day numbers.
-- **Medal System:** Each past day can earn a medal based on hydration goal completion:
-  - 🥇 **Gold** — Reached ≥100% of daily target.
-  - 🥈 **Silver** — Reached ≥75% of daily target.
-  - 🥉 **Bronze** — Reached ≥50% of daily target.
-- **Color-coded cells:** Days with medals get distinct background/border colors (amber for gold, gray for silver, warm orange for bronze).
-- **Medal display:** Medals appear side-by-side next to the day number within each cell.
+- **Dynamic Water Fill Progress:** Each day cell fills with blue water visually from bottom to top based on the percentage of the daily goal reached (e.g., reaching 1500ml of a 3000ml goal fills the cell halfway).
+- **Hover Tooltips:** Hovering over any tracked day reveals a tooltip showing exact intake (e.g., "1800ml / 3000ml (60%)").
+- **Perfect Days:** Days where the goal is 100% met are highlighted with a golden fill and a 🏆 icon.
 - **Month Navigation:** Previous/Next buttons to browse historical months.
-- **All-Time Medal Totals:** Summary card showing lifetime gold, silver, and bronze counts. Unearned medals appear grayed out.
-- **History-only data:** Medals are only shown for completed past days (stored at daily reset). Today's in-progress data is not displayed to avoid fluctuating medal states.
+- **Monthly Overview:** Shows total consumed, true active days (excluding days with 0 intake), and average daily intake for the selected month.
+- **All-Time Achievements:** Summary card showing lifetime metrics:
+  - 🏆 **Perfect Days** — Total count of days you hit 100% of your goal.
+  - 💧 **Monthly Avg** — The average total volume of water consumed per active month across all time.
+  - 🌱 **Active Days** — Total count of days where you tracked at least some water.
+- **Real-Time Updates:** Today's calendar tile dynamically fills in real-time as you drink water throughout the day.
 - **Consistent styling:** Uses the same background image as the homepage and settings page.
 
 ---
@@ -187,7 +188,7 @@ All data is stored **locally on the user's device** using `chrome.storage.sync`:
    - **Glass Size:** Go to Settings → adjust the glass size (max 1000ml). All "Drink" buttons will use this value.
    - **Notification Preferences:** Go to Settings → toggle OS Notification and/or Reminder pop-up.
    - **Sound:** Go to Settings → toggle "Enable sound".
-   - **Hydration Calendar:** Click the chart icon on the homepage to view your monthly medal calendar and all-time medal totals.
+   - **Hydration Calendar:** Click the chart icon on the homepage to view your interactive monthly calendar with real-time water fill animations, monthly stats, and your all-time hydration achievements.
    - **Goal Celebration:** When your intake reaches your target, confetti and a celebration sound fire automatically!
 4. **Screenshots** — Show the main popup, settings, reminder popup, and celebration screen.
 5. **FAQ:**
