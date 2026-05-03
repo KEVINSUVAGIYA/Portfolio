@@ -9,7 +9,7 @@ import { getFirebaseDb, isFirebaseConfigured } from "@/lib/firebase";
 import { ref, set, push, onValue, off, onDisconnect, remove, update } from "firebase/database";
 import { copyToClipboard } from "@/lib/utils";
 
-type DrawTool = "pen" | "eraser" | "line" | "rect" | "circle" | "arrow" | "hand";
+type DrawTool = "pen" | "eraser" | "eraser-rect" | "line" | "rect" | "circle" | "arrow" | "hand";
 type TextNote = { id: string; x: number; y: number; text: string; color: string; size: number };
 type UndoItem = 
   | { type: "stroke"; stroke: Stroke }
@@ -37,46 +37,73 @@ function stringToColor(str: string) {
 
 const suggestions = ["design-draft","mindmap","wireframe","flowchart","brainstorm","doodles","team-board"];
 
-const renderStroke = (ctx: CanvasRenderingContext2D, s: Stroke, zoom: number = 1) => {
-  if (!s) return;
-  ctx.save();
-  ctx.lineCap = "round"; ctx.lineJoin = "round";
-  if (s.tool === "eraser") {
-    ctx.globalCompositeOperation = "destination-out";
-    ctx.strokeStyle = "rgba(0,0,0,1)"; ctx.lineWidth = s.width * 4 / zoom; 
-  } else {
-    ctx.globalCompositeOperation = "source-over";
-    ctx.strokeStyle = s.color; ctx.lineWidth = s.width;
+const renderStroke = (ctx: CanvasRenderingContext2D, s: Stroke, zoom: number = 1, isLive: boolean = false) => {
+  if (!s || !s.tool) return;
+  try {
+    ctx.save();
+    ctx.lineCap = "round"; ctx.lineJoin = "round";
+    // Guard against undefined/NaN values from mid-sync Firebase objects
+    const strokeWidth = Number(s.width) || 2;
+    const strokeColor = s.color || "#ffffff";
+
+    if (s.tool === "eraser" || (s.tool === "eraser-rect" && !isLive)) {
+      ctx.globalCompositeOperation = "destination-out";
+      ctx.strokeStyle = "rgba(0,0,0,1)"; ctx.lineWidth = strokeWidth;
+    } else {
+      ctx.globalCompositeOperation = "source-over";
+      ctx.strokeStyle = strokeColor; ctx.lineWidth = strokeWidth;
+    }
+
+    if (s.tool === "pen" || s.tool === "eraser") {
+      // Firebase stores arrays as plain objects {0:{x,y}, 1:{x,y}…} — normalize to array
+      const pts: Point[] = Array.isArray(s.points)
+        ? s.points
+        : Object.values(s.points || {}) as Point[];
+      if (!pts || pts.length < 2) { ctx.restore(); return; }
+      ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
+      pts.slice(1).forEach(p => { if (p && p.x != null) ctx.lineTo(p.x, p.y); });
+      ctx.stroke();
+    } else if (s.tool === "line" && s.start && s.end) {
+      ctx.beginPath(); ctx.moveTo(s.start.x, s.start.y); ctx.lineTo(s.end.x, s.end.y); ctx.stroke();
+    } else if (s.tool === "arrow" && s.start && s.end) {
+      const dx = s.end.x - s.start.x, dy = s.end.y - s.start.y;
+      const angle = Math.atan2(dy, dx);
+      const len = 14 + strokeWidth * 2;
+      const shorten = len * 0.8;
+      ctx.beginPath();
+      ctx.moveTo(s.start.x, s.start.y);
+      ctx.lineTo(s.end.x - shorten * Math.cos(angle), s.end.y - shorten * Math.sin(angle));
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(s.end.x, s.end.y);
+      ctx.lineTo(s.end.x - len * Math.cos(angle - Math.PI / 6), s.end.y - len * Math.sin(angle - Math.PI / 6));
+      ctx.lineTo(s.end.x - len * Math.cos(angle + Math.PI / 6), s.end.y - len * Math.sin(angle + Math.PI / 6));
+      ctx.closePath(); ctx.fillStyle = strokeColor; ctx.fill();
+    } else if ((s.tool === "rect" || s.tool === "eraser-rect") && s.start && s.end) {
+      if (s.tool === "eraser-rect") {
+        if (isLive) {
+          ctx.fillStyle = "rgba(148, 163, 184, 0.2)";
+          ctx.fillRect(s.start.x, s.start.y, s.end.x - s.start.x, s.end.y - s.start.y);
+          ctx.strokeStyle = "rgba(203, 213, 225, 0.6)";
+          ctx.lineWidth = 1 / zoom;
+          ctx.strokeRect(s.start.x, s.start.y, s.end.x - s.start.x, s.end.y - s.start.y);
+        } else {
+          ctx.fillStyle = "rgba(0,0,0,1)";
+          ctx.fillRect(s.start.x, s.start.y, s.end.x - s.start.x, s.end.y - s.start.y);
+        }
+      } else {
+        ctx.strokeRect(s.start.x, s.start.y, s.end.x - s.start.x, s.end.y - s.start.y);
+      }
+    } else if (s.tool === "circle" && s.start && s.end) {
+      const rx = Math.abs(s.end.x - s.start.x) / 2, ry = Math.abs(s.end.y - s.start.y) / 2;
+      const cx = (s.start.x + s.end.x) / 2, cy = (s.start.y + s.end.y) / 2;
+      ctx.beginPath(); ctx.ellipse(cx, cy, rx, ry, 0, 0, 2 * Math.PI); ctx.stroke();
+    }
+    ctx.restore();
+  } catch {
+    // Silently skip malformed stroke data during Firebase sync
+    try { ctx.restore(); } catch { /* ignore */ }
   }
-  if (s.tool === "pen" || s.tool === "eraser") {
-    if (!s.points || s.points.length < 2) { ctx.restore(); return; }
-    ctx.beginPath(); ctx.moveTo(s.points[0].x, s.points[0].y);
-    s.points.slice(1).forEach(p => ctx.lineTo(p.x, p.y)); ctx.stroke();
-  } else if (s.tool === "line" && s.start && s.end) {
-    ctx.beginPath(); ctx.moveTo(s.start.x, s.start.y); ctx.lineTo(s.end.x, s.end.y); ctx.stroke();
-  } else if (s.tool === "arrow" && s.start && s.end) {
-    const dx = s.end.x - s.start.x, dy = s.end.y - s.start.y;
-    const angle = Math.atan2(dy, dx);
-    const len = 14 + s.width * 2;
-    const shorten = len * 0.8;
-    ctx.beginPath(); 
-    ctx.moveTo(s.start.x, s.start.y); 
-    ctx.lineTo(s.end.x - shorten * Math.cos(angle), s.end.y - shorten * Math.sin(angle)); 
-    ctx.stroke();
-    
-    ctx.beginPath();
-    ctx.moveTo(s.end.x, s.end.y);
-    ctx.lineTo(s.end.x - len * Math.cos(angle - Math.PI / 6), s.end.y - len * Math.sin(angle - Math.PI / 6));
-    ctx.lineTo(s.end.x - len * Math.cos(angle + Math.PI / 6), s.end.y - len * Math.sin(angle + Math.PI / 6));
-    ctx.closePath(); ctx.fillStyle = s.color; ctx.fill();
-  } else if (s.tool === "rect" && s.start && s.end) {
-    ctx.strokeRect(s.start.x, s.start.y, s.end.x - s.start.x, s.end.y - s.start.y);
-  } else if (s.tool === "circle" && s.start && s.end) {
-    const rx = Math.abs(s.end.x - s.start.x) / 2, ry = Math.abs(s.end.y - s.start.y) / 2;
-    const cx = (s.start.x + s.end.x) / 2, cy = (s.start.y + s.end.y) / 2;
-    ctx.beginPath(); ctx.ellipse(cx, cy, rx, ry, 0, 0, 2 * Math.PI); ctx.stroke();
-  }
-  ctx.restore();
 };
 
 function NotConfigured() {
@@ -151,6 +178,8 @@ function SharedWhiteboard({ roomKey }: { roomKey: string }) {
   
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [showDownloadMenu, setShowDownloadMenu] = useState(false);
+  const [showEraserMenu, setShowEraserMenu] = useState(false);
+  const [hoverPos, setHoverPos] = useState<Point | null>(null);
   
   const [canvasSize, setCanvasSize] = useState({ w: 1920, h: 1080 });
 
@@ -165,6 +194,17 @@ function SharedWhiteboard({ roomKey }: { roomKey: string }) {
   const myNameRef = useRef("");
   const lastPanRef = useRef({ x: 0, y: 0 });
   const lastCursorUpdateRef = useRef(0);
+  // Always-current pan/zoom refs so event handlers never read stale closure values
+  const panRef = useRef({ x: 0, y: 0 });
+  const zoomRef = useRef(1);
+  // Multi-touch tracking
+  const activePtrsRef = useRef<Map<number, Point>>(new Map());
+  const lastPinchRef = useRef<{ dist: number; cx: number; cy: number } | null>(null);
+  const isPinchingRef = useRef(false);
+
+  // Keep refs always in sync with state — this covers ALL paths (wheel, button, pinch, etc.)
+  useEffect(() => { panRef.current = pan; }, [pan]);
+  useEffect(() => { zoomRef.current = zoom; }, [zoom]);
 
   useEffect(() => { drawingRef.current = drawing; }, [drawing]);
 
@@ -252,7 +292,7 @@ function SharedWhiteboard({ roomKey }: { roomKey: string }) {
     }
     
     if (raw) return { x: rawX, y: rawY };
-    return { x: (rawX - pan.x) / zoom, y: (rawY - pan.y) / zoom };
+    return { x: (rawX - panRef.current.x) / zoomRef.current, y: (rawY - panRef.current.y) / zoomRef.current };
   }, [pan, zoom]);
 
   const redraw = useCallback((strokesToDraw: Stroke[], live?: Stroke) => {
@@ -260,20 +300,24 @@ function SharedWhiteboard({ roomKey }: { roomKey: string }) {
     if (!canvas) return;
     const ctx = canvas.getContext("2d")!;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
+
+    const currentPan = panRef.current;
+    const currentZoom = zoomRef.current;
+
     ctx.save();
-    ctx.translate(pan.x, pan.y);
-    ctx.scale(zoom, zoom);
+    ctx.translate(currentPan.x, currentPan.y);
+    ctx.scale(currentZoom, currentZoom);
 
-    ctx.scale(zoom, zoom);
+    strokesToDraw.forEach(s => renderStroke(ctx, s, currentZoom));
+    if (live) renderStroke(ctx, live, currentZoom, true);
 
-    strokesToDraw.forEach(s => renderStroke(ctx, s, zoom));
-    if (live) renderStroke(ctx, live, zoom);
-    
     ctx.restore();
-  }, [pan, zoom]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  useEffect(() => { redraw(sortedStrokes, currentStrokeRef.current || undefined); }, [sortedStrokes, redraw]);
+  // Redraw whenever strokes, pan, or zoom change (redraw reads pan/zoom from refs)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { redraw(sortedStrokes, currentStrokeRef.current || undefined); }, [sortedStrokes, pan, zoom]);
 
   useEffect(() => {
     const obs = new ResizeObserver(entries => {
@@ -301,15 +345,20 @@ function SharedWhiteboard({ roomKey }: { roomKey: string }) {
           const newZoom = Math.min(Math.max(0.1, z + delta), 5);
           const rawPos = getPos(e, true);
           const zoomRatio = newZoom / z;
-          setPan(p => ({
-            x: rawPos.x - (rawPos.x - p.x) * zoomRatio,
-            y: rawPos.y - (rawPos.y - p.y) * zoomRatio
-          }));
+          const newPan = {
+            x: rawPos.x - (rawPos.x - panRef.current.x) * zoomRatio,
+            y: rawPos.y - (rawPos.y - panRef.current.y) * zoomRatio,
+          };
+          panRef.current = newPan;
+          zoomRef.current = newZoom;
+          setPan(newPan);
           return newZoom;
         });
       } else {
         // Pan
-        setPan(p => ({ x: p.x - e.deltaX, y: p.y - e.deltaY }));
+        const newPan = { x: panRef.current.x - e.deltaX, y: panRef.current.y - e.deltaY };
+        panRef.current = newPan;
+        setPan(newPan);
       }
     };
     wrapper.addEventListener("wheel", handleWheel, { passive: false });
@@ -338,10 +387,32 @@ function SharedWhiteboard({ roomKey }: { roomKey: string }) {
 
   const onStart = (e: React.PointerEvent) => {
     e.currentTarget.setPointerCapture(e.pointerId);
+    const rawPos = getPos(e, true);
+    activePtrsRef.current.set(e.pointerId, rawPos);
+
+    // Two fingers — enter pinch/pan gesture mode, cancel any active draw
+    if (activePtrsRef.current.size >= 2) {
+      isPinchingRef.current = true;
+      if (drawingRef.current) {
+        currentStrokeRef.current = null;
+        setDrawing(false); drawingRef.current = false;
+        redraw(sortedStrokesRef.current);
+      }
+      if (isPanning) setIsPanning(false);
+      const pts = Array.from(activePtrsRef.current.values());
+      const dx = pts[1].x - pts[0].x, dy = pts[1].y - pts[0].y;
+      lastPinchRef.current = {
+        dist: Math.sqrt(dx * dx + dy * dy),
+        cx: (pts[0].x + pts[1].x) / 2,
+        cy: (pts[0].y + pts[1].y) / 2,
+      };
+      return;
+    }
+
     if (tool === "hand" || e.button === 1) {
       e.preventDefault();
       setIsPanning(true);
-      lastPanRef.current = getPos(e, true);
+      lastPanRef.current = rawPos;
       return;
     }
     if (tool === "text") {
@@ -361,36 +432,59 @@ function SharedWhiteboard({ roomKey }: { roomKey: string }) {
 
   const onMove = (e: React.PointerEvent) => {
     e.preventDefault();
-    if (e.buttons === 0 && (drawingRef.current || isPanning)) {
-      onEnd();
+    const rawPos = getPos(e, true);
+    activePtrsRef.current.set(e.pointerId, rawPos);
+
+    if (e.pointerType === "mouse" && (tool === "eraser" || tool === "eraser-rect")) {
+      setHoverPos(rawPos);
+    }
+
+    // ── Pinch-to-zoom + 2-finger-pan ──
+    if (isPinchingRef.current && activePtrsRef.current.size >= 2) {
+      const pts = Array.from(activePtrsRef.current.values());
+      const dx = pts[1].x - pts[0].x, dy = pts[1].y - pts[0].y;
+      const newDist = Math.sqrt(dx * dx + dy * dy);
+      const newCx = (pts[0].x + pts[1].x) / 2;
+      const newCy = (pts[0].y + pts[1].y) / 2;
+      const prev = lastPinchRef.current;
+      if (prev && prev.dist > 0) {
+        const scale = newDist / prev.dist;
+        const curZoom = zoomRef.current;
+        const curPan = panRef.current;
+        const newZoom = Math.min(Math.max(curZoom * scale, 0.1), 10);
+        const newPan = {
+          x: newCx - (prev.cx - curPan.x) / curZoom * newZoom,
+          y: newCy - (prev.cy - curPan.y) / curZoom * newZoom,
+        };
+        // Update refs immediately so the next event sees correct values
+        zoomRef.current = newZoom;
+        panRef.current = newPan;
+        setZoom(newZoom);
+        setPan(newPan);
+      }
+      lastPinchRef.current = { dist: newDist, cx: newCx, cy: newCy };
       return;
     }
-    
-    const rawPos = getPos(e, true);
-    let canvasPos = { x: (rawPos.x - pan.x) / zoom, y: (rawPos.y - pan.y) / zoom };
-    
+
+    if (e.buttons === 0 && (drawingRef.current || isPanning)) { onEnd(); return; }
+
+    let canvasPos = { x: (rawPos.x - panRef.current.x) / zoomRef.current, y: (rawPos.y - panRef.current.y) / zoomRef.current };
+
     if (e.shiftKey && currentStrokeRef.current?.start && ["rect", "circle", "line", "arrow"].includes(tool)) {
       const start = currentStrokeRef.current.start;
       const dx = canvasPos.x - start.x;
       const dy = canvasPos.y - start.y;
-      
       if (tool === "rect" || tool === "circle") {
         const maxDist = Math.max(Math.abs(dx), Math.abs(dy));
-        canvasPos = {
-          x: start.x + Math.sign(dx || 1) * maxDist,
-          y: start.y + Math.sign(dy || 1) * maxDist
-        };
+        canvasPos = { x: start.x + Math.sign(dx || 1) * maxDist, y: start.y + Math.sign(dy || 1) * maxDist };
       } else if (tool === "line" || tool === "arrow") {
         const angle = Math.atan2(dy, dx);
         const snappedAngle = Math.round(angle / (Math.PI / 4)) * (Math.PI / 4);
         const dist = Math.sqrt(dx * dx + dy * dy);
-        canvasPos = {
-          x: start.x + dist * Math.cos(snappedAngle),
-          y: start.y + dist * Math.sin(snappedAngle)
-        };
+        canvasPos = { x: start.x + dist * Math.cos(snappedAngle), y: start.y + dist * Math.sin(snappedAngle) };
       }
     }
-    
+
     // Broadcast live cursor
     if (Date.now() - lastCursorUpdateRef.current > 60) {
       lastCursorUpdateRef.current = Date.now();
@@ -399,9 +493,11 @@ function SharedWhiteboard({ roomKey }: { roomKey: string }) {
     }
 
     if (isPanning) {
-      const dx = rawPos.x - lastPanRef.current.x;
-      const dy = rawPos.y - lastPanRef.current.y;
-      setPan(prev => ({ x: prev.x + dx, y: prev.y + dy }));
+      const ddx = rawPos.x - lastPanRef.current.x;
+      const ddy = rawPos.y - lastPanRef.current.y;
+      const newPan = { x: panRef.current.x + ddx, y: panRef.current.y + ddy };
+      panRef.current = newPan;
+      setPan(newPan);
       lastPanRef.current = rawPos;
       return;
     }
@@ -412,7 +508,21 @@ function SharedWhiteboard({ roomKey }: { roomKey: string }) {
     redraw(sortedStrokesRef.current, updated);
   };
 
-  const onEnd = () => {
+  const onEnd = (e?: React.PointerEvent) => {
+    if (e) {
+      activePtrsRef.current.delete(e.pointerId);
+      // If fingers remaining < 2, leave pinch mode
+      if (activePtrsRef.current.size < 2) {
+        isPinchingRef.current = false;
+        lastPinchRef.current = null;
+      }
+      if (activePtrsRef.current.size > 0) return; // other fingers still down
+    } else {
+      activePtrsRef.current.clear();
+      isPinchingRef.current = false;
+      lastPinchRef.current = null;
+    }
+
     if (isPanning) { setIsPanning(false); return; }
     if (!drawingRef.current || !currentStrokeRef.current) return;
     const strokeToSave = currentStrokeRef.current;
@@ -603,11 +713,43 @@ function SharedWhiteboard({ roomKey }: { roomKey: string }) {
 
           {/* Tools */}
           <div className="flex items-center gap-1 bg-slate-800 border border-white/10 rounded-xl p-1">
-            {DRAW_TOOLS.map(({ id, Icon, label }) => (
-              <button key={id} onClick={() => setTool(id)} title={label}
-                className={`p-2 rounded-lg transition-all ${tool === id ? "bg-orange-500 text-white" : "text-slate-400 hover:text-white"}`}
-              ><Icon className="w-4 h-4" /></button>
-            ))}
+            {DRAW_TOOLS.map(({ id, Icon, label }) => {
+              if (id === "eraser") {
+                return (
+                  <div key={id} className={`relative flex items-center rounded-lg transition-all ${tool.startsWith("eraser") ? "bg-orange-500 text-white" : "hover:bg-white/5"}`}>
+                    <button onClick={() => setTool("eraser")} title={label}
+                      className={`p-2 rounded-l-lg transition-colors ${tool.startsWith("eraser") ? "text-white" : "text-slate-400 hover:text-white"}`}
+                    ><Icon className="w-4 h-4" /></button>
+                    <div className={`w-px h-4 ${tool.startsWith("eraser") ? "bg-orange-400" : "bg-white/10"}`} />
+                    <button onClick={() => setShowEraserMenu(!showEraserMenu)} className={`p-1.5 rounded-r-lg transition-colors ${tool.startsWith("eraser") ? "text-white" : "text-slate-400 hover:text-white"}`}>
+                      <ChevronDown className="w-3 h-3" />
+                    </button>
+                    
+                    {showEraserMenu && (
+                      <>
+                        <div className="fixed inset-0 z-40" onClick={() => setShowEraserMenu(false)} />
+                        <div className="absolute top-full left-0 mt-2 bg-slate-900 border border-white/10 rounded-xl shadow-xl w-40 overflow-hidden z-50 py-1 origin-top-left animate-in fade-in zoom-in-95 duration-100">
+                          <button onClick={() => { setTool("eraser"); setShowEraserMenu(false); }} className={`w-full text-left px-4 py-2.5 text-sm transition-colors flex items-center gap-3 ${tool === "eraser" ? "text-white bg-slate-800" : "text-slate-300 hover:bg-slate-800 hover:text-white"}`}>
+                            <Eraser className="w-4 h-4" /> Normal Eraser
+                          </button>
+                          <button onClick={() => { setTool("eraser-rect"); setShowEraserMenu(false); }} className={`w-full text-left px-4 py-2.5 text-sm transition-colors flex items-center gap-3 ${tool === "eraser-rect" ? "text-white bg-slate-800" : "text-slate-300 hover:bg-slate-800 hover:text-white"}`}>
+                            <Square className="w-4 h-4" /> Clear Area
+                          </button>
+                          <button onClick={() => { clear(); setShowEraserMenu(false); }} className="w-full text-left px-4 py-2.5 text-sm text-red-400 hover:bg-red-400/10 transition-colors flex items-center gap-3">
+                            <Trash2 className="w-4 h-4" /> Clear Canvas
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                );
+              }
+              return (
+                <button key={id} onClick={() => setTool(id)} title={label}
+                  className={`p-2 rounded-lg transition-all ${tool === id ? "bg-orange-500 text-white" : "text-slate-400 hover:text-white"}`}
+                ><Icon className="w-4 h-4" /></button>
+              );
+            })}
           </div>
 
           {/* Colors */}
@@ -635,8 +777,8 @@ function SharedWhiteboard({ roomKey }: { roomKey: string }) {
             <div className="hidden lg:flex items-center gap-1 mr-2">
               <Users className="w-4 h-4 text-slate-500 mr-1" />
               {activeUsers.map((u, i) => (
-                <div key={i} className={`text-[10px] px-2 py-0.5 rounded border border-white/5 font-semibold ${u.name === myName ? "bg-white/5" : "bg-slate-800"}`} style={{ color: stringToColor(u.name) }}>
-                  {u.name}
+                <div key={i} className={`text-[10px] px-2 py-0.5 rounded border border-white/5 font-semibold ${u?.name === myName ? "bg-white/5" : "bg-slate-800"}`} style={{ color: stringToColor(u?.name || "user") }}>
+                  {u?.name || "?"}
                 </div>
               ))}
             </div>
@@ -644,12 +786,12 @@ function SharedWhiteboard({ roomKey }: { roomKey: string }) {
             <button onClick={() => setShowShortcuts(true)} title="Shortcuts Guide" className="p-2 rounded-lg text-slate-400 hover:text-white transition-colors mr-1">
               <Keyboard className="w-4 h-4" />
             </button>
-            <button onClick={() => { setPan({x: 0, y: 0}); setZoom(1); }} title="Recenter Canvas" className="p-2 rounded-lg text-slate-400 hover:text-white transition-colors mr-1">
+            <button onClick={() => { const p = {x: 0, y: 0}; panRef.current = p; zoomRef.current = 1; setPan(p); setZoom(1); }} title="Recenter Canvas" className="p-2 rounded-lg text-slate-400 hover:text-white transition-colors mr-1">
               <LocateFixed className="w-4 h-4" />
             </button>
             
-            <button onClick={undo} disabled={myStrokeKeys.length === 0} title="Undo (Ctrl+Z)" className="p-2 rounded-lg text-slate-400 hover:text-white disabled:opacity-30 transition-colors"><Undo2 className="w-4 h-4" /></button>
-            <button onClick={redo} disabled={undoneStrokes.length === 0} title="Redo (Ctrl+Y)" className="p-2 rounded-lg text-slate-400 hover:text-white disabled:opacity-30 transition-colors"><Redo2 className="w-4 h-4" /></button>
+            <button onClick={undo} disabled={myStrokeKeys.length === 0 && !(undoneStrokes.length > 0 && undoneStrokes[undoneStrokes.length - 1].type === "clear")} title="Undo (Ctrl+Z)" className="p-2 rounded-lg text-slate-400 hover:text-white disabled:opacity-30 transition-colors"><Undo2 className="w-4 h-4" /></button>
+            <button onClick={redo} disabled={undoneStrokes.length === 0 || undoneStrokes[undoneStrokes.length - 1].type === "clear"} title="Redo (Ctrl+Y)" className="p-2 rounded-lg text-slate-400 hover:text-white disabled:opacity-30 transition-colors"><Redo2 className="w-4 h-4" /></button>
             <button onClick={clear} disabled={sortedStrokes.length === 0 && allTextNotes.length === 0} title="Clear All" className="p-2 rounded-lg text-slate-400 hover:text-red-400 disabled:opacity-30 transition-colors mr-2"><Trash2 className="w-4 h-4" /></button>
             
             <div className="relative flex items-center bg-slate-800 rounded-lg group">
@@ -695,10 +837,28 @@ function SharedWhiteboard({ roomKey }: { roomKey: string }) {
           ref={canvasRef}
           width={canvasSize.w}
           height={canvasSize.h}
-          className={`absolute inset-0 w-full h-full ${tool === "hand" ? (isPanning ? "cursor-grabbing" : "cursor-grab") : tool === "eraser" ? "cursor-cell" : tool === "text" ? "cursor-text" : "cursor-crosshair"}`}
+          className={`absolute inset-0 w-full h-full ${tool === "hand" ? (isPanning ? "cursor-grabbing" : "cursor-grab") : tool === "eraser" ? "cursor-none" : tool === "text" ? "cursor-text" : "cursor-crosshair"}`}
           style={{ touchAction: "none" }}
-          onPointerDown={onStart} onPointerMove={onMove} onPointerUp={onEnd} onPointerCancel={onEnd}
+          onPointerDown={onStart}
+          onPointerMove={onMove}
+          onPointerUp={(e) => onEnd(e)}
+          onPointerCancel={(e) => onEnd(e)}
+          onPointerLeave={() => setHoverPos(null)}
         />
+
+        {/* Custom Eraser Cursor */}
+        {hoverPos && tool === "eraser" && (
+          <div
+            className="absolute pointer-events-none rounded-full border border-slate-300 bg-slate-500/20 z-50"
+            style={{
+              left: hoverPos.x,
+              top: hoverPos.y,
+              width: Math.max(brushSize * zoom, 4),
+              height: Math.max(brushSize * zoom, 4),
+              transform: "translate(-50%, -50%)",
+            }}
+          />
+        )}
 
         {/* Live Cursors */}
         {activeUsers.map(u => {
@@ -707,9 +867,9 @@ function SharedWhiteboard({ roomKey }: { roomKey: string }) {
           const screenY = u.cursor.y * zoom + pan.y;
           return (
             <div key={u.name} className="absolute pointer-events-none transition-all duration-75 ease-linear z-40" style={{ left: screenX, top: screenY }}>
-              <ArrowUpRight className="w-5 h-5 -rotate-90 origin-top-left drop-shadow-md" style={{ color: stringToColor(u.name), fill: stringToColor(u.name) }} />
-              <div className="text-[10px] px-1.5 py-0.5 rounded font-bold text-white shadow-md absolute top-4 left-4 whitespace-nowrap" style={{ backgroundColor: stringToColor(u.name) }}>
-                {u.name} {u.isDrawing && "✎"}
+              <ArrowUpRight className="w-5 h-5 -rotate-90 origin-top-left drop-shadow-md" style={{ color: stringToColor(u?.name || "user"), fill: stringToColor(u?.name || "user") }} />
+              <div className="text-[10px] px-1.5 py-0.5 rounded font-bold text-white shadow-md absolute top-4 left-4 whitespace-nowrap" style={{ backgroundColor: stringToColor(u?.name || "user") }}>
+                {u?.name || "?"} {u.isDrawing && "✎"}
               </div>
             </div>
           );
