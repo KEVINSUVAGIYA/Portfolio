@@ -49,6 +49,12 @@
             ".write": "auth != null"
           }
         }
+      },
+      "whiteboard": {
+        "$boardKey": {
+          ".read": "true",
+          ".write": "auth != null"
+        }
       }
     }
   }

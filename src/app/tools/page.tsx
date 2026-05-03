@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import {
   Hash, FileText, QrCode, Braces, BarChart2, Timer, Globe,
-  Zap, ArrowRight, Keyboard, Pipette, Regex, FileCode,
+  Zap, ArrowRight, ArrowLeft, Keyboard, Pipette, Regex, FileCode,
   ImageIcon, Shuffle, Music, Calculator,
   Map, Pencil, Code2
 } from "lucide-react";
@@ -145,7 +145,7 @@ const tools = [
     description: "Draw, add text, shapes, arrows. Keyboard shortcuts. Undo. Export PNG.",
     icon: Pencil, href: "/tools/whiteboard",
     color: "from-orange-500 to-red-700", glow: "rgba(249,115,22,0.3)",
-    border: "group-hover:border-orange-500/40", tag: "Creative",
+    border: "group-hover:border-orange-500/40", tag: "Real-time",
     tagColor: "text-orange-400 bg-orange-500/10 border-orange-500/20",
   },
   {
@@ -171,6 +171,16 @@ const cardVariants = {
 export default function ToolsPage() {
   return (
     <div className="min-h-screen bg-slate-950">
+      {/* Top Nav */}
+      <div className="border-b border-white/5 bg-slate-950/80 backdrop-blur-sm sticky top-0 z-40">
+        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center">
+          <Link href="/" className="inline-flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm group">
+            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+            Back to Portfolio
+          </Link>
+        </div>
+      </div>
+
       {/* Hero */}
       <div className="border-b border-white/10 bg-slate-900/50">
         <div className="max-w-5xl mx-auto px-4 py-16 text-center">

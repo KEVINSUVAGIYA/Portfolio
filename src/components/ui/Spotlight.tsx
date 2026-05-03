@@ -39,7 +39,7 @@ export const Spotlight = ({
     `;
 
     const pathname = usePathname();
-    if (pathname?.startsWith("/world") || pathname?.startsWith("/playground")) return null;
+    if (pathname?.startsWith("/world") || pathname?.startsWith("/playground") || pathname?.startsWith("/tools/whiteboard")) return null;
 
     return (
         <motion.div

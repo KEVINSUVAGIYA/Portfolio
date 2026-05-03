@@ -6,6 +6,7 @@ import { ParticleBackground } from "@/components/ui/ParticleBackground";
 import { cn } from "@/lib/utils";
 import { BASE_PATH, SITE_URL } from "@/lib/constants";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { VisitorPopup } from "@/components/VisitorPopup";
 
 
 
@@ -161,6 +162,7 @@ export default function RootLayout({
           {children}
           <SpeedInsights />
         </div>
+        <VisitorPopup />
       </body>
     </html>
   );
