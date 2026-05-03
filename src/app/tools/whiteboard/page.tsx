@@ -235,6 +235,15 @@ function SharedWhiteboard({ roomKey }: { roomKey: string }) {
       const data = snap.val() || {};
       const users = Object.values(data) as any[];
       setActiveUsers(users);
+      
+      const size = snap.size ?? 0;
+      if (size === 1 && data[myName]) {
+        const me = data[myName];
+        if (me.joinedAt && Date.now() - me.joinedAt < 5000) {
+          remove(strokesRef).catch(() => {});
+          remove(notesRef).catch(() => {});
+        }
+      }
     });
 
     const unsubStrokes = onValue(strokesRef, (snap) => setStrokesObj(snap.val() || {}));
@@ -249,25 +258,9 @@ function SharedWhiteboard({ roomKey }: { roomKey: string }) {
     };
   }, [myName, roomKey]);
 
-  // Room cleanup: if I'm the last user, tell Firebase to wipe data on my disconnect.
-  // If others are present, cancel that cleanup so their work is preserved.
-  useEffect(() => {
-    if (!myName) return;
-    const db = getFirebaseDb();
-    const strokesRef = ref(db, `tools/whiteboard/${roomKey}/strokes`);
-    const notesRef = ref(db, `tools/whiteboard/${roomKey}/notes`);
-    const presenceRef = ref(db, `tools/whiteboard/${roomKey}/presence`);
-    
-    const amIAlone = activeUsers.length <= 1;
-    if (amIAlone) {
-      onDisconnect(strokesRef).remove();
-      onDisconnect(notesRef).remove();
-      onDisconnect(presenceRef).remove();
-    } else {
-      onDisconnect(strokesRef).cancel();
-      onDisconnect(notesRef).cancel();
-    }
-  }, [activeUsers, myName, roomKey]);
+  // Room cleanup logic removed. 
+  // We no longer rely on onDisconnect to wipe the database since momentary network blips 
+  // could cause active rooms to unexpectedly clear for all participants.
 
   const sortedStrokes = React.useMemo(() => Object.keys(strokesObj).sort().map(k => strokesObj[k]), [strokesObj]);
   const sortedStrokesRef = useRef<Stroke[]>([]);
@@ -489,7 +482,12 @@ function SharedWhiteboard({ roomKey }: { roomKey: string }) {
     if (Date.now() - lastCursorUpdateRef.current > 60) {
       lastCursorUpdateRef.current = Date.now();
       const db = getFirebaseDb();
-      update(ref(db, `tools/whiteboard/${roomKey}/presence/${myNameRef.current}`), { cursor: canvasPos, isDrawing: drawingRef.current });
+      update(ref(db, `tools/whiteboard/${roomKey}/presence/${myNameRef.current}`), { 
+        name: myNameRef.current,
+        color: stringToColor(myNameRef.current),
+        cursor: canvasPos, 
+        isDrawing: drawingRef.current 
+      });
     }
 
     if (isPanning) {
