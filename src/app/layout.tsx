@@ -14,7 +14,10 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "Kevin Suvagiya | Salesforce Developer",
+  title: {
+    default: "Kevin Suvagiya | Salesforce Developer",
+    template: "%s | Kevin Suvagiya"
+  },
   description: "Salesforce Developer | Curious Explorer. Building the engines behind Salesforce clouds. Specializing in bi-directional integrations, high-performance LWC, and custom AppExchange solutions.",
   keywords: ["Salesforce Developer", "LWC", "Apex", "Salesforce Certified", "Web Developer", "React", "Next.js", "Portfolio", "Kevin Suvagiya", "Salesforce Build Release Engineer", "AppExchange", "Lightning Web Components", "SipSync", "HeeraHisaab", "Web Tools", "Real-time Collaboration", "World Clock", "Peer-to-Peer Chat", "JSON Formatter"],
   authors: [{ name: "Kevin Suvagiya", url: SITE_URL }],

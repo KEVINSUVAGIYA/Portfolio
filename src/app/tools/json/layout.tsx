@@ -1,10 +1,10 @@
-import { Metadata } from 'next';
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: 'JSON Formatter & Validator | Kevin Suvagiya',
-  description: 'A fast and beautiful JSON formatter and validator that runs entirely in your browser.',
+  title: "JSON Formatter",
+  description: "Format, validate, and minify JSON data with syntax highlighting.",
 };
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  return children;
+  return <>{children}</>;
 }

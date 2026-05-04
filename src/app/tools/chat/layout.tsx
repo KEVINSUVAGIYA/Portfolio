@@ -1,10 +1,10 @@
-import { Metadata } from 'next';
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: 'Instant Chat Room | Kevin Suvagiya',
-  description: 'A completely free, instant, anonymous chat room powered by Firebase Realtime Database with live cross-browser syncing.',
+  title: "Instant Chat",
+  description: "Peer-to-peer chat rooms powered by Firebase. No signup, no login required.",
 };
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  return children;
+  return <>{children}</>;
 }

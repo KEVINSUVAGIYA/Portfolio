@@ -1,10 +1,10 @@
-import { Metadata } from 'next';
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: 'Instant Poll | Kevin Suvagiya',
-  description: 'Create an instant poll and share the link. Anyone can vote live — powered by Firebase.',
+  title: "Live Poll",
+  description: "Create real-time polls and share them instantly. No account needed.",
 };
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  return children;
+  return <>{children}</>;
 }

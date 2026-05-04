@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Timer & Stopwatch",
-  description: "A clean timer and stopwatch with lap tracking.",
+  title: "SipSync",
+  description: "Smart hydration tracking Chrome extension with real-time analytics.",
 };
 
 export default function Layout({ children }: { children: React.ReactNode }) {

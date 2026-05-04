@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Timer & Stopwatch",
-  description: "A clean timer and stopwatch with lap tracking.",
+  title: "Music Flight",
+  description: "A mesmerizing flight visualization synced to audio frequencies.",
 };
 
 export default function Layout({ children }: { children: React.ReactNode }) {

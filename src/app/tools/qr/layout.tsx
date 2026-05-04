@@ -1,10 +1,10 @@
-import { Metadata } from 'next';
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: 'QR Code Generator | Kevin Suvagiya',
-  description: 'Instantly generate fully localized, high-resolution QR codes right in your browser.',
+  title: "QR Code Generator",
+  description: "Generate QR codes from any text or URL instantly.",
 };
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  return children;
+  return <>{children}</>;
 }
