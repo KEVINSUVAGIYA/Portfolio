@@ -162,10 +162,10 @@ export default function MeetingPlannerPage() {
             })}
             {/* Hour labels — fixed math (no string arithmetic) */}
             <div className="flex items-center gap-2">
-              <div className="w-28" />
-              <div className="flex">
+              <div className="w-28 flex-shrink-0" />
+              <div className="flex gap-0.5">
                 {HOURS.map(h => (
-                  <div key={h} className="text-[9px] text-slate-700 text-center" style={{ width: CELL_W + 2, marginRight: h % 3 === 2 ? CELL_W * 2 + 4 : 0 }}>
+                  <div key={h} className="w-8 text-[9px] text-slate-700 text-center">
                     {h % 3 === 0 ? `${h}h` : ""}
                   </div>
                 ))}

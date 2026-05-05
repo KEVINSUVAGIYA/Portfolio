@@ -122,6 +122,7 @@ export const ParticleBackground = () => {
         window.addEventListener("scroll", handleScroll);
         window.addEventListener("click", handleClick);
 
+        let animationFrameId: number;
         const animate = () => {
             ctx.clearRect(0, 0, width, height);
 
@@ -250,7 +251,7 @@ export const ParticleBackground = () => {
                 ctx.fill();
             });
 
-            requestAnimationFrame(animate);
+            animationFrameId = requestAnimationFrame(animate);
         };
 
         animate();
@@ -260,6 +261,7 @@ export const ParticleBackground = () => {
             window.removeEventListener("resize", init);
             window.removeEventListener("scroll", handleScroll);
             window.removeEventListener("click", handleClick);
+            cancelAnimationFrame(animationFrameId);
         };
     }, []);
 
