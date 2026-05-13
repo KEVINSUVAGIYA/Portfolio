@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import {
   Hash, FileText, QrCode, Braces, BarChart2, Timer, Globe,
-  Zap, ArrowRight, Sparkles, Keyboard, Regex, ImageIcon, Music, Code2
+  Zap, ArrowRight, Sparkles, Keyboard, Regex, ImageIcon, Music, Code2, Send
 } from "lucide-react";
 
 import { SectionHeader } from "./ui/SectionHeader";
@@ -56,6 +56,18 @@ const tools = [
     glow: "group-hover:shadow-orange-500/20",
     border: "group-hover:border-orange-500/40",
     beam: "from-orange-500/0 via-orange-500/30 to-orange-500/0",
+    tag: "Real-time",
+  },
+  {
+    id: "file-share",
+    title: "Sooom - File Transfer",
+    description: "AirDrop in your browser. Send files instantly via P2P. No codes required.",
+    icon: Send,
+    href: "/tools/file-share",
+    gradient: "from-indigo-500 to-purple-600",
+    glow: "group-hover:shadow-indigo-500/20",
+    border: "group-hover:border-indigo-500/40",
+    beam: "from-indigo-500/0 via-indigo-500/30 to-indigo-500/0",
     tag: "Real-time",
   },
   {
