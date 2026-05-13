@@ -348,7 +348,7 @@ export default function FileSharePage() {
   const handleTransferComplete = (fileId: string, filename: string, senderId: string) => {
     const chunks = receivedChunksRef.current[fileId];
     if (chunks) {
-      const blob = new Blob(chunks);
+      const blob = new Blob(chunks as BlobPart[]);
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
