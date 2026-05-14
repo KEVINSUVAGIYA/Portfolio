@@ -1037,7 +1037,7 @@ export default function FileSharePage() {
               
               const status = items.every(i => i.status === "completed") ? "completed" : 
                             items.some(i => i.status === "failed") ? "failed" :
-                            items.some(i => i.status === "transferring" || (i.isIncoming && i.transferred > 0)) ? "transferring" : "waiting";
+                            items.some(i => i.status === "transferring" || (i.isIncoming && (i.transferred || 0) > 0)) ? "transferring" : "waiting";
 
               return (
                 <motion.div 
