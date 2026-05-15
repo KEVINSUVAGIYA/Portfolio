@@ -130,6 +130,10 @@ export default function FileSharePage() {
   const myNameRef = useRef<string>("");
   const transfersRef = useRef<TransferState[]>([]);
   const cancelledTransfersRef = useRef<Set<string>>(new Set());
+  
+  // High-performance streaming refs
+  const fileHandlesRef = useRef<Record<string, any>>({});
+  const writablesRef = useRef<Record<string, any>>({});
 
   useEffect(() => {
     transfersRef.current = transfers;
@@ -371,6 +375,20 @@ export default function FileSharePage() {
     const chunkSize = chunk.byteLength || chunk.size || chunk.length || 0;
     receivedSizesRef.current[fileId] += chunkSize;
 
+    // Direct-to-Disk Stream Writing
+    const writable = writablesRef.current[fileId];
+    if (writable) {
+      try {
+        // We don't await here to keep the data channel moving at max speed
+        // The writable stream has its own internal buffering
+        writable.write(chunk).catch((err: any) => console.error("Disk write error", err));
+        // Clear the chunk from memory immediately
+        receivedChunksRef.current[fileId] = []; 
+      } catch (err) {
+        console.error("Failed to write to disk", err);
+      }
+    }
+
     const currentSize = receivedSizesRef.current[fileId];
     const now = Date.now();
 
@@ -411,7 +429,22 @@ export default function FileSharePage() {
     });
   };
 
-  const handleTransferComplete = (fileId: string, filename: string, senderId: string) => {
+  const handleTransferComplete = async (fileId: string, filename: string, senderId: string) => {
+    const transferId = `${fileId}-${senderId}`;
+    updateTransferState(transferId, { status: "completed", progress: 100 });
+
+    const writable = writablesRef.current[fileId];
+    if (writable) {
+      try {
+        await writable.close();
+        delete writablesRef.current[fileId];
+        delete fileHandlesRef.current[fileId];
+        return; // File is already saved to disk!
+      } catch (err) {
+        console.error("Failed to close writable stream", err);
+      }
+    }
+
     const chunks = receivedChunksRef.current[fileId];
     if (chunks) {
       const blob = new Blob(chunks as BlobPart[]);
@@ -436,48 +469,99 @@ export default function FileSharePage() {
     setTransfers(prev => prev.map(t => t.id === id ? { ...t, ...updates } : t));
   };
 
-  const acceptRequest = (req: FileRequest) => {
+  const acceptRequest = async (req: FileRequest) => {
+    const conn = connectionsRef.current[req.senderId];
+    if (!conn) return;
+
     setIncomingRequests(prev => prev.filter(r => r.fileId !== req.fileId));
-    
+
+    // Check for Direct-to-Disk support
+    const supportsFileSystem = typeof window !== "undefined" && 'showSaveFilePicker' in window;
+    let directoryHandle = null;
+
+    if (supportsFileSystem) {
+      try {
+        if (req.isBatch) {
+          // For batches, we ask for a directory once
+          if ('showDirectoryPicker' in window) {
+            directoryHandle = await (window as any).showDirectoryPicker({
+              mode: 'readwrite',
+              startIn: 'downloads'
+            });
+          }
+        }
+      } catch (err) {
+        console.log("User cancelled directory picker, falling back to RAM", err);
+      }
+    }
+
     if (req.isBatch && req.batchFiles) {
-      const batchId = req.fileId.trim();
-      req.batchFiles.forEach(bf => {
-        const fId = bf.fileId.trim();
-        setTransfers(prev => [...prev, {
+      const batchFilesTransfers: TransferState[] = await Promise.all(req.batchFiles.map(async f => {
+        const fId = f.fileId.trim();
+        
+        // Setup direct writing for each file in the batch if directory is picked
+        if (directoryHandle) {
+          try {
+            const fileHandle = await directoryHandle.getFileHandle(f.filename, { create: true });
+            const writable = await fileHandle.createWritable();
+            fileHandlesRef.current[fId] = fileHandle;
+            writablesRef.current[fId] = writable;
+          } catch (err) {
+            console.error("Error setting up batch file stream", err);
+          }
+        }
+
+        return {
           id: `${fId}-${req.senderId}`,
           fileId: fId,
-          batchId: batchId,
+          batchId: req.fileId.trim(),
           targetId: req.senderId,
-          filename: bf.filename,
+          filename: f.filename,
           targetName: req.senderName,
           progress: 0,
-          status: "waiting",
+          status: "transferring",
           isIncoming: true,
-          size: bf.size
-        }]);
-      });
-      
-      const conn = connectionsRef.current[req.senderId];
-      if (conn) {
-        conn.send({ type: "accept", fileId: req.fileId, isBatch: true });
-      }
+          size: f.size,
+          transferred: 0,
+          startTime: Date.now()
+        };
+      }));
+
+      setTransfers(prev => [...prev, ...batchFilesTransfers]);
+      conn.send({ type: "accept", fileId: req.fileId, isBatch: true });
     } else {
-      setTransfers(prev => [...prev, {
-        id: `${req.fileId}-${req.senderId}`,
-        fileId: req.fileId,
+      const fileId = req.fileId.trim();
+      
+      // Setup direct writing for single file
+      if (supportsFileSystem) {
+        try {
+          const fileHandle = await (window as any).showSaveFilePicker({
+            suggestedName: req.filename,
+            startIn: 'downloads'
+          });
+          const writable = await fileHandle.createWritable();
+          fileHandlesRef.current[fileId] = fileHandle;
+          writablesRef.current[fileId] = writable;
+        } catch (err) {
+          console.log("User cancelled file picker, falling back to RAM", err);
+        }
+      }
+
+      const newTransfer: TransferState = {
+        id: `${fileId}-${req.senderId}`,
+        fileId,
         targetId: req.senderId,
         filename: req.filename,
         targetName: req.senderName,
         progress: 0,
-        status: "waiting",
+        status: "transferring",
         isIncoming: true,
-        size: req.size
-      }]);
-
-      const conn = connectionsRef.current[req.senderId];
-      if (conn) {
-        conn.send({ type: "accept", fileId: req.fileId });
-      }
+        size: req.size,
+        transferred: 0,
+        startTime: Date.now()
+      };
+      setTransfers(prev => [...prev, newTransfer]);
+      conn.send({ type: "accept", fileId: req.fileId, isBatch: false });
     }
   };
 
@@ -489,26 +573,36 @@ export default function FileSharePage() {
     }
   };
 
-  const cancelTransfer = (fileId: string, targetId: string) => {
-    cancelledTransfersRef.current.add(fileId);
-
-    setTransfers(prev => {
-      const t = prev.find(tr => tr.id === `${fileId}-${targetId}`);
-      if (t) {
-        const conn = connectionsRef.current[targetId];
-        if (conn && conn.open) {
-          conn.send({ type: "cancel", fileId, bySender: !t.isIncoming });
+  const cancelTransfer = async (gid: string) => {
+    cancelledTransfersRef.current.add(gid);
+    
+    // Cleanup any active streams/chunks
+    setTransfers(prev => prev.map(t => {
+      if (t.id === gid || t.batchId === gid) {
+        const fileId = t.fileId;
+        
+        // Close writable if exists
+        const writable = writablesRef.current[fileId];
+        if (writable) {
+          try { (writable as any).abort(); } catch (e) {}
+          delete writablesRef.current[fileId];
+          delete fileHandlesRef.current[fileId];
         }
+        
+        // Clear RAM chunks
+        delete receivedChunksRef.current[fileId];
+        delete receivedSizesRef.current[fileId];
+        
+        // Notify peer
+        const conn = connectionsRef.current[t.targetId];
+        if (conn && conn.open) {
+          conn.send({ type: "cancel", fileId: t.fileId });
+        }
+        
+        return { ...t, status: "failed" as const, errorText: "Cancelled" };
       }
-      return prev;
-    });
-
-    updateTransferState(`${fileId}-${targetId}`, { status: "failed", errorText: "Cancelled by you" });
-
-    if (receivedChunksRef.current[fileId]) {
-      delete receivedChunksRef.current[fileId];
-      delete receivedSizesRef.current[fileId];
-    }
+      return t;
+    }));
   };
 
   const handleSend = async () => {
@@ -1096,15 +1190,29 @@ export default function FileSharePage() {
                     
                     <div className="flex items-center gap-6">
                       {status === "transferring" && (
-                        <div className="text-right">
-                          <div className="text-indigo-400 font-bold text-lg">{Math.round(avgProgress)}%</div>
+                        <div className="flex items-center gap-4 sm:gap-6">
+                          {items.some(i => writablesRef.current[i.fileId]) && (
+                            <span className="hidden xs:flex text-[10px] text-emerald-500 font-bold bg-emerald-500/10 px-2 py-0.5 rounded items-center gap-1.5 whitespace-nowrap">
+                              <ShieldCheck className="w-3 h-3" /> Direct Write
+                            </span>
+                          )}
+                          <div className="text-right">
+                            <div className="text-indigo-400 font-bold text-lg">{Math.round(avgProgress)}%</div>
+                          </div>
+                          <button 
+                            onClick={() => cancelTransfer(gid)}
+                            className="p-2 hover:bg-red-500/10 text-slate-500 hover:text-red-400 rounded-xl transition-all outline-none"
+                            title="Cancel Transfer"
+                          >
+                            <X className="w-5 h-5" />
+                          </button>
                         </div>
                       )}
                       {status === "completed" && <div className="text-emerald-400 text-sm font-bold flex items-center gap-2"><Check className="w-4 h-4" /> Done</div>}
                       {status === "failed" && (
                         <div className="text-red-400 text-sm font-bold flex items-center gap-2">
                           <X className="w-4 h-4" /> 
-                          {items.some(i => i.errorText === "Declined") ? "Declined" : "Failed"}
+                          {items.some(i => i.errorText === "Declined") ? "Declined" : (items.some(i => i.errorText === "Cancelled") ? "Cancelled" : "Failed")}
                         </div>
                       )}
                     </div>
