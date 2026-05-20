@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, FormEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, X, Send, Loader2, Sparkles } from "lucide-react";
+import { Heart, X, Send, Loader2, Sparkles, Mail } from "lucide-react";
 
 const STORAGE_KEY = "ks_visitor_done";
 
@@ -13,12 +13,13 @@ const greetings = [
   { line1: "You found me! 🙌", line2: "Hope you're enjoying it." },
 ];
 
-type Phase = "idle" | "bubble" | "collapsed" | "form" | "success";
+type Phase = "idle" | "bubble" | "collapsed" | "form" | "success" | "fallback";
 
 export function VisitorPopup() {
   const [phase, setPhase] = useState<Phase>("idle");
   const [greeting] = useState(() => greetings[Math.floor(Math.random() * greetings.length)]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formDataBackup, setFormDataBackup] = useState<any>(null);
   const collapseTimer = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -58,10 +59,49 @@ export function VisitorPopup() {
     localStorage.setItem(STORAGE_KEY, "1");
   };
 
+  const getVisitorEmailData = () => {
+    if (!formDataBackup) return null;
+    const to = "kevinsuvagiya11@gmail.com";
+    const subject = formDataBackup._subject || "✨ Portfolio Visitor Note";
+    const bodyText = `Hi Kevin,
+
+Just wanted to leave a quick trace on your portfolio!
+
+Here are my details:
+--------------------------------------------------
+Name: ${formDataBackup.name}
+Email: ${formDataBackup.email || "Not provided"}
+Message: ${formDataBackup.message || "Just stopped by to say hello! 😊"}
+--------------------------------------------------
+
+Best regards,
+${formDataBackup.name}`;
+
+    return { to, subject, bodyText };
+  };
+
+  const triggerVisitorMailto = () => {
+    const mailData = getVisitorEmailData();
+    if (!mailData) return;
+    const subject = encodeURIComponent(mailData.subject);
+    const body = encodeURIComponent(mailData.bodyText);
+    window.location.href = `mailto:${mailData.to}?subject=${subject}&body=${body}`;
+  };
+
+  const triggerVisitorGmail = () => {
+    const mailData = getVisitorEmailData();
+    if (!mailData) return;
+    const subject = encodeURIComponent(mailData.subject);
+    const body = encodeURIComponent(mailData.bodyText);
+    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${mailData.to}&su=${subject}&body=${body}`;
+    window.open(gmailUrl, "_blank", "noopener,noreferrer");
+  };
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
     const formData = new FormData(e.currentTarget);
+    const data = Object.fromEntries(formData.entries());
     try {
       const res = await fetch("https://formsubmit.co/ajax/9d64015e0bad35be133b67c8bf0227a8", {
         method: "POST",
@@ -69,16 +109,18 @@ export function VisitorPopup() {
           "Content-Type": "application/json",
           "Accept": "application/json"
         },
-        body: JSON.stringify(Object.fromEntries(formData.entries())),
+        body: JSON.stringify(data),
       });
       if (res.ok) {
         setPhase("success");
         localStorage.setItem(STORAGE_KEY, "1");
       } else {
-        alert("Something went wrong. Try the contact form below?");
+        setFormDataBackup(data);
+        setPhase("fallback");
       }
     } catch {
-      alert("Couldn't send — check your connection?");
+      setFormDataBackup(data);
+      setPhase("fallback");
     } finally {
       setIsSubmitting(false);
     }
@@ -252,6 +294,68 @@ export function VisitorPopup() {
             >
               Close ✨
             </button>
+          </motion.div>
+        )}
+
+        {/* ── FALLBACK ── */}
+        {phase === "fallback" && (
+          <motion.div
+            key="fallback"
+            initial={{ opacity: 0, y: 32, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 16, scale: 0.92, transition: { duration: 0.2 } }}
+            transition={{ type: "spring", stiffness: 300, damping: 24 }}
+            className="w-80 bg-slate-900/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden"
+          >
+            {/* Header strip */}
+            <div className="relative px-5 pt-4 pb-3.5 border-b border-white/5 bg-gradient-to-r from-amber-950/40 to-sky-950/40">
+              <div className="absolute inset-0 bg-gradient-to-r from-amber-500/8 to-sky-500/8" />
+              <button onClick={handleCollapse} className="absolute top-3 right-3 p-1.5 rounded-full text-slate-500 hover:text-white hover:bg-white/10 transition-colors z-10">
+                <X className="w-3.5 h-3.5" />
+              </button>
+              <div className="relative flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-500 to-sky-600 flex items-center justify-center shadow-md shadow-sky-500/25 animate-pulse">
+                  <Mail className="w-4 h-4 text-white" />
+                </div>
+                <div>
+                  <p className="text-white font-bold text-sm leading-tight">Server is Napping... 😴</p>
+                  <p className="text-slate-400 text-[11px]">Your note is fully saved!</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="px-5 py-5 text-center space-y-4">
+              <p className="text-slate-300 text-xs leading-relaxed">
+                Automated submission failed temporarily, but we can still make it work!
+              </p>
+              <p className="text-sky-300 text-[11px] font-semibold leading-relaxed">
+                Click below to launch your email client with your note already filled in. It takes just one click!
+              </p>
+              <div className="space-y-2">
+                <button
+                  onClick={triggerVisitorGmail}
+                  className="w-full py-2.5 rounded-xl bg-gradient-to-r from-red-600/90 to-amber-600/90 hover:from-red-500 hover:to-amber-500 text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-lg shadow-red-500/10 active:scale-[0.98] cursor-pointer"
+                >
+                  <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+                      <path d="M24 4.5v15c0 .85-.65 1.5-1.5 1.5H21V7.39l-9 5.62-9-5.62V21H1.5C.65 21 0 20.35 0 19.5v-15c0-.42.17-.8.45-1.07l11.55 7.22 11.55-7.22c.28.27.45.65.45 1.07z"/>
+                  </svg>
+                  Send via Gmail (Web) 🌐
+                </button>
+                <button
+                  onClick={triggerVisitorMailto}
+                  className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold border border-slate-700 transition-colors flex items-center justify-center gap-1.5 active:scale-[0.98] cursor-pointer"
+                >
+                  <Mail className="w-3.5 h-3.5" />
+                  Use Default Mail App
+                </button>
+                <button
+                  onClick={() => setPhase("form")}
+                  className="text-slate-500 hover:text-slate-400 text-[11px] font-medium transition-colors cursor-pointer block mx-auto pt-1"
+                >
+                  Edit Note & Try Again
+                </button>
+              </div>
+            </div>
           </motion.div>
         )}
 

@@ -10,11 +10,52 @@ export const Contact = () => {
     const [copied, setCopied] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
+    const [showFallback, setShowFallback] = useState(false);
+    const [formDataBackup, setFormDataBackup] = useState<any>(null);
 
     const handleCopy = () => {
         navigator.clipboard.writeText("kevinsuvagiya11@gmail.com");
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
+    };
+
+    const getEmailData = () => {
+        if (!formDataBackup) return null;
+        const to = "kevinsuvagiya11@gmail.com";
+        const subject = formDataBackup._subject || "New Contact Form Submission!";
+        
+        const bodyText = `Hi Kevin,
+
+My name is ${formDataBackup.name}. I tried sending this via your portfolio contact form, but the server was having a quick nap!
+
+Here is my message:
+--------------------------------------------------
+${formDataBackup.message}
+--------------------------------------------------
+
+Best regards,
+${formDataBackup.name}
+
+Sender Email: ${formDataBackup.email}`;
+
+        return { to, subject, bodyText };
+    };
+
+    const triggerMailto = () => {
+        const mailData = getEmailData();
+        if (!mailData) return;
+        const subject = encodeURIComponent(mailData.subject);
+        const body = encodeURIComponent(mailData.bodyText);
+        window.location.href = `mailto:${mailData.to}?subject=${subject}&body=${body}`;
+    };
+
+    const triggerGmail = () => {
+        const mailData = getEmailData();
+        if (!mailData) return;
+        const subject = encodeURIComponent(mailData.subject);
+        const body = encodeURIComponent(mailData.bodyText);
+        const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${mailData.to}&su=${subject}&body=${body}`;
+        window.open(gmailUrl, "_blank", "noopener,noreferrer");
     };
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -31,16 +72,19 @@ export const Contact = () => {
                     "Content-Type": "application/json",
                     "Accept": "application/json"
                 },
-                body: JSON.stringify(Object.fromEntries(formData.entries())),
+                body: JSON.stringify(data),
             });
 
             if (response.ok) {
                 setIsSuccess(true);
+                setShowFallback(false);
             } else {
-                alert("Oops! There was a problem submitting your form. Please try again or email me directly.");
+                setFormDataBackup(data);
+                setShowFallback(true);
             }
         } catch (error) {
-            alert("Oops! There was a problem submitting your form");
+            setFormDataBackup(data);
+            setShowFallback(true);
         } finally {
             setIsSubmitting(false);
         }
@@ -77,6 +121,47 @@ export const Contact = () => {
                             >
                                 Send another message
                             </button>
+                        </div>
+                    ) : showFallback ? (
+                        <div className="h-[400px] flex flex-col items-center justify-center text-center space-y-4 px-2">
+                            <div className="w-16 h-16 bg-amber-500/10 rounded-full flex items-center justify-center animate-pulse">
+                                <Mail className="text-amber-500" size={32} />
+                            </div>
+                            <h3 className="text-2xl font-bold text-white">Mail Server is Napping... 😴</h3>
+                            <p className="text-slate-400 text-sm max-w-sm leading-relaxed">
+                                It seems my automated form submission server is temporarily offline. But don't worry, your message is fully saved!
+                            </p>
+                            <p className="text-sky-300 text-xs font-semibold max-w-xs">
+                                Click below to launch your email client with your message already populated and ready to send instantly.
+                            </p>
+                            <div className="flex flex-col gap-2.5 w-full max-w-xs mt-2 relative z-20">
+                                <MagneticWrapper strength={5}>
+                                    <button
+                                        onClick={triggerGmail}
+                                        className="w-full py-3.5 bg-gradient-to-r from-red-600/90 to-amber-600/90 hover:from-red-500 hover:to-amber-500 text-white font-semibold rounded-lg transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-red-500/10 active:scale-95 text-sm"
+                                    >
+                                        <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                                            <path d="M24 4.5v15c0 .85-.65 1.5-1.5 1.5H21V7.39l-9 5.62-9-5.62V21H1.5C.65 21 0 20.35 0 19.5v-15c0-.42.17-.8.45-1.07l11.55 7.22 11.55-7.22c.28.27.45.65.45 1.07z"/>
+                                        </svg>
+                                        Send via Gmail (Browser) 🌐
+                                    </button>
+                                </MagneticWrapper>
+                                <MagneticWrapper strength={5}>
+                                    <button
+                                        onClick={triggerMailto}
+                                        className="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold rounded-lg border border-slate-700 transition-colors flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+                                    >
+                                        <Mail size={14} />
+                                        Use Default Mail App
+                                    </button>
+                                </MagneticWrapper>
+                                <button
+                                    onClick={() => setShowFallback(false)}
+                                    className="text-slate-500 hover:text-slate-400 text-xs font-medium transition-colors cursor-pointer mt-1"
+                                >
+                                    Edit Form & Try Again
+                                </button>
+                            </div>
                         </div>
                     ) : (
                         <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
