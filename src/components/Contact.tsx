@@ -27,7 +27,11 @@ export const Contact = () => {
         try {
             const response = await fetch("https://formsubmit.co/ajax/9d64015e0bad35be133b67c8bf0227a8", {
                 method: "POST",
-                body: formData,
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                },
+                body: JSON.stringify(Object.fromEntries(formData.entries())),
             });
 
             if (response.ok) {

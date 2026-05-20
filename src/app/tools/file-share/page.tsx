@@ -130,7 +130,7 @@ export default function FileSharePage() {
   const myNameRef = useRef<string>("");
   const transfersRef = useRef<TransferState[]>([]);
   const cancelledTransfersRef = useRef<Set<string>>(new Set());
-  
+
   // High-performance streaming refs
   const fileHandlesRef = useRef<Record<string, any>>({});
   const writablesRef = useRef<Record<string, any>>({});
@@ -165,101 +165,101 @@ export default function FileSharePage() {
       setMyName(storedName);
       setEditNameValue(storedName);
 
-    const initPeer = () => {
-      const peer = new PeerConstructor();
-      peerRef.current = peer;
+      const initPeer = () => {
+        const peer = new PeerConstructor();
+        peerRef.current = peer;
 
-      peer.on("open", async (id) => {
-        setMyPeerId(id);
-        const rId = await getRoomId();
-        setRoomId(rId);
+        peer.on("open", async (id) => {
+          setMyPeerId(id);
+          const rId = await getRoomId();
+          setRoomId(rId);
 
-        // Setup Firebase presence
-        const db = getFirebaseDb();
-        const myPresenceRef = ref(db, `tools/file_share/${rId}/${id}`);
-        const deviceType = getDeviceType();
+          // Setup Firebase presence
+          const db = getFirebaseDb();
+          const myPresenceRef = ref(db, `tools/file_share/${rId}/${id}`);
+          const deviceType = getDeviceType();
 
-        // Remove presence on disconnect
-        onDisconnect(myPresenceRef).remove();
+          // Remove presence on disconnect
+          onDisconnect(myPresenceRef).remove();
 
-        // Set presence
-        set(myPresenceRef, {
-          name: storedName,
-          deviceId: devId,
-          deviceType: deviceType,
-          timestamp: serverTimestamp()
-        });
+          // Set presence
+          set(myPresenceRef, {
+            name: storedName,
+            deviceId: devId,
+            deviceType: deviceType,
+            timestamp: serverTimestamp()
+          });
 
-        // Listen for others in the room
-        const roomRef = ref(db, `tools/file_share/${rId}`);
-        const unsubscribe = onValue(roomRef, (snapshot) => {
-          const data = snapshot.val();
-          if (data) {
-            const now = Date.now();
-            const activePeers: DiscoveredPeer[] = [];
-            const deviceMap: Record<string, DiscoveredPeer> = {};
+          // Listen for others in the room
+          const roomRef = ref(db, `tools/file_share/${rId}`);
+          const unsubscribe = onValue(roomRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+              const now = Date.now();
+              const activePeers: DiscoveredPeer[] = [];
+              const deviceMap: Record<string, DiscoveredPeer> = {};
 
-            Object.keys(data).forEach(peerId => {
-              if (peerId !== id && data[peerId].deviceId !== devId) {
-                // Ignore peers older than 5 minutes (stale)
-                const ts = data[peerId].timestamp || 0;
-                if (now - ts < 5 * 60 * 1000) {
-                  const p = {
-                    id: peerId,
-                    name: data[peerId].name,
-                    deviceId: data[peerId].deviceId,
-                    deviceType: data[peerId].deviceType,
-                    timestamp: ts
-                  };
-                  if (p.deviceId) {
-                    if (!deviceMap[p.deviceId] || deviceMap[p.deviceId].timestamp < p.timestamp) {
-                      deviceMap[p.deviceId] = p;
+              Object.keys(data).forEach(peerId => {
+                if (peerId !== id && data[peerId].deviceId !== devId) {
+                  // Ignore peers older than 5 minutes (stale)
+                  const ts = data[peerId].timestamp || 0;
+                  if (now - ts < 5 * 60 * 1000) {
+                    const p = {
+                      id: peerId,
+                      name: data[peerId].name,
+                      deviceId: data[peerId].deviceId,
+                      deviceType: data[peerId].deviceType,
+                      timestamp: ts
+                    };
+                    if (p.deviceId) {
+                      if (!deviceMap[p.deviceId] || deviceMap[p.deviceId].timestamp < p.timestamp) {
+                        deviceMap[p.deviceId] = p;
+                      }
+                    } else {
+                      activePeers.push(p);
                     }
-                  } else {
-                    activePeers.push(p);
                   }
                 }
+              });
+              const deduplicatedPeers = [...activePeers, ...Object.values(deviceMap)];
+
+              // Enforce unique names visually
+              const finalPeers: DiscoveredPeer[] = [];
+              const nameCounts: Record<string, number> = {};
+
+              if (myNameRef.current) {
+                nameCounts[myNameRef.current] = 1;
               }
-            });
-            const deduplicatedPeers = [...activePeers, ...Object.values(deviceMap)];
 
-            // Enforce unique names visually
-            const finalPeers: DiscoveredPeer[] = [];
-            const nameCounts: Record<string, number> = {};
+              deduplicatedPeers.forEach(p => {
+                let finalName = p.name;
+                let suffix = 1;
+                while (nameCounts[finalName]) {
+                  suffix++;
+                  finalName = `${p.name} ${suffix}`;
+                }
+                nameCounts[finalName] = 1;
+                finalPeers.push({ ...p, name: finalName });
+              });
 
-            if (myNameRef.current) {
-              nameCounts[myNameRef.current] = 1;
+              setPeers(finalPeers);
+
+              // Auto-cleanup stale selected peers
+              setSelectedPeers(prev => prev.filter(pId => finalPeers.some(p => p.id === pId)));
+            } else {
+              setPeers([]);
             }
-
-            deduplicatedPeers.forEach(p => {
-              let finalName = p.name;
-              let suffix = 1;
-              while (nameCounts[finalName]) {
-                suffix++;
-                finalName = `${p.name} ${suffix}`;
-              }
-              nameCounts[finalName] = 1;
-              finalPeers.push({ ...p, name: finalName });
-            });
-
-            setPeers(finalPeers);
-
-            // Auto-cleanup stale selected peers
-            setSelectedPeers(prev => prev.filter(pId => finalPeers.some(p => p.id === pId)));
-          } else {
-            setPeers([]);
-          }
+          });
         });
-      });
 
-      peer.on("connection", (conn) => {
-        setupConnection(conn);
-      });
+        peer.on("connection", (conn) => {
+          setupConnection(conn);
+        });
 
-      return () => {
-        peer.destroy();
+        return () => {
+          peer.destroy();
+        };
       };
-    };
 
       const cleanupPeer = initPeer();
       return () => {
@@ -383,7 +383,7 @@ export default function FileSharePage() {
         // The writable stream has its own internal buffering
         writable.write(chunk).catch((err: any) => console.error("Disk write error", err));
         // Clear the chunk from memory immediately
-        receivedChunksRef.current[fileId] = []; 
+        receivedChunksRef.current[fileId] = [];
       } catch (err) {
         console.error("Failed to write to disk", err);
       }
@@ -396,14 +396,14 @@ export default function FileSharePage() {
     setTransfers(prev => {
       const idx = prev.findIndex(t => t.id === `${fileId}-${senderId}`);
       if (idx !== -1) {
-          const t = prev[idx];
+        const t = prev[idx];
         if (t.size) {
           const newProgress = Math.floor((currentSize / t.size) * 100);
-          
+
           // Use the existing startTime or initialize it if missing
           const tStartTime = t.startTime || now;
           const elapsed = (now - tStartTime) / 1000;
-          
+
           // Only calculate speed and ETA after a small stabilization period (e.g., 0.5s)
           const speed = elapsed > 0.5 ? currentSize / elapsed : (t.speed || 0);
           const timeRemaining = speed > 0 ? (t.size - currentSize) / speed : 0;
@@ -459,8 +459,8 @@ export default function FileSharePage() {
       delete receivedSizesRef.current[fileId];
     }
     delete pendingFilesRef.current[fileId];
-    
-    setTransfers(prev => prev.map(t => 
+
+    setTransfers(prev => prev.map(t =>
       t.fileId === fileId ? { ...t, status: "completed", progress: 100 } : t
     ));
   };
@@ -498,7 +498,7 @@ export default function FileSharePage() {
     if (req.isBatch && req.batchFiles) {
       const batchFilesTransfers: TransferState[] = await Promise.all(req.batchFiles.map(async f => {
         const fId = f.fileId.trim();
-        
+
         // Setup direct writing for each file in the batch if directory is picked
         if (directoryHandle) {
           try {
@@ -531,7 +531,7 @@ export default function FileSharePage() {
       conn.send({ type: "accept", fileId: req.fileId, isBatch: true });
     } else {
       const fileId = req.fileId.trim();
-      
+
       // Setup direct writing for single file
       if (supportsFileSystem) {
         try {
@@ -575,30 +575,30 @@ export default function FileSharePage() {
 
   const cancelTransfer = async (gid: string) => {
     cancelledTransfersRef.current.add(gid);
-    
+
     // Cleanup any active streams/chunks
     setTransfers(prev => prev.map(t => {
       if (t.id === gid || t.batchId === gid) {
         const fileId = t.fileId;
-        
+
         // Close writable if exists
         const writable = writablesRef.current[fileId];
         if (writable) {
-          try { (writable as any).abort(); } catch (e) {}
+          try { (writable as any).abort(); } catch (e) { }
           delete writablesRef.current[fileId];
           delete fileHandlesRef.current[fileId];
         }
-        
+
         // Clear RAM chunks
         delete receivedChunksRef.current[fileId];
         delete receivedSizesRef.current[fileId];
-        
+
         // Notify peer
         const conn = connectionsRef.current[t.targetId];
         if (conn && conn.open) {
           conn.send({ type: "cancel", fileId: t.fileId });
         }
-        
+
         return { ...t, status: "failed" as const, errorText: "Cancelled" };
       }
       return t;
@@ -609,7 +609,7 @@ export default function FileSharePage() {
     if (selectedFiles.length === 0 || selectedPeers.length === 0) return;
 
     let filesToSend: File[] = [...selectedFiles];
-    
+
     if (shouldZip) {
       setIsZipping(true);
       try {
@@ -643,12 +643,12 @@ export default function FileSharePage() {
         // Send as Batch
         const rawBatchId = Math.random().toString(36).substring(2, 10).padEnd(8, " ");
         const batchId = rawBatchId.trim();
-        
+
         const batchFiles = filesToSend.map(file => {
           const rawFileId = Math.random().toString(36).substring(2, 10).padEnd(8, " ");
           const fileId = rawFileId.trim();
           pendingFilesRef.current[fileId] = file;
-          
+
           const transferId = `${fileId}-${peerId}`;
           setTransfers(prev => [...prev, {
             id: transferId,
@@ -662,7 +662,7 @@ export default function FileSharePage() {
             isIncoming: false,
             size: file.size
           }]);
-          
+
           return { fileId: rawFileId, filename: file.name, size: file.size };
         });
         pendingBatchesRef.current[batchId] = batchFiles.map(f => f.fileId.trim());
@@ -738,7 +738,7 @@ export default function FileSharePage() {
     const waitForBuffer = async () => {
       const dataChannel = (conn as any).dataChannel as RTCDataChannel;
       if (!dataChannel) return;
-      
+
       if (dataChannel.bufferedAmount > 1024 * 1024) {
         return new Promise<void>(resolve => {
           const check = () => {
@@ -772,13 +772,13 @@ export default function FileSharePage() {
       if (!e.target || !e.target.result) return;
 
       const chunk = e.target.result as ArrayBuffer;
-      
+
       // Prepend 8-byte fileId to the chunk
       const fileIdBytes = new TextEncoder().encode(fileId.padEnd(8, " "));
       const payload = new Uint8Array(8 + chunk.byteLength);
       payload.set(fileIdBytes, 0);
       payload.set(new Uint8Array(chunk), 8);
-      
+
       conn.send(payload.buffer);
 
       offset += chunk.byteLength;
@@ -909,8 +909,8 @@ export default function FileSharePage() {
                         exit={{ opacity: 0, scale: 0.8 }}
                         onClick={() => togglePeerSelection(p.id)}
                         className={`flex flex-col items-center gap-3 p-4 rounded-2xl transition-all ${isSelected
-                            ? "bg-indigo-500/20 border-indigo-500/50 shadow-[0_0_30px_-5px_rgba(99,102,241,0.3)]"
-                            : "bg-slate-800/50 border-white/5 hover:bg-slate-800 hover:border-white/10"
+                          ? "bg-indigo-500/20 border-indigo-500/50 shadow-[0_0_30px_-5px_rgba(99,102,241,0.3)]"
+                          : "bg-slate-800/50 border-white/5 hover:bg-slate-800 hover:border-white/10"
                           } border w-32`}
                       >
                         <div className={`w-16 h-16 rounded-full flex items-center justify-center relative ${isSelected ? "bg-indigo-500" : "bg-slate-700"}`}>
@@ -949,21 +949,21 @@ export default function FileSharePage() {
                   <div className="flex-1 flex flex-col gap-3">
                     <div className="flex gap-2">
                       <label className="flex-1 bg-slate-800 hover:bg-slate-700 border border-white/5 rounded-2xl p-4 text-center cursor-pointer transition-all group">
-                        <input 
-                          type="file" 
-                          multiple 
-                          className="hidden" 
+                        <input
+                          type="file"
+                          multiple
+                          className="hidden"
                           onChange={e => setSelectedFiles(prev => [...prev, ...Array.from(e.target.files || [])])}
                         />
                         <File className="w-6 h-6 text-indigo-400 mx-auto mb-1 group-hover:scale-110 transition-transform" />
                         <span className="text-xs font-semibold text-slate-300">Add Files</span>
                       </label>
-                      
+
                       <label className="flex-1 bg-slate-800 hover:bg-slate-700 border border-white/5 rounded-2xl p-4 text-center cursor-pointer transition-all group">
-                        <input 
-                          type="file" 
-                          {...({ webkitdirectory: "", directory: "" } as any)} 
-                          className="hidden" 
+                        <input
+                          type="file"
+                          {...({ webkitdirectory: "", directory: "" } as any)}
+                          className="hidden"
                           onChange={e => setSelectedFiles(prev => [...prev, ...Array.from(e.target.files || [])])}
                         />
                         <Folder className="w-6 h-6 text-emerald-400 mx-auto mb-1 group-hover:scale-110 transition-transform" />
@@ -989,7 +989,7 @@ export default function FileSharePage() {
                               </div>
                               <div className="flex items-center gap-2">
                                 <span className="text-[10px] text-slate-500 whitespace-nowrap">{formatBytes(f.size)}</span>
-                                <button 
+                                <button
                                   onClick={() => setSelectedFiles(prev => prev.filter((_, idx) => idx !== i))}
                                   className="p-1 hover:bg-red-500/20 hover:text-red-400 rounded transition-colors text-slate-600"
                                 >
@@ -1018,7 +1018,7 @@ export default function FileSharePage() {
                           <ShieldCheck className="w-4 h-4 text-indigo-400" />
                           <span className="text-sm font-bold text-white">Zip & Send</span>
                         </div>
-                        <button 
+                        <button
                           onClick={() => setShouldZip(!shouldZip)}
                           className={`w-10 h-5 rounded-full relative transition-colors ${shouldZip ? "bg-indigo-500" : "bg-slate-700"}`}
                         >
@@ -1037,7 +1037,7 @@ export default function FileSharePage() {
                           {selectedFiles.length} Items · {formatBytes(selectedFiles.reduce((acc, f) => acc + f.size, 0))}
                         </span>
                       </div>
-                      <button 
+                      <button
                         onClick={handleSend}
                         disabled={selectedFiles.length === 0 || isZipping}
                         className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-2xl font-bold text-sm flex items-center justify-center gap-3 transition-colors shadow-lg shadow-indigo-500/20"
@@ -1054,7 +1054,7 @@ export default function FileSharePage() {
                           </>
                         )}
                       </button>
-                      <button 
+                      <button
                         onClick={() => setSelectedFiles([])}
                         className="text-xs text-slate-500 hover:text-white py-2 transition-colors"
                       >
@@ -1121,28 +1121,28 @@ export default function FileSharePage() {
               const isBatch = items.length > 1 || items[0].batchId;
               const main = items[0];
               const isExpanded = expandedBatches.includes(gid);
-              
+
               const totalSize = items.reduce((acc, i) => acc + (i.size || 0), 0);
               const totalTransferred = items.reduce((acc, i) => acc + (i.transferred || 0), 0);
               const avgProgress = totalSize > 0 ? (totalTransferred / totalSize) * 100 : 0;
               const avgSpeed = items.reduce((acc, i) => acc + (i.speed || 0), 0);
               const completedCount = items.filter(i => i.status === "completed").length;
               const maxTimeRemaining = Math.max(...items.map(i => i.timeRemaining || 0));
-              
-              const status = items.every(i => i.status === "completed") ? "completed" : 
-                            items.some(i => i.status === "failed") ? "failed" :
-                            items.some(i => i.status === "transferring" || (i.isIncoming && (i.transferred || 0) > 0)) ? "transferring" : "waiting";
+
+              const status = items.every(i => i.status === "completed") ? "completed" :
+                items.some(i => i.status === "failed") ? "failed" :
+                  items.some(i => i.status === "transferring" || (i.isIncoming && (i.transferred || 0) > 0)) ? "transferring" : "waiting";
 
               return (
-                <motion.div 
-                  key={gid} 
+                <motion.div
+                  key={gid}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="bg-slate-900 border border-white/5 rounded-3xl p-6 shadow-xl overflow-hidden relative group"
                 >
                   {/* Full Tile Fill Progress Bar - Only if not expanded */}
                   {(!isBatch || !isExpanded) && (
-                    <motion.div 
+                    <motion.div
                       initial={{ width: 0 }}
                       animate={{ width: `${avgProgress}%` }}
                       className="absolute inset-0 bg-indigo-500/10 pointer-events-none transition-all duration-300"
@@ -1151,24 +1151,23 @@ export default function FileSharePage() {
 
                   <div className="flex flex-col sm:flex-row items-center justify-between gap-4 relative z-10">
                     <div className="flex items-center gap-4 flex-1">
-                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 ${
-                        status === "completed" ? "bg-emerald-500/10" : status === "failed" ? "bg-red-500/10" : "bg-indigo-500/10"
-                      }`}>
-                        {isBatch ? <Folder className={`w-6 h-6 ${status === "completed" ? "text-emerald-400" : "text-indigo-400"}`} /> : 
-                                  <File className={`w-6 h-6 ${status === "completed" ? "text-emerald-400" : "text-indigo-400"}`} />}
+                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 ${status === "completed" ? "bg-emerald-500/10" : status === "failed" ? "bg-red-500/10" : "bg-indigo-500/10"
+                        }`}>
+                        {isBatch ? <Folder className={`w-6 h-6 ${status === "completed" ? "text-emerald-400" : "text-indigo-400"}`} /> :
+                          <File className={`w-6 h-6 ${status === "completed" ? "text-emerald-400" : "text-indigo-400"}`} />}
                       </div>
                       <div className="flex-1 min-w-0">
                         <h4 className="text-white font-bold truncate">
-                          {isBatch 
-                            ? `${status === 'completed' ? (main.isIncoming ? 'Received' : 'Sent') : (main.isIncoming ? 'Receiving' : 'Sending')} ${completedCount}/${items.length} items ${main.isIncoming ? 'from' : 'to'} ${main.targetName}` 
+                          {isBatch
+                            ? `${status === 'completed' ? (main.isIncoming ? 'Received' : 'Sent') : (main.isIncoming ? 'Receiving' : 'Sending')} ${completedCount}/${items.length} items ${main.isIncoming ? 'from' : 'to'} ${main.targetName}`
                             : main.filename}
                         </h4>
                         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-0.5">
                           <p className="text-slate-400 text-xs">
-                            {status === "completed" ? "All transfers complete" : 
-                             status === "failed" ? (items.some(i => i.errorText === "Declined") ? "Transfer declined" : "Transfer failed") : 
-                             status === "waiting" ? "Waiting for accept..." : 
-                             `${completedCount} of ${items.length} files complete · ${formatBytes(totalTransferred)} of ${formatBytes(totalSize)}`}
+                            {status === "completed" ? "All transfers complete" :
+                              status === "failed" ? (items.some(i => i.errorText === "Declined") ? "Transfer declined" : "Transfer failed") :
+                                status === "waiting" ? "Waiting for accept..." :
+                                  `${completedCount} of ${items.length} files complete · ${formatBytes(totalTransferred)} of ${formatBytes(totalSize)}`}
                           </p>
                           {(status === "transferring" || totalTransferred > 0) && status !== "completed" && (
                             <div className="flex items-center gap-3">
@@ -1187,7 +1186,7 @@ export default function FileSharePage() {
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="flex items-center gap-6">
                       {status === "transferring" && (
                         <div className="flex items-center gap-4 sm:gap-6">
@@ -1199,7 +1198,7 @@ export default function FileSharePage() {
                           <div className="text-right">
                             <div className="text-indigo-400 font-bold text-lg">{Math.round(avgProgress)}%</div>
                           </div>
-                          <button 
+                          <button
                             onClick={() => cancelTransfer(gid)}
                             className="p-2 hover:bg-red-500/10 text-slate-500 hover:text-red-400 rounded-xl transition-all outline-none"
                             title="Cancel Transfer"
@@ -1211,7 +1210,7 @@ export default function FileSharePage() {
                       {status === "completed" && <div className="text-emerald-400 text-sm font-bold flex items-center gap-2"><Check className="w-4 h-4" /> Done</div>}
                       {status === "failed" && (
                         <div className="text-red-400 text-sm font-bold flex items-center gap-2">
-                          <X className="w-4 h-4" /> 
+                          <X className="w-4 h-4" />
                           {items.some(i => i.errorText === "Declined") ? "Declined" : (items.some(i => i.errorText === "Cancelled") ? "Cancelled" : "Failed")}
                         </div>
                       )}
@@ -1220,17 +1219,17 @@ export default function FileSharePage() {
 
                   {isBatch && (
                     <div className="mt-6 border-t border-white/5 pt-4 relative z-10">
-                      <button 
+                      <button
                         onClick={() => setExpandedBatches(prev => prev.includes(gid) ? prev.filter(b => b !== gid) : [...prev, gid])}
                         className="text-[10px] text-slate-500 font-bold uppercase tracking-wider cursor-pointer hover:text-slate-300 transition-colors flex items-center gap-2 outline-none"
                       >
                         <span className={`transition-transform text-[8px] ${isExpanded ? 'rotate-90' : ''}`}>▶</span>
                         {isExpanded ? 'Hide Details' : 'Show Individual File Progress'}
                       </button>
-                      
+
                       <AnimatePresence>
                         {isExpanded && (
-                          <motion.div 
+                          <motion.div
                             initial={{ height: 0, opacity: 0 }}
                             animate={{ height: "auto", opacity: 1 }}
                             exit={{ height: 0, opacity: 0 }}
@@ -1240,21 +1239,20 @@ export default function FileSharePage() {
                               {items.map(item => (
                                 <div key={item.id} className="flex items-center justify-between bg-white/5 rounded-2xl p-3 border border-transparent hover:border-white/5 transition-all relative overflow-hidden group/item">
                                   {/* Individual File Progress Fill */}
-                                  <motion.div 
+                                  <motion.div
                                     initial={{ width: 0 }}
                                     animate={{ width: `${item.progress}%` }}
                                     className="absolute inset-0 bg-indigo-500/10 pointer-events-none transition-all duration-300"
                                   />
-                                  
+
                                   <div className="flex items-center gap-3 min-w-0 relative z-10">
                                     <File className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
                                     <span className="text-xs text-slate-300 truncate font-medium">{item.filename}</span>
                                   </div>
                                   <div className="flex items-center gap-4 flex-shrink-0 relative z-10">
                                     <span className="text-[10px] text-slate-500">{formatBytes(item.size || 0)}</span>
-                                    <span className={`text-[10px] font-bold ${
-                                      item.status === "completed" ? "text-emerald-400" : "text-indigo-400"
-                                    }`}>
+                                    <span className={`text-[10px] font-bold ${item.status === "completed" ? "text-emerald-400" : "text-indigo-400"
+                                      }`}>
                                       {item.status === "completed" ? "100%" : `${Math.round(item.progress)}%`}
                                     </span>
                                   </div>
