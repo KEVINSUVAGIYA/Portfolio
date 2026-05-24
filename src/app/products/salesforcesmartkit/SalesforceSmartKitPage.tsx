@@ -185,10 +185,12 @@ export function SalesforceSmartKitPage() {
                         >
                             <MagneticWrapper strength={20}>
                                 <a
-                                    href="#"
+                                    href="https://chrome.google.com/webstore"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
                                     className="px-10 py-5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-2xl transition-all shadow-[0_0_40px_rgba(99,102,241,0.3)] flex items-center gap-3 text-lg"
                                 >
-                                    Get for Chrome
+                                    Chrome Web Store (Coming Soon)
                                     <ExternalLink size={20} />
                                 </a>
                             </MagneticWrapper>
@@ -299,10 +301,12 @@ export function SalesforceSmartKitPage() {
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
                             <MagneticWrapper>
                                 <a
-                                    href="#"
+                                    href="https://chrome.google.com/webstore"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
                                     className="px-12 py-5 bg-white text-black font-black rounded-2xl hover:bg-indigo-50 transition-all text-lg shadow-2xl shadow-white/10"
                                 >
-                                    Add to Chrome — Free
+                                    Chrome Web Store (Coming Soon)
                                 </a>
                             </MagneticWrapper>
                             <Link
