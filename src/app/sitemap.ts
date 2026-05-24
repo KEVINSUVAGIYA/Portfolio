@@ -29,6 +29,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
         "/products/heerahisaab/guide",
         "/products/heerahisaab/faq",
         "/products/heerahisaab/privacy",
+        "/products/salesforcesmartkit/guide",
+        "/products/salesforcesmartkit/faq",
+        "/products/salesforcesmartkit/privacy",
     ];
 
     // Dynamically inject all products, tools, and playgrounds

@@ -23,6 +23,19 @@ const products = [
         borderHover: "hover:border-[#51BFF2]/50",
     },
     {
+        name: "Salesforce SmartKit",
+        tagline: "The Ultimate Admin Extension",
+        description:
+            "A premium, glassmorphic Chrome Extension that turns Salesforce into a state-of-the-art workspace with a SOQL IDE, SmartEdit, and Command Palette.",
+        logo: `${BASE_PATH}/products/salesforcesmartkit-logo.png`,
+        href: "/products/salesforcesmartkit",
+        platform: "Chrome Extension",
+        platformIcon: Chrome,
+        accentColor: "#6366f1",
+        gradient: "from-[#6366f1]/20 to-[#818cf8]/20",
+        borderHover: "hover:border-[#6366f1]/50",
+    },
+    {
         name: "HeeraHisaab",
         tagline: "Intelligent Diamond Tracking",
         description:
