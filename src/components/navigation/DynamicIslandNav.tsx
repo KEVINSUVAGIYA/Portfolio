@@ -17,7 +17,6 @@ export function DynamicIslandNav() {
     const scrollTo = (id: string) => {
         const el = document.getElementById(id);
         if (el) el.scrollIntoView({ behavior: "smooth" });
-        setIsHovered(false);
     };
 
     return (
@@ -35,7 +34,7 @@ export function DynamicIslandNav() {
                     borderRadius: isHovered ? 24 : 32,
                     backgroundColor: isHovered ? "rgba(15, 23, 42, 0.9)" : "rgba(15, 23, 42, 0.7)",
                 }}
-                className="border border-slate-800/60 backdrop-blur-md shadow-2xl flex items-center justify-center cursor-pointer relative"
+                className="border border-slate-800/60 backdrop-blur-md shadow-2xl flex items-center justify-center relative"
             >
                 <AnimatePresence mode="wait">
                     {!isHovered ? (
@@ -68,14 +67,13 @@ export function DynamicIslandNav() {
                                 const Icon = section.icon;
                                 const isActive = activeSection === section.id;
                                 return (
-                                    <a
+                                    <button
                                         key={section.id}
-                                        href={`#${section.id}`}
-                                        onClick={(e) => {
+                                        onPointerDown={(e) => {
                                             e.preventDefault();
                                             scrollTo(section.id);
                                         }}
-                                        className={`relative group flex items-center justify-center w-12 h-12 rounded-xl transition-all ${isActive ? 'bg-indigo-500/20 text-indigo-400' : 'hover:bg-slate-800/80 text-slate-400 hover:text-white'}`}
+                                        className={`relative group flex items-center justify-center w-12 h-12 rounded-xl cursor-pointer transition-all ${isActive ? 'bg-indigo-500/20 text-indigo-400' : 'hover:bg-slate-800/80 text-slate-400 hover:text-white'}`}
                                     >
                                         <div className="pointer-events-none flex items-center justify-center">
                                             <Icon size={20} />
@@ -84,7 +82,7 @@ export function DynamicIslandNav() {
                                         <div className="absolute -bottom-10 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-900 text-white text-xs px-2 py-1 rounded border border-slate-800 whitespace-nowrap pointer-events-none">
                                             {section.label}
                                         </div>
-                                    </a>
+                                    </button>
                                 );
                             })}
                         </motion.div>
