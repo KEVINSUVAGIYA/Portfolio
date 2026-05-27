@@ -14,7 +14,7 @@ import { Footer } from "@/components/Footer";
 import { SITE_URL } from "@/lib/constants";
 
 import { DynamicIslandNav } from "@/components/navigation/DynamicIslandNav";
-import { ElevatorNav } from "@/components/navigation/ElevatorNav";
+import { OrbitalNav } from "@/components/navigation/OrbitalNav";
 
 export default function Home() {
   const jsonLd = {
@@ -59,7 +59,7 @@ export default function Home() {
   return (
     <main className="min-h-screen relative">
       <DynamicIslandNav />
-      <ElevatorNav />
+      <OrbitalNav />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

@@ -22,7 +22,7 @@ export function DynamicIslandNav() {
 
     return (
         <div 
-            className="fixed top-2 left-1/2 -translate-x-1/2 z-[100] p-4"
+            className="fixed top-4 left-1/2 -translate-x-1/2 z-[100] pt-2 pb-8 px-8 flex items-start justify-center"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
@@ -68,17 +68,23 @@ export function DynamicIslandNav() {
                                 const Icon = section.icon;
                                 const isActive = activeSection === section.id;
                                 return (
-                                    <button
+                                    <a
                                         key={section.id}
-                                        onClick={() => scrollTo(section.id)}
+                                        href={`#${section.id}`}
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            scrollTo(section.id);
+                                        }}
                                         className={`relative group flex items-center justify-center w-12 h-12 rounded-xl transition-all ${isActive ? 'bg-indigo-500/20 text-indigo-400' : 'hover:bg-slate-800/80 text-slate-400 hover:text-white'}`}
                                     >
-                                        <Icon size={20} />
+                                        <div className="pointer-events-none flex items-center justify-center">
+                                            <Icon size={20} />
+                                        </div>
                                         {/* Tooltip */}
-                                        <div className="absolute -bottom-12 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-900 text-white text-xs px-3 py-1.5 rounded-lg border border-slate-700 whitespace-nowrap pointer-events-none shadow-xl z-50">
+                                        <div className="absolute -bottom-10 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-900 text-white text-xs px-2 py-1 rounded border border-slate-800 whitespace-nowrap pointer-events-none">
                                             {section.label}
                                         </div>
-                                    </button>
+                                    </a>
                                 );
                             })}
                         </motion.div>
