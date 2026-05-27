@@ -13,6 +13,9 @@ import { Experience } from "@/components/Experience";
 import { Footer } from "@/components/Footer";
 import { SITE_URL } from "@/lib/constants";
 
+import { DynamicIslandNav } from "@/components/navigation/DynamicIslandNav";
+import { ElevatorNav } from "@/components/navigation/ElevatorNav";
+
 export default function Home() {
   const jsonLd = {
     "@context": "https://schema.org",
@@ -54,12 +57,16 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen relative">
+      <DynamicIslandNav />
+      <ElevatorNav />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <Hero />
+      <div id="hero">
+        <Hero />
+      </div>
       <Certifications />
       <Stats />
       <Products />
