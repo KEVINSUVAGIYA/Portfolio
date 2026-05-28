@@ -13,7 +13,6 @@ import { Experience } from "@/components/Experience";
 import { Footer } from "@/components/Footer";
 import { SITE_URL } from "@/lib/constants";
 
-import { DynamicIslandNav } from "@/components/navigation/DynamicIslandNav";
 import { OrbitalNav } from "@/components/navigation/OrbitalNav";
 
 export default function Home() {
@@ -58,7 +57,6 @@ export default function Home() {
 
   return (
     <main className="min-h-screen relative">
-      <DynamicIslandNav />
       <OrbitalNav />
       <script
         type="application/ld+json"
