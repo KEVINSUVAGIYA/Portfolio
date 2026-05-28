@@ -100,6 +100,7 @@ export function OrbitalNav() {
                                         onMouseLeave={() => setHoveredSection(null)}
                                         onPointerDown={(e) => {
                                             e.preventDefault();
+                                            setIsHovered(false);
                                             scrollTo(section.id);
                                         }}
                                         initial={{ opacity: 0, x: 0, y: 0, scale: 0 }}
