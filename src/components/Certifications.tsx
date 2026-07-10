@@ -78,10 +78,11 @@ export const Certifications = () => {
         {
             id: "ranger",
             title: "Trailhead",
-            subtitle: "Triple Star Ranger",
+            subtitle: "Four Star Ranger",
             icon: (
                 <div className="relative">
                     <div className="flex gap-1">
+                        <Star className="text-yellow-400 fill-yellow-400" size={24} />
                         <Star className="text-yellow-400 fill-yellow-400" size={24} />
                         <Star className="text-yellow-400 fill-yellow-400" size={24} />
                         <Star className="text-yellow-400 fill-yellow-400" size={24} />

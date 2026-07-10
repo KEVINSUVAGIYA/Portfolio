@@ -6,10 +6,10 @@ import { useRef } from "react";
 const stats = [
     { label: "Years Experience", value: "2.5+" },
     { label: "Certifications", value: "3x" },
-    { label: "Superbadges", value: "30+" },
-    { label: "Trails Completed", value: "45+" },
-    { label: "Trailhead Badges", value: "358+" },
-    { label: "Points", value: "219,000+" },
+    { label: "Superbadges", value: "38+" },
+    { label: "Trails Completed", value: "48+" },
+    { label: "Trailhead Badges", value: "408+" },
+    { label: "Points", value: "262,625+" },
 ];
 
 export const Stats = () => {
