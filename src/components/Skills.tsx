@@ -5,6 +5,7 @@ import { CheckCircle2, Award } from "lucide-react";
 import { SectionHeader } from "./ui/SectionHeader";
 
 const certifications = [
+    "Salesforce Certified Platform Developer I",
     "Salesforce Certified AI Specialist",
     "Salesforce Certified Data Cloud Consultant",
     "Salesforce Certified AI Associate",

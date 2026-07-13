@@ -9,6 +9,14 @@ export const Certifications = () => {
     // Row 1: Salesforce Certifications
     const certifications = [
         {
+            id: "cert_pd1",
+            title: "Certified",
+            subtitle: "Platform Developer I",
+            icon: <Shield className="text-emerald-400" size={32} />,
+            color: "border-emerald-500/50 bg-emerald-500/10",
+            glow: "shadow-[0_0_30px_-10px_rgba(16,185,129,0.3)]",
+        },
+        {
             id: "cert1",
             title: "Certified",
             subtitle: "Data Cloud Consultant",

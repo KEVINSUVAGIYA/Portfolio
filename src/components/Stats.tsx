@@ -5,7 +5,7 @@ import { useRef } from "react";
 
 const stats = [
     { label: "Years Experience", value: "2.5+" },
-    { label: "Certifications", value: "3x" },
+    { label: "Certifications", value: "4x" },
     { label: "Superbadges", value: "38+" },
     { label: "Trails Completed", value: "48+" },
     { label: "Trailhead Badges", value: "408+" },
