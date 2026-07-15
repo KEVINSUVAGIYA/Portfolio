@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Send, Check, X, Monitor, Smartphone, Tablet, File, Folder, Loader2, Download, ShieldCheck, RefreshCw, Edit2 } from "lucide-react";
+import { ArrowLeft, Send, Check, X, Monitor, Smartphone, Tablet, File, Folder, Loader2, Download, ShieldCheck, RefreshCw, Edit2, Settings, HelpCircle, Plus, Trash2, Info, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 import { getFirebaseDb } from "@/lib/firebase";
 import { ref, set, onValue, onDisconnect, remove, serverTimestamp } from "firebase/database";
@@ -120,6 +120,27 @@ export default function FileSharePage() {
   const [isEditingName, setIsEditingName] = useState(false);
   const [editNameValue, setEditNameValue] = useState("");
 
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<"troubleshoot" | "webrtc">("troubleshoot");
+  const [peerRestartCount, setPeerRestartCount] = useState(0);
+  const [customIceServers, setCustomIceServers] = useState<any[]>(() => {
+    if (typeof window === "undefined") return [];
+    try {
+      const stored = localStorage.getItem("sooom-custom-ice-servers");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch (e) {
+      console.error("Failed to load custom ICE servers on init", e);
+    }
+    return [];
+  });
+
+  const [newUrl, setNewUrl] = useState("");
+  const [newUsername, setNewUsername] = useState("");
+  const [newCredential, setNewCredential] = useState("");
+
   const peerRef = useRef<Peer | null>(null);
   const connectionsRef = useRef<Record<string, DataConnection>>({});
   const receivedChunksRef = useRef<Record<string, (ArrayBuffer | Uint8Array)[]>>({});
@@ -166,7 +187,25 @@ export default function FileSharePage() {
       setEditNameValue(storedName);
 
       const initPeer = () => {
-        const peer = new PeerConstructor();
+        let unsubscribeRoom: (() => void) | null = null;
+        let peerConfig: any = {};
+        try {
+          const stored = localStorage.getItem("sooom-custom-ice-servers");
+          if (stored) {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              peerConfig = {
+                config: {
+                  iceServers: parsed
+                }
+              };
+            }
+          }
+        } catch (e) {
+          console.error("Failed to load custom ICE servers", e);
+        }
+
+        const peer = new PeerConstructor(peerConfig);
         peerRef.current = peer;
 
         peer.on("open", async (id) => {
@@ -192,7 +231,7 @@ export default function FileSharePage() {
 
           // Listen for others in the room
           const roomRef = ref(db, `tools/file_share/${rId}`);
-          const unsubscribe = onValue(roomRef, (snapshot) => {
+          unsubscribeRoom = onValue(roomRef, (snapshot) => {
             const data = snapshot.val();
             if (data) {
               const now = Date.now();
@@ -257,6 +296,7 @@ export default function FileSharePage() {
         });
 
         return () => {
+          if (unsubscribeRoom) unsubscribeRoom();
           peer.destroy();
         };
       };
@@ -266,7 +306,7 @@ export default function FileSharePage() {
         if (cleanupPeer) cleanupPeer();
       };
     });
-  }, []);
+  }, [peerRestartCount]);
 
   const updatePresenceName = (newName: string) => {
     if (!myPeerId || !roomId) return;
@@ -850,11 +890,22 @@ export default function FileSharePage() {
                   <span className="text-sm font-medium text-white">{myName}</span>
                 )}
                 {!isEditingName && (
-                  <button onClick={() => setIsEditingName(true)} className="text-slate-400 hover:text-white ml-1">
+                  <button onClick={() => setIsEditingName(true)} className="text-slate-400 hover:text-white ml-1" title="Edit Display Name">
                     <Edit2 className="w-3.5 h-3.5" />
                   </button>
                 )}
               </div>
+
+              <button
+                onClick={() => {
+                  setActiveTab("troubleshoot");
+                  setIsSettingsOpen(true);
+                }}
+                className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl border border-white/5 transition-colors flex items-center justify-center cursor-pointer"
+                title="Troubleshooting & WebRTC Settings"
+              >
+                <Settings className="w-4 h-4" />
+              </button>
             </div>
           ) : (
             <div className="flex items-center gap-2 text-sm text-slate-400">
@@ -888,13 +939,23 @@ export default function FileSharePage() {
             </div>
 
             {peers.length === 0 ? (
-              <div className="text-center z-10">
+              <div className="text-center z-10 max-w-sm px-4">
                 <div className="w-20 h-20 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 border border-white/5 relative">
                   <div className="absolute inset-0 rounded-full border-2 border-indigo-500 border-t-transparent animate-spin opacity-50" />
                   <Smartphone className="w-8 h-8 text-slate-500" />
                 </div>
                 <h3 className="text-lg font-medium text-white mb-2">Waiting for others...</h3>
-                <p className="text-slate-400 text-sm max-w-xs mx-auto">Open this page on another device connected to the same Wi-Fi network.</p>
+                <p className="text-slate-400 text-sm mb-4">Open this page on another device connected to the same Wi-Fi network.</p>
+                <button
+                  onClick={() => {
+                    setActiveTab("troubleshoot");
+                    setIsSettingsOpen(true);
+                  }}
+                  className="inline-flex items-center gap-1.5 text-xs text-indigo-400 hover:text-indigo-300 hover:underline transition-colors font-medium cursor-pointer"
+                >
+                  <HelpCircle className="w-3.5 h-3.5" />
+                  Having connection issues on Wi-Fi?
+                </button>
               </div>
             ) : (
               <div className="flex flex-wrap justify-center gap-6 z-10 w-full">
@@ -1270,6 +1331,46 @@ export default function FileSharePage() {
 
           })()}
         </div>
+        {/* Troubleshooting & FAQ Accordion Section */}
+        <div className="mt-12 bg-slate-900/40 border border-white/10 rounded-3xl p-6 md:p-8">
+          <h3 className="text-base font-bold text-white mb-6 flex items-center gap-2.5">
+            <HelpCircle className="w-4 h-4 text-indigo-400" />
+            Connection Troubleshooting
+          </h3>
+          <div className="space-y-5 text-sm">
+            <div className="border-b border-white/5 pb-4">
+              <h4 className="font-semibold text-white text-xs mb-1">Why do devices see each other but fail to send?</h4>
+              <p className="text-slate-400 text-xs leading-relaxed">
+                Devices discover each other using a cloud signaling database, which works over the internet. However, files are sent directly between devices (WebRTC). 
+                Many local routers (especially corporate, public, or school Wi-Fi) have <strong>AP/Client Isolation</strong> enabled or block <strong>mDNS multicast</strong> traffic, preventing local devices from communicating directly.
+              </p>
+            </div>
+            
+            <div className="border-b border-white/5 pb-4">
+              <h4 className="font-semibold text-white text-xs mb-1">Recommended Fix 1: Mobile Network Sharing / Hotspot (Fastest)</h4>
+              <p className="text-slate-400 text-xs leading-relaxed">
+                Turn on <strong>Personal Hotspot</strong> on one of your devices and connect the other device to it. 
+                Because the sharing device acts as the local router, it completely bypasses client isolation and mDNS restrictions. transfers will work immediately at maximum local speeds.
+              </p>
+            </div>
+
+            <div className="border-b border-white/5 pb-4">
+              <h4 className="font-semibold text-white text-xs mb-1">Recommended Fix 2: Configure a Custom TURN Server</h4>
+              <p className="text-slate-400 text-xs leading-relaxed">
+                Click the <Settings className="w-3.5 h-3.5 inline mx-0.5 text-indigo-400" /> settings icon in the top header and configure a custom TURN (relay) server (such as Metered.ca's free 20GB tier). 
+                A TURN server securely relays encrypted file data when direct local connections are blocked.
+              </p>
+            </div>
+
+            <div>
+              <h4 className="font-semibold text-white text-xs mb-1">Alternative Fix: Disable Browser mDNS Local IP Hiding</h4>
+              <p className="text-slate-400 text-xs leading-relaxed">
+                Browsers hide local IP addresses behind random <code>.local</code> hostnames for privacy. If your router blocks hostname resolution, connection fails. 
+                On Chrome/Edge/Brave, you can visit <code>chrome://flags/#enable-webrtc-hide-local-ips-with-mdns</code> and set it to <strong>Disabled</strong> to allow direct local IP connections.
+              </p>
+            </div>
+          </div>
+        </div>
 
         <div className="mt-16 text-center space-y-4">
           <div className="flex items-center justify-center gap-2 text-slate-500 text-sm">
@@ -1280,8 +1381,237 @@ export default function FileSharePage() {
             Files are transferred directly between devices using your local network when possible. No files are ever uploaded to any server.
           </p>
         </div>
-
+ 
       </div>
+
+      {/* Settings & Troubleshooting Modal */}
+      <AnimatePresence>
+        {isSettingsOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-slate-900 border border-white/10 rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl"
+            >
+              {/* Modal Header */}
+              <div className="p-6 border-b border-white/5 flex items-center justify-between bg-slate-950/40">
+                <div className="flex items-center gap-2.5">
+                  <Settings className="w-5 h-5 text-indigo-400" />
+                  <h3 className="text-lg font-bold text-white font-sans">Connection Settings</h3>
+                </div>
+                <button
+                  onClick={() => setIsSettingsOpen(false)}
+                  className="p-1.5 hover:bg-white/5 rounded-lg text-slate-400 hover:text-white transition-colors cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Tabs */}
+              <div className="flex border-b border-white/5 bg-slate-950/20">
+                <button
+                  onClick={() => setActiveTab("troubleshoot")}
+                  className={`flex-1 py-3 text-sm font-semibold border-b-2 transition-all cursor-pointer font-sans ${
+                    activeTab === "troubleshoot"
+                      ? "text-indigo-400 border-indigo-500 bg-indigo-500/5"
+                      : "text-slate-400 border-transparent hover:text-slate-200"
+                  }`}
+                >
+                  Troubleshoot Wi-Fi
+                </button>
+                <button
+                  onClick={() => setActiveTab("webrtc")}
+                  className={`flex-1 py-3 text-sm font-semibold border-b-2 transition-all cursor-pointer font-sans ${
+                    activeTab === "webrtc"
+                      ? "text-indigo-400 border-indigo-500 bg-indigo-500/5"
+                      : "text-slate-400 border-transparent hover:text-slate-200"
+                  }`}
+                >
+                  WebRTC Ice Servers
+                </button>
+              </div>
+
+              {/* Modal Content */}
+              <div className="p-6 max-h-[400px] overflow-y-auto custom-scrollbar font-sans">
+                {activeTab === "troubleshoot" && (
+                  <div className="space-y-4">
+                    <div className="bg-slate-800/40 border border-white/5 p-4 rounded-2xl flex gap-3">
+                      <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0" />
+                      <div className="text-xs text-slate-300 leading-relaxed">
+                        <p className="font-bold text-white mb-1 font-sans">Why Wi-Fi fails to connect</p>
+                        Most Wi-Fi networks block peer-to-peer traffic between devices (AP Isolation) or block local hostname resolution (mDNS). While devices "see" each other via cloud signaling, files cannot start transferring.
+                      </div>
+                    </div>
+
+                    <div className="space-y-3.5">
+                      <div className="flex gap-3">
+                        <div className="w-5 h-5 bg-indigo-500/10 text-indigo-400 rounded-full flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">1</div>
+                        <div>
+                          <h4 className="text-sm font-semibold text-white font-sans">Use a Mobile Hotspot (Easiest)</h4>
+                          <p className="text-xs text-slate-400 leading-relaxed mt-0.5 font-sans">
+                            Turn on <strong>Personal Hotspot</strong> on device A and connect device B to it. Because it is a direct gateway connection, WebRTC transfers work at maximum local speeds.
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex gap-3">
+                        <div className="w-5 h-5 bg-indigo-500/10 text-indigo-400 rounded-full flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">2</div>
+                        <div>
+                          <h4 className="text-sm font-semibold text-white font-sans">Configure a Custom TURN Server</h4>
+                          <p className="text-xs text-slate-400 leading-relaxed mt-0.5 font-sans">
+                            If you must use restricted Wi-Fi, add a custom TURN server in the next tab. It relays encrypted file traffic through the cloud when direct routes are blocked.
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex gap-3">
+                        <div className="w-5 h-5 bg-indigo-500/10 text-indigo-400 rounded-full flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">3</div>
+                        <div>
+                          <h4 className="text-sm font-semibold text-white font-sans">Disable WebRTC mDNS Obfuscation</h4>
+                          <p className="text-xs text-slate-400 leading-relaxed mt-0.5 font-sans">
+                            In Chrome-based browsers, search <code>chrome://flags/#enable-webrtc-hide-local-ips-with-mdns</code> and set it to <strong>Disabled</strong> to expose raw local IPs for local direct routing.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === "webrtc" && (
+                  <div className="space-y-6">
+                    <p className="text-xs text-slate-400 leading-relaxed font-sans">
+                      WebRTC uses STUN/TURN servers to establish P2P connections. You can add custom TURN servers (e.g. from Metered.ca free tier, Twilio, or Xirsys) to route files on strict Wi-Fi networks.
+                    </p>
+
+                    {/* Add New Server Form */}
+                    <div className="bg-slate-950/40 border border-white/5 p-4 rounded-2xl space-y-3">
+                      <h4 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5 font-sans">
+                        <Plus className="w-3.5 h-3.5 text-indigo-400" /> Add Custom ICE Server
+                      </h4>
+                      <div>
+                        <label className="text-[10px] text-slate-500 font-bold uppercase tracking-wide font-sans">Server URL (STUN/TURN)</label>
+                        <input
+                          placeholder="e.g. turn:your-server.com:3478 or stun:your-stun.com"
+                          value={newUrl}
+                          onChange={e => setNewUrl(e.target.value)}
+                          className="w-full mt-1 px-3 py-2 bg-slate-900 border border-white/10 rounded-xl text-xs text-white outline-none focus:border-indigo-500 transition-colors font-sans"
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="text-[10px] text-slate-500 font-bold uppercase tracking-wide font-sans">Username (Optional)</label>
+                          <input
+                            placeholder="Username"
+                            value={newUsername}
+                            onChange={e => setNewUsername(e.target.value)}
+                            className="w-full mt-1 px-3 py-2 bg-slate-900 border border-white/10 rounded-xl text-xs text-white outline-none focus:border-indigo-500 transition-colors font-sans"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] text-slate-500 font-bold uppercase tracking-wide font-sans">Credential / Pass (Optional)</label>
+                          <input
+                            placeholder="Password"
+                            type="password"
+                            value={newCredential}
+                            onChange={e => setNewCredential(e.target.value)}
+                            className="w-full mt-1 px-3 py-2 bg-slate-900 border border-white/10 rounded-xl text-xs text-white outline-none focus:border-indigo-500 transition-colors font-sans"
+                          />
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => {
+                          if (!newUrl) return;
+                          const newServer: any = { urls: newUrl.trim() };
+                          if (newUsername.trim()) newServer.username = newUsername.trim();
+                          if (newCredential.trim()) newServer.credential = newCredential.trim();
+                          
+                          const updated = [...customIceServers, newServer];
+                          setCustomIceServers(updated);
+                          localStorage.setItem("sooom-custom-ice-servers", JSON.stringify(updated));
+                          
+                          setNewUrl("");
+                          setNewUsername("");
+                          setNewCredential("");
+                        }}
+                        disabled={!newUrl}
+                        className="w-full py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 text-white font-bold text-xs rounded-xl transition-colors cursor-pointer flex items-center justify-center gap-1.5 font-sans"
+                      >
+                        <Plus className="w-3.5 h-3.5" /> Add Server
+                      </button>
+                    </div>
+
+                    {/* Server List */}
+                    <div className="space-y-2">
+                      <h4 className="text-xs font-bold text-white uppercase tracking-wider font-sans">Active ICE Servers</h4>
+                      <div className="space-y-2 font-sans">
+                        {/* Default STUNs */}
+                        <div className="flex items-center justify-between p-3 bg-slate-950/20 border border-white/5 rounded-xl text-xs">
+                          <div className="min-w-0">
+                            <div className="font-semibold text-slate-300 truncate font-sans">stun:stun.l.google.com:19302</div>
+                            <div className="text-[10px] text-slate-500 font-sans">System Default STUN</div>
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between p-3 bg-slate-950/20 border border-white/5 rounded-xl text-xs">
+                          <div className="min-w-0">
+                            <div className="font-semibold text-slate-300 truncate font-sans">stun:global.stun.twilio.com:3478</div>
+                            <div className="text-[10px] text-slate-500 font-sans">System Default STUN</div>
+                          </div>
+                        </div>
+
+                        {/* Custom Servers */}
+                        {customIceServers.map((srv, idx) => (
+                          <div key={idx} className="flex items-center justify-between p-3 bg-slate-800/40 border border-indigo-500/20 rounded-xl text-xs">
+                            <div className="min-w-0">
+                              <div className="font-semibold text-indigo-300 truncate font-sans">{srv.urls}</div>
+                              {srv.username && <div className="text-[10px] text-slate-400 truncate font-sans">User: {srv.username}</div>}
+                            </div>
+                            <button
+                              onClick={() => {
+                                const updated = customIceServers.filter((_, i) => i !== idx);
+                                setCustomIceServers(updated);
+                                localStorage.setItem("sooom-custom-ice-servers", JSON.stringify(updated));
+                              }}
+                              className="p-1 hover:bg-red-500/20 text-slate-500 hover:text-red-400 rounded transition-colors cursor-pointer"
+                              title="Delete Server"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Modal Footer */}
+              <div className="p-6 border-t border-white/5 flex gap-3 bg-slate-950/40">
+                <button
+                  onClick={() => {
+                    localStorage.removeItem("sooom-custom-ice-servers");
+                    setCustomIceServers([]);
+                    setPeerRestartCount(prev => prev + 1);
+                    setIsSettingsOpen(false);
+                  }}
+                  className="px-4 py-2 border border-slate-700 hover:border-slate-500 text-slate-400 hover:text-white rounded-xl text-xs font-semibold transition-colors cursor-pointer font-sans"
+                >
+                  Reset Defaults
+                </button>
+                <button
+                  onClick={() => {
+                    setPeerRestartCount(prev => prev + 1);
+                    setIsSettingsOpen(false);
+                  }}
+                  className="flex-1 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold transition-colors cursor-pointer flex items-center justify-center font-sans"
+                >
+                  Save & Reconnect
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -22,6 +22,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     // Core static routes
     let routes = [
         "",
+        "/tools",
         "/world",
         "/products/sipsync/guide",
         "/products/sipsync/faq",
