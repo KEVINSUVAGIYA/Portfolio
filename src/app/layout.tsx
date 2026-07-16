@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Spotlight } from "@/components/ui/Spotlight";
@@ -12,25 +12,34 @@ import { VisitorPopup } from "@/components/VisitorPopup";
 
 const inter = Inter({ subsets: ["latin"] });
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#020617",
+};
+
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Kevin Suvagiya | Salesforce Developer",
+    default: "Kevin Suvagiya | Salesforce Developer & LWC Specialist",
     template: "%s | Kevin Suvagiya"
   },
-  description: "Salesforce Developer | Curious Explorer. Building the engines behind Salesforce clouds. Specializing in bi-directional integrations, high-performance LWC, and custom AppExchange solutions.",
+  description: "Salesforce Developer specializing in high-performance LWC, Apex, bi-directional integrations, and custom AppExchange cloud solutions.",
   keywords: ["Salesforce Developer", "LWC", "Apex", "Salesforce Certified", "Web Developer", "React", "Next.js", "Portfolio", "Kevin Suvagiya", "Salesforce Build Release Engineer", "AppExchange", "Lightning Web Components", "SipSync", "HeeraHisaab", "Web Tools", "Real-time Collaboration", "World Clock", "Peer-to-Peer Chat", "JSON Formatter"],
   authors: [{ name: "Kevin Suvagiya", url: SITE_URL }],
   creator: "Kevin Suvagiya",
   applicationName: "Kevin Suvagiya Portfolio",
   robots: { index: true, follow: true },
   alternates: {
-    canonical: SITE_URL,
+    canonical: "/",
+    languages: {
+      "en-US": "/",
+    },
   },
   openGraph: {
-    title: "Kevin Suvagiya | Salesforce Developer",
-    description: "Salesforce Developer | Curious Explorer. Building the engines behind Salesforce clouds.",
-    url: SITE_URL,
+    title: "Kevin Suvagiya | Salesforce Developer & LWC Specialist",
+    description: "Salesforce Developer specializing in high-performance LWC, Apex, bi-directional integrations, and custom AppExchange cloud solutions.",
+    url: "/",
     siteName: "Kevin Suvagiya Portfolio",
     images: [
       {
@@ -45,8 +54,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Kevin Suvagiya | Salesforce Developer",
-    description: "Salesforce Developer & LWC Specialist. View my work and experience.",
+    title: "Kevin Suvagiya | Salesforce Developer & LWC Specialist",
+    description: "Salesforce Developer specializing in high-performance LWC, Apex, bi-directional integrations, and custom AppExchange cloud solutions.",
     creator: "@kevin__suvagiya",
     images: [
       {

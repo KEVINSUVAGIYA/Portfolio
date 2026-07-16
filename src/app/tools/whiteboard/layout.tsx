@@ -10,11 +10,11 @@ export const metadata: Metadata = {
   title: `${toolName} | Sooom Tools`,
   description,
   keywords: ["online whiteboard", "shared canvas drawing", "team collaborative whiteboard", "virtual sketchpad", "real-time whiteboard sharing", "drawing board browser"],
-  alternates: { canonical: url },
+  alternates: { canonical: path },
   openGraph: {
     title: `${toolName} | Sooom Tools`,
     description,
-    url,
+    url: path,
     siteName: "Sooom Tools",
     type: "website",
   },

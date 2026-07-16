@@ -10,11 +10,11 @@ export const metadata: Metadata = {
   title: `${toolName} | Sooom Tools`,
   description,
   keywords: ["color palette generator", "css color picker", "hex code generator", "web design colors", "ui color harmonizer", "contrast checker tool"],
-  alternates: { canonical: url },
+  alternates: { canonical: path },
   openGraph: {
     title: `${toolName} | Sooom Tools`,
     description,
-    url,
+    url: path,
     siteName: "Sooom Tools",
     type: "website",
   },

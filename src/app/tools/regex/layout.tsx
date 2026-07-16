@@ -10,11 +10,11 @@ export const metadata: Metadata = {
   title: `${toolName} | Sooom Tools`,
   description,
   keywords: ["regex tester", "regular expression matcher", "regex debugger", "pattern matching test", "test regex regex101 online", "js regex test"],
-  alternates: { canonical: url },
+  alternates: { canonical: path },
   openGraph: {
     title: `${toolName} | Sooom Tools`,
     description,
-    url,
+    url: path,
     siteName: "Sooom Tools",
     type: "website",
   },

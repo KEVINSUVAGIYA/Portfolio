@@ -10,11 +10,11 @@ export const metadata: Metadata = {
   title: `${toolName} | Sooom Tools`,
   description,
   keywords: ["online timer", "pomodoro stopwatch", "countdown alarm", "custom timer browser", "lap stopwatch", "study focus timer"],
-  alternates: { canonical: url },
+  alternates: { canonical: path },
   openGraph: {
     title: `${toolName} | Sooom Tools`,
     description,
-    url,
+    url: path,
     siteName: "Sooom Tools",
     type: "website",
   },

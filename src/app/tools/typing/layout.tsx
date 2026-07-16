@@ -10,11 +10,11 @@ export const metadata: Metadata = {
   title: `${toolName} | Sooom Tools`,
   description,
   keywords: ["typing speed test", "wpm test", "check typing accuracy", "words per minute calculator", "typing practice online", "keyboard speed test"],
-  alternates: { canonical: url },
+  alternates: { canonical: path },
   openGraph: {
     title: `${toolName} | Sooom Tools`,
     description,
-    url,
+    url: path,
     siteName: "Sooom Tools",
     type: "website",
   },

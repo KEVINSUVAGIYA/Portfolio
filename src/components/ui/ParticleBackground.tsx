@@ -19,7 +19,8 @@ export const ParticleBackground = () => {
         let height = canvas.height = window.innerHeight;
 
         // Configuration
-        const particleCount = Math.floor((width * height) / 3500);
+        const densityDivider = width < 768 ? 6000 : 3500;
+        let particleCount = Math.floor((width * height) / densityDivider);
         const gravity = 0.5;
         const windSensitivity = 0.05;
 
@@ -48,6 +49,9 @@ export const ParticleBackground = () => {
             width = canvas.width = window.innerWidth;
             height = canvas.height = window.innerHeight;
             particles.length = 0;
+
+            const currentDivider = width < 768 ? 6000 : 3500;
+            particleCount = Math.floor((width * height) / currentDivider);
 
             for (let i = 0; i < particleCount; i++) {
                 resetParticle({}, true);
@@ -117,10 +121,10 @@ export const ParticleBackground = () => {
             bounceY = e.clientY;
         };
 
-        window.addEventListener("mousemove", handleMouseMove);
-        window.addEventListener("resize", init);
-        window.addEventListener("scroll", handleScroll);
-        window.addEventListener("click", handleClick);
+        window.addEventListener("mousemove", handleMouseMove, { passive: true });
+        window.addEventListener("resize", init, { passive: true });
+        window.addEventListener("scroll", handleScroll, { passive: true });
+        window.addEventListener("click", handleClick, { passive: true });
 
         let animationFrameId: number;
         const animate = () => {
@@ -137,12 +141,22 @@ export const ParticleBackground = () => {
                 // 1. Passive Cursor Interaction
                 const dx = mouseX - p.x;
                 const dy = mouseY - p.y;
-                const dist = Math.sqrt(dx * dx + dy * dy);
+                const distSq = dx * dx + dy * dy;
+                const spotlightRadius = 300;
+                const maxRadiusSq = spotlightRadius * spotlightRadius;
+
+                let dist = 0;
+                let inRange = false;
+
+                if (distSq < maxRadiusSq) {
+                    dist = Math.sqrt(distSq);
+                    inRange = true;
+                }
 
                 let interactionX = 0;
                 let interactionY = 0;
 
-                if (dist < pulseRadius) {
+                if (inRange && dist < pulseRadius) {
                     const angle = Math.atan2(dy, dx);
                     const force = (pulseRadius - dist) / pulseRadius;
 
@@ -165,12 +179,13 @@ export const ParticleBackground = () => {
                 if (bounceActive > 0) {
                     const bdx = bounceX - p.x;
                     const bdy = bounceY - p.y;
-                    const bDist = Math.sqrt(bdx * bdx + bdy * bdy);
-                    const bubbleRadius = 150;
+                    const bdistSq = bdx * bdx + bdy * bdy;
+                    const bubbleRadiusSq = 150 * 150;
 
-                    if (bDist < bubbleRadius) {
+                    if (bdistSq < bubbleRadiusSq) {
+                        const bDist = Math.sqrt(bdistSq);
                         const angle = Math.atan2(bdy, bdx);
-                        const force = (bubbleRadius - bDist) / bubbleRadius;
+                        const force = (150 - bDist) / 150;
                         const strength = force * 2 * (bounceActive / 20);
 
                         bubbleForceX = -Math.cos(angle) * strength;
@@ -221,20 +236,12 @@ export const ParticleBackground = () => {
                 const scrollStretch = Math.abs(scrollVelocity) * 0.15;
                 const totalStretch = Math.max(1, Math.min(3.0, 1 + (speed - 0.5) * 0.05 + scrollStretch));
 
-                // Spotlight Alpha
-                // Calculate distance to mouse for spotlight effect
-                // Reuse existing dist if available or re-calculate
-                const spotlightDx = mouseX - p.x;
-                const spotlightDy = mouseY - p.y;
-                const distToMouse = Math.sqrt(spotlightDx * spotlightDx + spotlightDy * spotlightDy);
-                const spotlightRadius = 300; // Larger area for spotlight
-
                 // Base subtle alpha
                 // Increased from 0.3 to 0.5 for better visibility in non-spotlight areas
                 let dynamicAlpha = p.alpha * 0.5;
 
-                if (distToMouse < spotlightRadius) {
-                    const spotlightIntensity = (spotlightRadius - distToMouse) / spotlightRadius;
+                if (inRange && dist < spotlightRadius) {
+                    const spotlightIntensity = (spotlightRadius - dist) / spotlightRadius;
                     // Boost alpha based on proximity, up to original alpha or slightly higher
                     dynamicAlpha += spotlightIntensity * 0.5;
                 }

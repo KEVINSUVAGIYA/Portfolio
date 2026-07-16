@@ -6,12 +6,12 @@ export const metadata: Metadata = {
   description: "Explore the Spirit World, an immersive 3D interactive WebGL playground built by Kevin Suvagiya using React Three Fiber, Three.js, and custom shaders.",
   keywords: ["Three.js", "React Three Fiber", "3D WebGL", "Interactive Web Playground", "Creative Coding", "Kevin Suvagiya", "Spirit World 3D"],
   alternates: {
-    canonical: `${SITE_URL}/world`,
+    canonical: "/world",
   },
   openGraph: {
     title: "The Spirit World | 3D Interactive WebGL Playground | Kevin Suvagiya",
     description: "Explore the Spirit World, an immersive 3D interactive WebGL playground built by Kevin Suvagiya using React Three Fiber, Three.js, and custom shaders.",
-    url: `${SITE_URL}/world`,
+    url: "/world",
     siteName: "Kevin Suvagiya Portfolio",
     type: "website",
   },

@@ -8,7 +8,7 @@ import { Compass } from "lucide-react";
 
 export function OrbitalNav() {
     const activeSection = useActiveSection(sectionIds);
-    const [isHovered, setIsHovered] = useState(false);
+    const [isOpen, setIsOpen] = useState(false);
     const [hoveredSection, setHoveredSection] = useState<string | null>(null);
 
     const activeIndex = sections.findIndex(s => s.id === activeSection) || 0;
@@ -22,15 +22,19 @@ export function OrbitalNav() {
 
     return (
         <div 
-            className={`fixed bottom-12 right-12 z-[100] w-96 h-96 flex items-end justify-end ${isHovered ? 'pointer-events-auto' : 'pointer-events-none'}`}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
+            className={`fixed bottom-6 right-6 md:bottom-12 md:right-12 z-[100] w-96 h-96 flex items-end justify-end ${isOpen ? 'pointer-events-auto' : 'pointer-events-none'}`}
+            onMouseEnter={() => setIsOpen(true)}
+            onMouseLeave={() => setIsOpen(false)}
         >
             <div className="relative w-16 h-16 pointer-events-auto">
                 {/* Main Orb */}
                 <motion.div
                     className="absolute inset-0 bg-slate-900 border border-slate-700 rounded-full shadow-[0_0_30px_rgba(99,102,241,0.2)] flex items-center justify-center text-indigo-400 z-10 cursor-pointer backdrop-blur-md"
                     whileHover={{ scale: 1.1 }}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        setIsOpen(!isOpen);
+                    }}
                 >
                     <AnimatePresence mode="wait">
                         <motion.div
@@ -47,7 +51,7 @@ export function OrbitalNav() {
 
                 {/* Orbital Nodes */}
                 <AnimatePresence>
-                    {isHovered && (
+                    {isOpen && (
                         <div className="absolute inset-0">
                             {/* Sparkling Orbit Effects */}
                             <AnimatePresence>
@@ -100,7 +104,7 @@ export function OrbitalNav() {
                                         onMouseLeave={() => setHoveredSection(null)}
                                         onPointerDown={(e) => {
                                             e.preventDefault();
-                                            setIsHovered(false);
+                                            setIsOpen(false);
                                             scrollTo(section.id);
                                         }}
                                         initial={{ opacity: 0, x: 0, y: 0, scale: 0 }}
