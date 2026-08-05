@@ -24,9 +24,9 @@ const products = [
     },
     {
         name: "Salesforce SmartKit",
-        tagline: "The Ultimate Admin Extension",
+        tagline: "Admin & Developer Command Center",
         description:
-            "A premium, glassmorphic Chrome Extension that turns Salesforce into a state-of-the-art workspace with a SOQL IDE, SmartEdit, and Command Palette.",
+            "A premium Chrome Extension providing 9 integrated tools with 0ms session connect, SOQL IDE, SmartEdit, SmartSchema, and Command Palette.",
         logo: `${BASE_PATH}/products/salesforcesmartkit-logo.png`,
         href: "/products/salesforcesmartkit",
         platform: "Chrome Extension",

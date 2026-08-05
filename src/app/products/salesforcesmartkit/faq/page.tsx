@@ -3,34 +3,50 @@ import Link from "next/link";
 import { ArrowLeft, MessageCircleQuestion, ExternalLink, BookOpen, Shield, Database, LayoutGrid } from "lucide-react";
 
 export const metadata: Metadata = {
-    title: "FAQs — Salesforce SmartKit | Ultimate Admin Extension",
-    description: "Frequently Asked Questions about Salesforce SmartKit Chrome extension.",
+    title: "FAQs — Salesforce SmartKit | Ultimate Admin & Developer Extension",
+    description: "Exhaustive Frequently Asked Questions about Salesforce SmartKit Chrome extension.",
 };
 
 const faqs = [
     {
-        q: "How do I extract relationship data (like an Account Owner's Email)?",
-        a: "Use the SmartExport (Data) Tab. When you run a query that includes related fields, SmartKit will automatically format the data so you can export a clean, organized CSV instantly.",
+        q: "Does SmartKit store my Salesforce data on external servers?",
+        a: "No. SmartKit operates 100% locally within your Chrome browser. Your session tokens, queries, and record data are transported directly between your machine and Salesforce's official servers. Zero data is sent to third-party servers.",
     },
     {
-        q: "Can I mass import data without using external tools?",
-        a: "Yes! Use the SmartImport Tab. Just paste your CSV data directly in the browser, select your object, and SmartKit will rapidly create or update the records for you, providing a clear success and error report.",
+        q: "How does SmartKit authenticate into my Salesforce org?",
+        a: "SmartKit uses 0ms Session Token Extraction (`sid` cookie). When you log into Salesforce in Chrome, SmartKit securely captures the active session cookie to make authorized REST/Tooling API calls on your behalf. No passwords or OAuth keys are stored.",
     },
     {
-        q: "How can I check who has access to a specific field?",
-        a: "Navigate to the SmartSecurity (Permissions) Tab. Select the Object and the Field, and SmartKit will instantly show you a clear list of all Profiles, Permission Sets, and specific Users who have access to that field.",
+        q: "What happens when my Salesforce session expires?",
+        a: "If your Salesforce session times out due to inactivity, API requests will return 401 Unauthorized. Simply refresh your Salesforce browser tab or log back in to renew the active session.",
     },
     {
-        q: "How do I execute quick Apex scripts?",
-        a: "Open the SmartCode (Dev) Tab. You can write and run Apex scripts in a clean interface and immediately view your recent Debug Logs without having to open the slow Developer Console.",
+        q: "How do I open the floating sidebar drawer on a Salesforce page?",
+        a: "Press ⌘ + Shift + K (Mac) or Ctrl + Shift + K (Windows), or click the pull-string widget floating on the right edge of any Salesforce screen.",
     },
     {
-        q: "How to navigate the Salesforce Setup menu faster?",
-        a: "Hit Cmd+K (or Ctrl+K) anywhere inside SmartKit to open the Command Palette. Instantly search for Setup pages, Users, or Profiles, and hit Enter to jump right to them.",
+        q: "How do I switch master tabs using keyboard shortcuts?",
+        a: "Use Level 1 Navigation: ⌘ + Shift + ← or ⌘ + Shift + → (Ctrl + Shift + ← / → on Windows) to cycle sequentially through all 9 master tabs (SmartView ↔ SmartExport ↔ SmartImport ↔ SmartSchema ↔ SmartSecurity ↔ SmartCode ↔ SmartLimits ↔ SmartMatch ↔ SmartMetadata).",
     },
     {
-        q: "Does Salesforce SmartKit collect my data?",
-        a: "No. Everything operates locally using your browser's active session. SmartKit does not have a backend server, database, or analytics tracking mechanism. We do not track your usage, queries, or personal information.",
+        q: "How do I cycle through open record tabs or query sub-tabs?",
+        a: "Use Level 2 Navigation: ⌘ + Option + Shift + ← / → (Ctrl + Alt + Shift + ← / → on Windows). Active sub-tabs automatically scroll into view smoothly.",
+    },
+    {
+        q: "How does the Escape (Esc) key work when multiple windows or modals are open?",
+        a: "SmartKit uses hierarchical Esc key handling: 1st Esc press closes the active open modal overlay (e.g. Keyboard Shortcuts modal, User Menu); 2nd Esc press closes the sidebar drawer.",
+    },
+    {
+        q: "Why does SmartExport flatten relationship queries like SELECT Account.Name FROM Contact?",
+        a: "Standard Salesforce API responses return nested JSON objects for parent fields. SmartExport flattens these into clean tabular columns (e.g. Account.Name) so data can be viewed and exported to CSV/Excel cleanly without JSON formatting clutter.",
+    },
+    {
+        q: "Can I edit system fields like CreatedDate or Formula fields in SmartView?",
+        a: "No. Fields flagged as updateable: false by Salesforce's API (Formulas, System Dates, Auto-Numbers) are locked permanently in the UI to prevent API DML errors.",
+    },
+    {
+        q: "How do I switch between connected Salesforce org accounts?",
+        a: "Click your profile picture avatar in the top-right header to open the Multi-Org Account Switcher. Select any active connected org tab to switch contexts instantly in 0 milliseconds.",
     },
 ];
 
@@ -57,7 +73,7 @@ export default function SalesforceSmartKitFaqPage() {
                     Frequently Asked Questions
                 </h1>
                 <p className="text-xl text-slate-400 max-w-2xl mx-auto">
-                    Common use cases and questions about using Salesforce SmartKit to boost productivity.
+                    Exhaustive guide to security, authentication, shortcuts, and data operations in Salesforce SmartKit.
                 </p>
             </header>
 
@@ -110,6 +126,7 @@ export default function SalesforceSmartKitFaqPage() {
                                         <h3 className="text-white font-semibold">Privacy Policy</h3>
                                         <p className="text-slate-500 text-sm">Data & security details</p>
                                     </div>
+                                    <ExternalLink size={16} className="text-slate-600 group-hover:text-indigo-500 transition-colors" />
                                 </Link>
                                 <Link
                                     href="/products/salesforcesmartkit"
@@ -147,7 +164,7 @@ export default function SalesforceSmartKitFaqPage() {
                             </div>
                             <h2 className="text-2xl font-bold text-white mb-3">Still have questions?</h2>
                             <p className="text-slate-400 mb-8 max-w-xs">
-                                If you can't find an answer, reach out directly through my contact form.
+                                If you can&apos;t find an answer, reach out directly through my contact form.
                             </p>
                             <Link
                                 href="/#contact"
@@ -162,3 +179,4 @@ export default function SalesforceSmartKitFaqPage() {
         </div>
     );
 }
+

@@ -38,7 +38,7 @@ export default function SalesforceSmartKitPrivacyPage() {
                 />
                 <div>
                     <h2 className="text-white font-semibold">Salesforce SmartKit</h2>
-                    <p className="text-slate-400 text-sm">The Ultimate Admin Tool · Chrome Extension</p>
+                    <p className="text-slate-400 text-sm">Ultimate Admin & Developer Command Center · Chrome Extension</p>
                 </div>
             </div>
 
@@ -51,7 +51,7 @@ export default function SalesforceSmartKitPrivacyPage() {
                     </h1>
                 </div>
                 <p className="text-slate-500 text-sm mt-2">
-                    Effective Date: May 2026 · Version 1.0.0
+                    Effective Date: August 2026 · Version 1.0.13
                 </p>
             </div>
 

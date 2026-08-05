@@ -21,7 +21,23 @@ import {
     Sparkles,
     Send,
     Loader2,
-    X
+    X,
+    Gauge,
+    GitCompare,
+    Boxes,
+    Command,
+    Zap,
+    Layout,
+    PanelRightClose,
+    Layers,
+    SlidersHorizontal,
+    Rocket,
+    Smile,
+    TableProperties,
+    LockKeyhole,
+    Pin,
+    Flame,
+    Quote,
 } from "lucide-react";
 import { BASE_PATH } from "@/lib/constants";
 import { TiltCard } from "@/components/ui/TiltCard";
@@ -32,78 +48,171 @@ import { SectionHeader } from "@/components/ui/SectionHeader";
 const features = [
     {
         icon: Eye,
-        title: "SmartView (Records)",
+        title: "SmartView (Record Inspector)",
+        color: "#f43f5e",
         description:
-            "A powerful interface to view, edit, and analyze specific Salesforce records. Instantly navigate to fields in Object Manager.",
+            "Multi-tab record sessions with SmartEdit inline editing, picklist search, field filter chips, hover API names/formulas, and Setup links.",
     },
     {
         icon: Database,
-        title: "SmartExport (Data)",
+        title: "SmartExport (SOQL Query IDE)",
+        color: "#10b981",
         description:
-            "A professional SOQL editor with Monaco. Features intellisense, batch limit processing, and instant CSV exports of flattened relationship data.",
+            "Monaco editor with intellisense, multi-tab query workspaces, Composite API chunking for 2,000+ records, and parent relationship CSV flattening.",
     },
     {
         icon: ArrowUpFromLine,
-        title: "SmartImport",
+        title: "SmartImport (Data Loader)",
+        color: "#f59e0b",
         description:
-            "Fast, client-side CSV parsing and data insertion. Bulkify your record creation and updates directly from the browser.",
+            "Client-side bulk data loader supporting INSERT, UPDATE, UPSERT, DELETE via SObject Collections API (up to 200/payload) with error logs.",
     },
     {
         icon: Network,
-        title: "SmartSchema",
+        title: "SmartSchema (Metadata Browser)",
+        color: "#06b6d4",
         description:
-            "Inspect database architecture instantly. View fields, evaluate Master-Detail relationships, and deep link into Object Manager.",
+            "Browse sObjects, custom fields, picklists, and child relationships with cascade delete rules and 1-click SOQL query generation.",
     },
     {
         icon: ShieldAlert,
-        title: "SmartSecurity",
+        title: "SmartSecurity (Access Analyzer)",
+        color: "#8b5cf6",
         description:
-            "Rapidly audit field access across Profiles and Permission Sets to see EXACTLY who has access to what data.",
+            "Audit Effective FLS & Object permissions (Read, Edit, Create, Delete), Permission Set/Profile matrix breakdown, and user access trace.",
     },
     {
         icon: Code,
-        title: "SmartCode",
+        title: "SmartCode (Web IDE)",
+        color: "#6366f1",
         description:
-            "Developer console alternative. Execute Anonymous Apex in a clean editor environment and view recent Debug Logs instantly.",
+            "Execute Anonymous Apex with inline compilation error highlighting (line/column), edit Apex/LWC/VF pages, and inspect live Debug Logs.",
     },
     {
-        icon: Search,
-        title: "SmartSearch (Cmd+K)",
+        icon: Gauge,
+        title: "SmartLimits (Limits Monitor)",
+        color: "#0ea5e9",
         description:
-            "Hit Cmd+K to launch the Command Palette. Search metadata, Setup pages, or tools, and navigate 10x faster.",
+            "Monitor real-time Salesforce API call limits, storage usage, and system governor quotas with visual gauge bars.",
     },
     {
-        icon: Sidebar,
-        title: "Native Injection",
+        icon: GitCompare,
+        title: "SmartMatch (Deduplication Tool)",
+        color: "#be185d",
         description:
-            "A non-intrusive 'pull-string' sidebar toggle injected directly into Salesforce UI. Operates totally locally via your active session ID.",
+            "Detect duplicate records using matching rules, compare field values side-by-side, and initiate record deduplication.",
     },
+    {
+        icon: Boxes,
+        title: "SmartMetadata (Deployment Engine)",
+        color: "#f97316",
+        description:
+            "Inter-org metadata packaging and deployment (BETA) with dry-run validations, Apex permission handling, and pre-deployment backups.",
+    },
+];
+
+const standoutUseCases = [
+    {
+        badge: "SmartExport",
+        tagline: "Warp-Speed SOQL Exports",
+        question: "Data export takes forever in standard tools?",
+        answer: "Our SOQL engine fetches data at maximum speed via Composite API chunking so you don't waste half your day staring at spinners. Don't believe it? Time it yourself!",
+        color: "#10b981",
+        icon: Rocket,
+    },
+    {
+        badge: "SmartExport & SmartView",
+        tagline: "Zero Parent-Child Export Stress",
+        question: "Often feel stressed reviewing child records in data exports?",
+        answer: "Standard data exports cram child records into the same row with messy duplicate columns—reviewing it is painful. We built a simplified parent-child hierarchy view so you can review and happily enjoy child records for each parent record at a glance!",
+        color: "#f43f5e",
+        icon: Smile,
+    },
+    {
+        badge: "SmartImport",
+        tagline: "Import Without Excel Sheets",
+        question: "Want to import just 5 records without making an Excel sheet?",
+        answer: "Why move mountains for a quick record import? Create grid tables right inside the extension, paste rows, edit cells inline, and hit insert. We've got you covered!",
+        color: "#f59e0b",
+        icon: TableProperties,
+    },
+    {
+        badge: "SmartSecurity",
+        tagline: "The 182 Permission Sets Mystery",
+        question: "Who gave this user Edit access across 182 PS, 20 PS Groups & Profile?!",
+        answer: "Stop playing detective across 182 Permission Sets and 20 PS Groups! SmartSecurity traces effective access in 1 click and exposes the exact culprit instantly.",
+        color: "#8b5cf6",
+        icon: LockKeyhole,
+    },
+    {
+        badge: "SmartLimits",
+        tagline: "Pin Your Limits, Commander",
+        question: "Tired of hunting through Setup just to check an org limit?",
+        answer: "Pin your favorite limits right to the top! SmartKit fetches them instantly from any universe and brings them front and center, Commander.",
+        color: "#0ea5e9",
+        icon: Pin,
+    },
+    {
+        badge: "SmartMetadata",
+        tagline: "Multi-Object Field Deployments",
+        question: "Creating the same field on 3 objects giving you a heart attack?",
+        answer: "Become smart and use SmartKit! Deploy custom fields across multiple objects simultaneously—complete with FLS permissions and zero headache.",
+        color: "#f97316",
+        icon: Flame,
+    },
+];
+
+const accessModes = [
+    {
+        icon: PanelRightClose,
+        title: "Floating Sidebar Drawer",
+        description: "Glides open natively on any Salesforce tab via pull-string widget or ⌘ + Shift + K.",
+    },
+    {
+        icon: Layout,
+        title: "Chrome Side Panel",
+        description: "Pins vertically alongside your browser window for side-by-side multitasking.",
+    },
+    {
+        icon: MonitorPlay,
+        title: "Full Extension App Tab",
+        description: "Full-screen workspace featuring Monaco IDE capabilities and multi-tab sessions.",
+    },
+];
+
+const shortcuts = [
+    { key: "⌘ + K", action: "Open Command Palette (Search metadata, objects, setup pages)" },
+    { key: "⌘ + Shift + K", action: "Toggle Floating Sidebar Drawer on Salesforce tabs" },
+    { key: "⌘ + Shift + ← / →", action: "Level 1: Cycle 9 Master App Tabs" },
+    { key: "⌘ + Option + Shift + ← / →", action: "Level 2: Cycle Record & Query Sub-Tabs" },
+    { key: "⌘ + S", action: "Save Record Edits in SmartView" },
+    { key: "⌘ + Enter", action: "Execute SOQL Query or Anonymous Apex Script" },
 ];
 
 const steps = [
     {
         step: "01",
-        title: "Install Extension",
-        description: "Add Salesforce SmartKit to Chrome and log into any Org.",
+        title: "Install & Pin",
+        description: "Add Salesforce SmartKit to Chrome and pin to your toolbar or launch inside Salesforce.",
         icon: <ExternalLink className="text-indigo-400" />
     },
     {
         step: "02",
-        title: "Pull The Toggle",
-        description: "Click the floating avatar injected into Salesforce to reveal the SmartKit side panel.",
-        icon: <Sidebar className="text-blue-400" />
+        title: "0ms Session Auto-Connect",
+        description: "Instant session token extraction (`sid`) connects without connected apps, tokens, or loading spinners.",
+        icon: <Zap className="text-amber-400" />
     },
     {
         step: "03",
-        title: "Choose a Tool",
-        description: "Select from 6 powerful 'Smart' tabs including Data, Import, Schema, and Security.",
+        title: "Access 9 Smart Tools",
+        description: "Switch seamlessly between SmartView, SmartExport, SmartImport, SmartSchema, SmartSecurity, SmartCode, SmartLimits, SmartMatch, & SmartMetadata.",
         icon: <Database className="text-emerald-400" />
     },
     {
         step: "04",
-        title: "Navigate Faster",
-        description: "Press Cmd+K anytime to open the Command Palette and bypass the slow Lightning UI.",
-        icon: <Search className="text-violet-400" />
+        title: "Master Keyboard Speed",
+        description: "Use ⌘+K Command Palette, 2-level tab shortcuts, and Multi-Org switcher to boost productivity 10x.",
+        icon: <Command className="text-violet-400" />
     },
 ];
 
@@ -187,10 +296,10 @@ export function SalesforceSmartKitPage() {
                                 Salesforce <span className="text-indigo-500">SmartKit</span>
                             </h1>
                             <p className="text-2xl md:text-3xl text-slate-300 font-medium mb-8">
-                                The Ultimate Admin Extension
+                                Ultimate Admin & Developer Command Center
                             </p>
-                            <p className="text-slate-400 text-lg max-w-2xl mx-auto mb-12 leading-relaxed">
-                                A premium, glassmorphic Chrome Extension providing 6 major tools—SmartView, SmartExport, SmartImport, SmartSchema, SmartSecurity, and SmartCode—injected directly into your Salesforce session.
+                            <p className="text-slate-400 text-lg max-w-3xl mx-auto mb-12 leading-relaxed">
+                                A premium, glassmorphic Chrome Extension providing 9 major tools—SmartView, SmartExport, SmartImport, SmartSchema, SmartSecurity, SmartCode, SmartLimits, SmartMatch, and SmartMetadata—with 0ms instant session connect.
                             </p>
                         </motion.div>
 
@@ -200,7 +309,7 @@ export function SalesforceSmartKitPage() {
                             transition={{ delay: 0.3 }}
                             className="flex flex-wrap items-center justify-center gap-3 mb-12"
                         >
-                            {["Chrome Extension", "React + Vite", "100% Local & Private"].map((tag) => (
+                            {["Chrome Extension v1.0.13", "0ms Instant Load", "9 Integrated Tools", "100% Local & Private"].map((tag) => (
                                 <span key={tag} className="px-5 py-2 rounded-full bg-slate-900/60 border border-slate-800 text-slate-300 text-sm font-semibold flex items-center gap-2">
                                     <CheckCircle2 size={14} className="text-indigo-400" />
                                     {tag}
@@ -257,23 +366,93 @@ export function SalesforceSmartKitPage() {
                     </div>
                 </section>
 
-                {/* Features Section */}
-                <section id="features" className="mb-40">
-                    <SectionHeader title="Everything you need" watermark="FEATURES" />
+                {/* Standout Features / Real-World Superpowers */}
+                <section id="superpowers" className="mb-32">
+                    <SectionHeader title="Real-World Superpowers" watermark="SOLUTIONS" />
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {standoutUseCases.map((uc, idx) => (
+                            <motion.div
+                                key={uc.tagline}
+                                initial={{ opacity: 0, y: 30 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: idx * 0.08 }}
+                            >
+                                <TiltCard className="h-full">
+                                    <div className="h-full p-8 rounded-3xl bg-slate-900/50 border border-slate-800/80 hover:border-indigo-500/40 transition-all group backdrop-blur-md shadow-2xl flex flex-col justify-between relative overflow-hidden">
+                                        <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-15 transition-opacity pointer-events-none">
+                                            <uc.icon size={120} style={{ color: uc.color }} />
+                                        </div>
+
+                                        <div>
+                                            <div className="flex items-center justify-between mb-6">
+                                                <span
+                                                    className="px-3.5 py-1.5 rounded-full text-xs font-mono font-bold border"
+                                                    style={{
+                                                        backgroundColor: `${uc.color}15`,
+                                                        borderColor: `${uc.color}35`,
+                                                        color: uc.color,
+                                                    }}
+                                                >
+                                                    {uc.badge}
+                                                </span>
+                                                <div
+                                                    className="w-10 h-10 rounded-xl flex items-center justify-center border"
+                                                    style={{
+                                                        backgroundColor: `${uc.color}15`,
+                                                        borderColor: `${uc.color}30`,
+                                                    }}
+                                                >
+                                                    <uc.icon size={20} style={{ color: uc.color }} />
+                                                </div>
+                                            </div>
+
+                                            <h3 className="text-xl font-bold text-white mb-3">
+                                                {uc.tagline}
+                                            </h3>
+
+                                            <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/60 mb-4">
+                                                <p className="text-sm text-indigo-300 font-semibold italic flex items-start gap-2">
+                                                    <Quote size={16} className="text-indigo-400 shrink-0 mt-0.5" />
+                                                    "{uc.question}"
+                                                </p>
+                                            </div>
+
+                                            <p className="text-slate-300 text-sm leading-relaxed font-medium">
+                                                {uc.answer}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </TiltCard>
+                            </motion.div>
+                        ))}
+                    </div>
+                </section>
+
+                {/* Features Section */}
+                <section id="features" className="mb-32">
+                    <SectionHeader title="9 Integrated Power Tools" watermark="FEATURES" />
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {features.map((feature, idx) => (
                             <motion.div
                                 key={feature.title}
                                 initial={{ opacity: 0, y: 30 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
-                                transition={{ delay: idx * 0.1 }}
+                                transition={{ delay: idx * 0.08 }}
                             >
                                 <TiltCard className="h-full">
                                     <div className="h-full p-8 rounded-3xl bg-slate-900/40 border border-slate-800/60 hover:border-indigo-500/30 transition-all group backdrop-blur-sm shadow-xl">
-                                        <div className={`w-14 h-14 rounded-2xl bg-indigo-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500 border border-indigo-500/10`}>
-                                            <feature.icon size={28} className="text-indigo-400" />
+                                        <div
+                                            className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500 border"
+                                            style={{
+                                                backgroundColor: `${feature.color}15`,
+                                                borderColor: `${feature.color}30`,
+                                            }}
+                                        >
+                                            <feature.icon size={28} style={{ color: feature.color }} />
                                         </div>
                                         <h3 className="text-xl font-bold text-white mb-3">
                                             {feature.title}
@@ -285,6 +464,64 @@ export function SalesforceSmartKitPage() {
                                 </TiltCard>
                             </motion.div>
                         ))}
+                    </div>
+                </section>
+
+                {/* Access Modes & Keyboard Shortcuts */}
+                <section className="mb-32">
+                    <SectionHeader title="Access Modes & Shortcuts" watermark="NAVIGATE" />
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        {/* Access Modes */}
+                        <motion.div
+                            initial={{ opacity: 0, x: -30 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true }}
+                            className="p-8 rounded-3xl bg-slate-900/40 border border-slate-800/60 backdrop-blur-sm"
+                        >
+                            <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                                <Layout className="text-indigo-400" size={24} />
+                                3 Flexible Access Modes
+                            </h3>
+                            <div className="space-y-4">
+                                {accessModes.map((mode) => (
+                                    <div key={mode.title} className="p-4 rounded-2xl bg-slate-950/50 border border-slate-800/80 flex items-start gap-4">
+                                        <div className="p-3 rounded-xl bg-indigo-500/10 text-indigo-400 shrink-0">
+                                            <mode.icon size={20} />
+                                        </div>
+                                        <div>
+                                            <h4 className="text-white font-bold">{mode.title}</h4>
+                                            <p className="text-slate-400 text-sm">{mode.description}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </motion.div>
+
+                        {/* Keyboard Shortcuts */}
+                        <motion.div
+                            initial={{ opacity: 0, x: 30 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true }}
+                            className="p-8 rounded-3xl bg-slate-900/40 border border-slate-800/60 backdrop-blur-sm"
+                        >
+                            <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                                <Command className="text-violet-400" size={24} />
+                                Master Keyboard Speed
+                            </h3>
+                            <div className="space-y-3">
+                                {shortcuts.map((sc) => (
+                                    <div key={sc.key} className="p-3.5 rounded-xl bg-slate-950/50 border border-slate-800/80 flex items-center justify-between gap-4">
+                                        <span className="text-xs font-mono font-bold px-3 py-1.5 rounded-lg bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 shrink-0">
+                                            {sc.key}
+                                        </span>
+                                        <span className="text-slate-300 text-xs md:text-sm text-right font-medium">
+                                            {sc.action}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+                        </motion.div>
                     </div>
                 </section>
 
