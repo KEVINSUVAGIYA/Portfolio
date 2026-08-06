@@ -276,13 +276,13 @@ export function SalesforceSmartKitPage() {
                             transition={{ duration: 0.5 }}
                             className="relative mb-10"
                         >
-                            <div className="absolute inset-0 bg-indigo-400/20 blur-2xl rounded-3xl" />
+                            <div className="absolute inset-0 bg-indigo-400/20 blur-2xl rounded-[38px]" />
                             <Image
                                 src={`${BASE_PATH}/products/salesforcesmartkit-logo.png`}
                                 alt="Salesforce SmartKit Logo"
                                 width={160}
                                 height={160}
-                                className="relative rounded-3xl shadow-2xl border border-indigo-500/20"
+                                className="relative rounded-[38px] shadow-2xl border border-indigo-500/30"
                                 priority
                             />
                         </motion.div>

@@ -34,7 +34,7 @@ export default function SalesforceSmartKitPrivacyPage() {
                     alt="Salesforce SmartKit Logo"
                     width={48}
                     height={48}
-                    className="rounded-lg"
+                    className="rounded-xl"
                 />
                 <div>
                     <h2 className="text-white font-semibold">Salesforce SmartKit</h2>

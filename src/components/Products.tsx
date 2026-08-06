@@ -129,7 +129,7 @@ export const Products = () => {
                                     <div className="relative z-10 flex flex-col h-full">
                                         {/* Header row: logo + platform badge */}
                                         <div className="flex items-start justify-between mb-6">
-                                            <div className="w-16 h-16 rounded-xl overflow-hidden bg-slate-800/50 border border-slate-700 flex-shrink-0 group-hover:scale-110 group-hover:rotate-2 transition-all duration-500 group-hover:shadow-lg"
+                                            <div className={`w-16 h-16 ${product.name === "Salesforce SmartKit" ? "rounded-2xl" : "rounded-xl"} overflow-hidden bg-slate-800/50 border border-slate-700 flex-shrink-0 group-hover:scale-110 group-hover:rotate-2 transition-all duration-500 group-hover:shadow-lg`}
                                                 style={{
                                                     boxShadow: `0 0 0px ${product.accentColor}00`,
                                                 }}
