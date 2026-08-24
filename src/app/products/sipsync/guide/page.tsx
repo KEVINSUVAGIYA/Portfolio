@@ -111,7 +111,7 @@ export default function SipSyncGuidePage() {
                     <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-6">
                         <ul className="list-disc list-inside space-y-2">
                             <li><strong>Reminder Delivery:</strong> Toggle OS Notifications and/or Reminder Pop-up on or off. You can enable <strong>one or both</strong> simultaneously.</li>
-                            <li><strong>Sound Effects:</strong> SipSync features a custom sound for reminders and a special celebration sound when you reach 100% of your daily goal. Toggle all sounds on or off here.</li>
+                            <li><strong>Customizable Sound Effects:</strong> Choose from curated sound effect presets (General, Water Sounds, and Funny & Meme sounds) or upload your own custom audio file (up to 1MB). Preview sound effects directly before choosing, and use full controls to enable or disable sounds anytime.</li>
                             <li><strong>Glass Size:</strong> Configure your glass size (default: 200ml, max: 1000ml). All &quot;Drink&quot; buttons across the extension — including notifications — will use this value.</li>
                         </ul>
                     </div>

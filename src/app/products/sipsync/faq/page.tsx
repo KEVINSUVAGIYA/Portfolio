@@ -32,6 +32,10 @@ const faqs = [
         q: "Can I use both OS and popup notifications?",
         a: "Yes! You can enable both types simultaneously in Settings for extra visibility.",
     },
+    {
+        q: "Can I customize or change the sound effects?",
+        a: "Yes! SipSync lets you choose from curated sound presets (General, Water Sounds, and Funny & Meme sounds) or upload your own custom sound effect (up to 1MB). You can preview sounds directly before choosing and enable or disable sounds anytime.",
+    },
 ];
 
 export default function SipSyncFaqPage() {

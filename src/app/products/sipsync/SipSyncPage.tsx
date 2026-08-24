@@ -60,9 +60,9 @@ const features = [
     },
     {
         icon: Volume2,
-        title: "Sound Effects",
+        title: "Customizable Sound Effects",
         description:
-            "Optional sound on reminders and celebrations. Toggle on or off from Settings.",
+            "Choose from curated presets (General, Water Sounds, Funny & Meme), upload custom audio (up to 1MB), preview before choosing, and control sounds anytime.",
     },
     {
         icon: Settings,
