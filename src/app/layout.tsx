@@ -67,6 +67,9 @@ export const metadata: Metadata = {
   icons: {
     icon: `${BASE_PATH}/icon.png`,
   },
+  verification: {
+    google: "GGVa_mVvpNXiAl9q54Ymk-pyEpH4giZXGjdGF_Apk38",
+  },
   other: {
     "content-language": "en",
   },
