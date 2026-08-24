@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
     Database,
     Code,
@@ -18,10 +18,6 @@ import {
     Network,
     ShieldAlert,
     Sidebar,
-    Sparkles,
-    Send,
-    Loader2,
-    X,
     Gauge,
     GitCompare,
     Boxes,
@@ -217,32 +213,6 @@ const steps = [
 ];
 
 export function SalesforceSmartKitPage() {
-    const [showEarlyAccess, setShowEarlyAccess] = useState(false);
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [submitted, setSubmitted] = useState(false);
-
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        setIsSubmitting(true);
-        const formData = new FormData(e.currentTarget);
-        const data = Object.fromEntries(formData.entries());
-        try {
-            const res = await fetch("https://formsubmit.co/ajax/9d64015e0bad35be133b67c8bf0227a8", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Accept": "application/json"
-                },
-                body: JSON.stringify(data),
-            });
-            if (res.ok) setSubmitted(true);
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
-
     return (
         <div className="relative min-h-screen bg-[#0a0e1a] overflow-x-hidden">
             <Spotlight />
@@ -296,10 +266,10 @@ export function SalesforceSmartKitPage() {
                                 Salesforce <span className="text-indigo-500">SmartKit</span>
                             </h1>
                             <p className="text-2xl md:text-3xl text-slate-300 font-medium mb-8">
-                                Ultimate Admin & Developer Command Center
+                                Ultimate All-in-One Salesforce Toolkit
                             </p>
                             <p className="text-slate-400 text-lg max-w-3xl mx-auto mb-12 leading-relaxed">
-                                A premium, glassmorphic Chrome Extension providing 9 major tools—SmartView, SmartExport, SmartImport, SmartSchema, SmartSecurity, SmartCode, SmartLimits, SmartMatch, and SmartMetadata—with 0ms instant session connect.
+                                Ultimate Salesforce Chrome Extension: Record Inspector, Query Editor, Data Import/Data Export, Org Limits, Code Editor & more...
                             </p>
                         </motion.div>
 
@@ -309,7 +279,7 @@ export function SalesforceSmartKitPage() {
                             transition={{ delay: 0.3 }}
                             className="flex flex-wrap items-center justify-center gap-3 mb-12"
                         >
-                            {["Chrome Extension v1.0.13", "0ms Instant Load", "9 Integrated Tools", "100% Local & Private"].map((tag) => (
+                            {["Chrome Extension", "Fast & Efficient", "Salesforce Tools", "100% Local & Private"].map((tag) => (
                                 <span key={tag} className="px-5 py-2 rounded-full bg-slate-900/60 border border-slate-800 text-slate-300 text-sm font-semibold flex items-center gap-2">
                                     <CheckCircle2 size={14} className="text-indigo-400" />
                                     {tag}
@@ -321,44 +291,28 @@ export function SalesforceSmartKitPage() {
                             initial={{ y: 20, opacity: 0 }}
                             animate={{ y: 0, opacity: 1 }}
                             transition={{ delay: 0.4 }}
-                            className="flex flex-col sm:flex-row items-center justify-center gap-6"
+                            className="flex flex-wrap items-center justify-center gap-4"
                         >
                             <MagneticWrapper strength={20}>
                                 <a
-                                    href="https://chrome.google.com/webstore"
+                                    href="https://chromewebstore.google.com/detail/salesforce-smartkit/mocfbfnidbbnafjdfmoijiblgpgbpbna"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="px-10 py-5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-2xl transition-all shadow-[0_0_40px_rgba(99,102,241,0.3)] flex items-center gap-3 text-lg"
                                 >
-                                    Chrome Web Store (Coming Soon)
+                                    Get for Chrome
                                     <ExternalLink size={20} />
                                 </a>
                             </MagneticWrapper>
-                            <MagneticWrapper strength={20}>
-                                <button
-                                    onClick={() => setShowEarlyAccess(true)}
-                                    className="cursor-pointer px-10 py-5 bg-slate-900 border border-indigo-500/30 hover:bg-slate-800 text-white font-bold rounded-2xl transition-all shadow-xl flex items-center gap-3 text-lg"
-                                >
-                                    Request Early Access
-                                    <Sparkles size={20} className="text-indigo-400" />
-                                </button>
-                            </MagneticWrapper>
-                        </motion.div>
-                        <motion.div
-                            initial={{ y: 20, opacity: 0 }}
-                            animate={{ y: 0, opacity: 1 }}
-                            transition={{ delay: 0.5 }}
-                            className="flex items-center justify-center gap-4 mt-8"
-                        >
                             <Link
                                 href="/products/salesforcesmartkit/guide"
-                                className="px-6 py-4 bg-slate-900/40 hover:bg-slate-800 text-white font-semibold rounded-xl transition-all border border-slate-800 flex items-center gap-2 backdrop-blur-sm"
+                                className="px-6 py-5 bg-slate-900/40 hover:bg-slate-800 text-white font-semibold rounded-2xl transition-all border border-slate-800 flex items-center gap-2 backdrop-blur-sm text-lg"
                             >
                                 User Guide
                             </Link>
                             <Link
                                 href="/products/salesforcesmartkit/faq"
-                                className="px-6 py-4 bg-slate-900/40 hover:bg-slate-800 text-white font-semibold rounded-xl transition-all border border-slate-800 flex items-center gap-2 backdrop-blur-sm"
+                                className="px-6 py-5 bg-slate-900/40 hover:bg-slate-800 text-white font-semibold rounded-2xl transition-all border border-slate-800 flex items-center gap-2 backdrop-blur-sm text-lg"
                             >
                                 FAQs
                             </Link>
@@ -580,28 +534,17 @@ export function SalesforceSmartKitPage() {
                             Join other Salesforce Administrators and Developers who are saving hours every week with the SmartKit.
                         </p>
 
-                        <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-8">
+                        <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
                             <MagneticWrapper>
                                 <a
-                                    href="https://chrome.google.com/webstore"
+                                    href="https://chromewebstore.google.com/detail/salesforce-smartkit/mocfbfnidbbnafjdfmoijiblgpgbpbna"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="px-12 py-5 bg-white text-black font-black rounded-2xl hover:bg-indigo-50 transition-all text-lg shadow-2xl shadow-white/10"
                                 >
-                                    Chrome Web Store (Coming Soon)
+                                    Add to Chrome — Free
                                 </a>
                             </MagneticWrapper>
-                            <MagneticWrapper>
-                                <button
-                                    onClick={() => setShowEarlyAccess(true)}
-                                    className="cursor-pointer px-12 py-5 bg-indigo-900/40 border border-indigo-500/30 hover:bg-indigo-900/60 text-white font-black rounded-2xl transition-all text-lg shadow-2xl flex items-center gap-3"
-                                >
-                                    Request Early Access
-                                    <Sparkles size={20} className="text-indigo-400" />
-                                </button>
-                            </MagneticWrapper>
-                        </div>
-                        <div className="flex justify-center">
                             <Link
                                 href="/products/salesforcesmartkit/privacy"
                                 className="text-slate-400 hover:text-white transition-colors flex items-center gap-2 font-medium"
@@ -625,80 +568,6 @@ export function SalesforceSmartKitPage() {
                     </div>
                 </footer>
             </div>
-
-            <AnimatePresence>
-                {showEarlyAccess && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
-                    >
-                        <motion.div
-                            initial={{ scale: 0.9, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            exit={{ scale: 0.9, opacity: 0 }}
-                            className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 w-full max-w-md shadow-2xl relative overflow-y-auto max-h-[90vh]"
-                        >
-                            <button
-                                onClick={() => setShowEarlyAccess(false)}
-                                className="absolute top-4 right-4 text-slate-500 hover:text-white transition-colors"
-                            >
-                                <X size={20} />
-                            </button>
-
-                            {submitted ? (
-                                <div className="text-center py-10">
-                                    <div className="w-16 h-16 bg-indigo-500/20 text-indigo-400 rounded-full flex items-center justify-center mx-auto mb-6">
-                                        <CheckCircle2 size={32} />
-                                    </div>
-                                    <h3 className="text-2xl font-bold text-white mb-2">You're on the list!</h3>
-                                    <p className="text-slate-400">Thanks for your interest. We'll be in touch soon with your early access invite.</p>
-                                </div>
-                            ) : (
-                                <>
-                                    <div className="flex items-center gap-3 mb-6 pr-8">
-                                        <div className="w-10 h-10 bg-indigo-500/20 text-indigo-400 rounded-xl flex items-center justify-center shrink-0">
-                                            <Sparkles size={20} />
-                                        </div>
-                                        <div>
-                                            <h3 className="text-xl font-bold text-white">Request Early Access</h3>
-                                            <p className="text-sm text-slate-400">Join the exclusive beta program.</p>
-                                        </div>
-                                    </div>
-
-                                    <form onSubmit={handleSubmit} className="space-y-4">
-                                        <input type="hidden" name="_subject" value="✨ Salesforce SmartKit Early Access Request!" />
-                                        <input type="hidden" name="_template" value="table" />
-                                        <input type="hidden" name="_captcha" value="false" />
-                                        <input type="hidden" name="source" value="SmartKit Page" />
-
-                                        <div>
-                                            <label className="block text-sm font-medium text-slate-400 mb-1">Name <span className="text-indigo-400">*</span></label>
-                                            <input required type="text" name="name" className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-colors" placeholder="John Doe" />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-slate-400 mb-1">Email <span className="text-indigo-400">*</span></label>
-                                            <input required type="email" name="email" className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-colors" placeholder="john@example.com" />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-slate-400 mb-1">Expectations / Comments <span className="text-indigo-400">*</span></label>
-                                            <textarea required name="comments" rows={3} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-colors resize-none" placeholder="What are you most excited about?"></textarea>
-                                        </div>
-                                        <button
-                                            type="submit"
-                                            disabled={isSubmitting}
-                                            className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-50 mt-2"
-                                        >
-                                            {isSubmitting ? <><Loader2 className="animate-spin" size={18} /> Requesting...</> : <><Send size={18} /> Send Request</>}
-                                        </button>
-                                    </form>
-                                </>
-                            )}
-                        </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
         </div>
     );
 }
